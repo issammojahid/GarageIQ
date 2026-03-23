@@ -1,12 +1,17 @@
 import { Router, type IRouter } from "express";
 import { db, maintenanceTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { CreateMaintenanceBody, UpdateMaintenanceRecordBody, ListMaintenanceQueryParams } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
 router.get("/", async (req, res) => {
   try {
-    const vehicleId = req.query.vehicleId ? parseInt(req.query.vehicleId as string) : undefined;
+    const query = ListMaintenanceQueryParams.safeParse(req.query);
+    if (!query.success) {
+      return res.status(400).json({ error: "Invalid query parameters", details: query.error.flatten().fieldErrors });
+    }
+    const { vehicleId } = query.data;
     if (vehicleId) {
       const records = await db.select().from(maintenanceTable)
         .where(eq(maintenanceTable.vehicleId, vehicleId))
@@ -23,10 +28,11 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { vehicleId, type, date, mileage, notes, nextDueDate, nextDueMileage, cost } = req.body;
-    if (!vehicleId || !type || !date || mileage === undefined) {
-      return res.status(400).json({ error: "vehicleId, type, date, mileage required" });
+    const parsed = CreateMaintenanceBody.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten().fieldErrors });
     }
+    const { vehicleId, type, date, mileage, notes, nextDueDate, nextDueMileage, cost } = parsed.data;
     const [record] = await db.insert(maintenanceTable).values({
       vehicleId, type, date, mileage, notes, nextDueDate, nextDueMileage, cost,
     }).returning();
@@ -40,6 +46,7 @@ router.post("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
     const [record] = await db.select().from(maintenanceTable).where(eq(maintenanceTable.id, id));
     if (!record) return res.status(404).json({ error: "Maintenance record not found" });
     return res.json(record);
@@ -52,7 +59,12 @@ router.get("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    const { type, date, mileage, cost, notes, nextDueDate, nextDueMileage } = req.body;
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+    const parsed = UpdateMaintenanceRecordBody.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten().fieldErrors });
+    }
+    const { type, date, mileage, cost, notes, nextDueDate, nextDueMileage } = parsed.data;
     const [record] = await db.update(maintenanceTable)
       .set({ type, date, mileage, cost, notes, nextDueDate, nextDueMileage })
       .where(eq(maintenanceTable.id, id))
@@ -68,6 +80,7 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
     await db.delete(maintenanceTable).where(eq(maintenanceTable.id, id));
     return res.status(204).send();
   } catch (err) {

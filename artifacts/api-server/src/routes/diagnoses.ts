@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db, diagnosesTable, vehiclesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { CreateDiagnosisBody, ListDiagnosesQueryParams } from "@workspace/api-zod";
 
 type OpenAIClient = Awaited<typeof import("@workspace/integrations-openai-ai-server")>["openai"];
 let _openai: OpenAIClient | null = null;
@@ -19,7 +20,11 @@ const router: IRouter = Router();
 
 router.get("/", async (req, res) => {
   try {
-    const vehicleId = req.query.vehicleId ? parseInt(req.query.vehicleId as string) : undefined;
+    const query = ListDiagnosesQueryParams.safeParse(req.query);
+    if (!query.success) {
+      return res.status(400).json({ error: "Invalid query parameters", details: query.error.flatten().fieldErrors });
+    }
+    const { vehicleId } = query.data;
     if (vehicleId) {
       const results = await db.select().from(diagnosesTable)
         .where(eq(diagnosesTable.vehicleId, vehicleId))
@@ -36,21 +41,11 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { vehicleId, symptoms, systems, errorCodes } = req.body as {
-      vehicleId?: unknown;
-      symptoms?: unknown;
-      systems?: unknown;
-      errorCodes?: unknown;
-    };
-    if (!vehicleId || typeof vehicleId !== "number") {
-      return res.status(400).json({ error: "vehicleId must be a number" });
+    const parsed = CreateDiagnosisBody.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten().fieldErrors });
     }
-    if (!symptoms || typeof symptoms !== "string" || symptoms.trim().length === 0) {
-      return res.status(400).json({ error: "symptoms is required" });
-    }
-    if (!Array.isArray(systems)) {
-      return res.status(400).json({ error: "systems must be an array" });
-    }
+    const { vehicleId, symptoms, systems, errorCodes } = parsed.data;
     const aiClient = await getOpenAI();
     if (!aiClient) {
       return res.status(503).json({ error: "AI service unavailable. Please configure OpenAI integration." });
@@ -130,10 +125,10 @@ Respond ONLY with a valid JSON object in this exact format:
     }
 
     const [diagnosis] = await db.insert(diagnosesTable).values({
-      vehicleId: vehicleId as number,
-      symptoms: symptoms as string,
-      systems: systems as string[],
-      errorCodes: (errorCodes as string | undefined) || null,
+      vehicleId,
+      symptoms,
+      systems,
+      errorCodes: errorCodes ?? null,
       result: aiResult,
     }).returning();
 
@@ -147,6 +142,7 @@ Respond ONLY with a valid JSON object in this exact format:
 router.get("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
     const [diagnosis] = await db.select().from(diagnosesTable).where(eq(diagnosesTable.id, id));
     if (!diagnosis) return res.status(404).json({ error: "Diagnosis not found" });
     return res.json(diagnosis);
@@ -159,6 +155,7 @@ router.get("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
     await db.delete(diagnosesTable).where(eq(diagnosesTable.id, id));
     return res.status(204).send();
   } catch (err) {

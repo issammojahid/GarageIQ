@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { IdentifyPartBody } from "@workspace/api-zod";
 
 type OpenAIClient = Awaited<typeof import("@workspace/integrations-openai-ai-server")>["openai"];
 let _openai: OpenAIClient | null = null;
@@ -17,15 +18,11 @@ const router: IRouter = Router();
 
 router.post("/", async (req, res) => {
   try {
-    const { description, vehicleMake, vehicleModel, vehicleYear } = req.body as {
-      description?: unknown;
-      vehicleMake?: unknown;
-      vehicleModel?: unknown;
-      vehicleYear?: unknown;
-    };
-    if (!description || typeof description !== "string" || description.trim().length === 0) {
-      return res.status(400).json({ error: "description is required and must be a string" });
+    const parsed = IdentifyPartBody.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten().fieldErrors });
     }
+    const { description, vehicleMake, vehicleModel, vehicleYear } = parsed.data;
     const aiClient = await getOpenAI();
     if (!aiClient) {
       return res.status(503).json({ error: "AI service unavailable. Please configure OpenAI integration." });
