@@ -16,16 +16,10 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.garageiq.app",
-      "config": {
-        "googleMobileAdsAppId": "ca-app-pub-8545693631358718~1318648888"
-      }
+      "bundleIdentifier": "com.garageiq.app"
     },
     "android": {
-      "package": "com.garageiq.app",
-      "config": {
-        "googleMobileAdsAppId": "ca-app-pub-8545693631358718~1318648888"
-      }
+      "package": "com.garageiq.app"
     },
     "web": {
       "favicon": "./assets/images/icon.png"
