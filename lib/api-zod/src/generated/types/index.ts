@@ -25,4 +25,7 @@ export * from "./listDocumentsParams";
 export * from "./listFuelLogsParams";
 export * from "./listMaintenanceParams";
 export * from "./maintenanceRecord";
+export * from "./updateDocumentBody";
+export * from "./updateFuelLogBody";
+export * from "./updateMaintenanceBody";
 export * from "./vehicle";

@@ -12,8 +12,19 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { router } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
+import { BannerAd } from "@/components/AdBanner";
 
-const MENU_ITEMS = [
+import type { MaterialCommunityIconsName } from "@/types/icons";
+
+const MENU_ITEMS: Array<{
+  id: string;
+  label: string;
+  desc: string;
+  icon: MaterialCommunityIconsName;
+  color: string;
+  bgColor: string;
+  route: string;
+}> = [
   {
     id: "identify-part",
     label: "Identify Part",
@@ -105,10 +116,10 @@ export default function MoreTab() {
                 styles.gridItem,
                 pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] },
               ]}
-              onPress={() => router.push(item.route as any)}
+              onPress={() => router.push(item.route as Parameters<typeof router.push>[0])}
             >
               <View style={[styles.iconWrap, { backgroundColor: item.bgColor }]}>
-                <MaterialCommunityIcons name={item.icon as any} size={28} color={item.color} />
+                <MaterialCommunityIcons name={item.icon} size={28} color={item.color} />
               </View>
               <Text style={styles.itemLabel}>{item.label}</Text>
               <Text style={styles.itemDesc} numberOfLines={1}>{item.desc}</Text>
@@ -123,10 +134,10 @@ export default function MoreTab() {
               styles.listItem,
               pressed && { opacity: 0.85 },
             ]}
-            onPress={() => router.push(item.route as any)}
+            onPress={() => router.push(item.route as Parameters<typeof router.push>[0])}
           >
             <View style={[styles.listIconWrap, { backgroundColor: item.bgColor }]}>
-              <MaterialCommunityIcons name={item.icon as any} size={24} color={item.color} />
+              <MaterialCommunityIcons name={item.icon} size={24} color={item.color} />
             </View>
             <View style={styles.listItemContent}>
               <Text style={styles.listItemLabel}>{item.label}</Text>
@@ -136,10 +147,8 @@ export default function MoreTab() {
           </Pressable>
         ))}
 
-        {/* AdMob Banner Placeholder */}
         <View style={styles.adBanner}>
-          <MaterialCommunityIcons name="advertisements" size={16} color={Colors.textTertiary} />
-          <Text style={styles.adText}>Sponsored</Text>
+          <BannerAd size="banner" />
         </View>
       </ScrollView>
     </View>

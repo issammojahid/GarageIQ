@@ -3,13 +3,17 @@ import { View, Text, StyleSheet, ScrollView, Pressable, Switch, Linking } from "
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useListVehicles, useListDiagnoses, useListFuelLogs } from "@workspace/api-client-react";
+import type { MaterialCommunityIconsName } from "@/types/icons";
 
 export default function SettingsScreen() {
   const { data: vehicles } = useListVehicles();
   const { data: diagnoses } = useListDiagnoses({});
   const { data: fuelLogs } = useListFuelLogs({});
 
-  const SETTINGS_SECTIONS = [
+  const SETTINGS_SECTIONS: Array<{
+    title: string;
+    items: Array<{ icon: MaterialCommunityIconsName; label: string; type: string; value?: string; url?: string }>;
+  }> = [
     {
       title: "Your Data",
       items: [
@@ -65,7 +69,7 @@ export default function SettingsScreen() {
                 >
                   <View style={styles.settingLeft}>
                     <View style={styles.settingIconWrap}>
-                      <MaterialCommunityIcons name={item.icon as any} size={18} color={Colors.textSecondary} />
+                      <MaterialCommunityIcons name={item.icon} size={18} color={Colors.textSecondary} />
                     </View>
                     <Text style={styles.settingLabel}>{item.label}</Text>
                   </View>

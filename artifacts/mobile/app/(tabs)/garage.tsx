@@ -53,10 +53,41 @@ export default function GarageTab() {
   const getVehicleDiagnoses = (vehicleId: number) =>
     allDiagnoses?.filter((d) => d.vehicleId === vehicleId) ?? [];
 
+  const getHealthScore = (diags: ReturnType<typeof getVehicleDiagnoses>): number => {
+    if (diags.length === 0) return 100;
+    const recent = diags.slice(-5);
+    const severityPenalty: Record<string, number> = {
+      critical: 30,
+      high: 20,
+      medium: 10,
+      low: 5,
+    };
+    const penalty = recent.reduce((acc, d) => {
+      const s = (d.result as any)?.severity?.toLowerCase() ?? "low";
+      return acc + (severityPenalty[s] ?? 5);
+    }, 0);
+    return Math.max(0, 100 - penalty);
+  };
+
+  const getHealthColor = (score: number): string => {
+    if (score >= 80) return Colors.success;
+    if (score >= 55) return Colors.warning;
+    return Colors.danger;
+  };
+
+  const getHealthLabel = (score: number): string => {
+    if (score >= 80) return "Good";
+    if (score >= 55) return "Fair";
+    return "Poor";
+  };
+
   const renderItem = ({ item }: { item: any }) => {
     const diags = getVehicleDiagnoses(item.id);
     const lastDiag = diags[diags.length - 1];
     const vehicleName = `${item.year} ${item.make} ${item.model}`;
+    const healthScore = getHealthScore(diags);
+    const healthColor = getHealthColor(healthScore);
+    const healthLabel = getHealthLabel(healthScore);
 
     return (
       <View style={styles.card}>
@@ -80,6 +111,15 @@ export default function GarageTab() {
           >
             <Feather name="trash-2" size={18} color={Colors.textTertiary} />
           </Pressable>
+        </View>
+
+        {/* Health Score */}
+        <View style={styles.healthRow}>
+          <Text style={styles.healthLabel}>Vehicle Health</Text>
+          <View style={styles.healthBarWrap}>
+            <View style={[styles.healthBar, { width: `${healthScore}%` as any, backgroundColor: healthColor }]} />
+          </View>
+          <Text style={[styles.healthValue, { color: healthColor }]}>{healthScore}% {healthLabel}</Text>
         </View>
 
         <View style={styles.statsRow}>
@@ -220,6 +260,11 @@ const styles = StyleSheet.create({
   },
   mileage: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary },
   deleteBtn: { padding: 8 },
+  healthRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 12 },
+  healthLabel: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.textSecondary, width: 100 },
+  healthBarWrap: { flex: 1, height: 8, backgroundColor: Colors.border, borderRadius: 4, overflow: "hidden" },
+  healthBar: { height: 8, borderRadius: 4 },
+  healthValue: { fontFamily: "Inter_600SemiBold", fontSize: 12, width: 72, textAlign: "right" },
   statsRow: {
     flexDirection: "row",
     borderTopWidth: 1,

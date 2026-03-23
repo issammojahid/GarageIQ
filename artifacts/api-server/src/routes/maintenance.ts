@@ -37,6 +37,34 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const [record] = await db.select().from(maintenanceTable).where(eq(maintenanceTable.id, id));
+    if (!record) return res.status(404).json({ error: "Maintenance record not found" });
+    res.json(record);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Failed to fetch maintenance record" });
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { type, date, mileage, cost, notes, nextDueDate, nextDueMileage } = req.body;
+    const [record] = await db.update(maintenanceTable)
+      .set({ type, date, mileage, cost, notes, nextDueDate, nextDueMileage })
+      .where(eq(maintenanceTable.id, id))
+      .returning();
+    if (!record) return res.status(404).json({ error: "Maintenance record not found" });
+    res.json(record);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Failed to update maintenance record" });
+  }
+});
+
 router.delete("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);

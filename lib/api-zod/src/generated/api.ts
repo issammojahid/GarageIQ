@@ -207,6 +207,56 @@ export const CreateFuelLogBody = zod.object({
 });
 
 /**
+ * @summary Get a fuel log
+ */
+export const GetFuelLogParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetFuelLogResponse = zod.object({
+  id: zod.number(),
+  vehicleId: zod.number(),
+  liters: zod.number(),
+  pricePerLiter: zod.number(),
+  totalCost: zod.number(),
+  odometer: zod.number(),
+  fuelType: zod.string().optional(),
+  date: zod.string(),
+  notes: zod.string().optional(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Update a fuel log
+ */
+export const UpdateFuelLogParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateFuelLogBody = zod.object({
+  liters: zod.number().optional(),
+  pricePerLiter: zod.number().optional(),
+  totalCost: zod.number().optional(),
+  odometer: zod.number().optional(),
+  fuelType: zod.string().optional(),
+  date: zod.string().optional(),
+  notes: zod.string().optional(),
+});
+
+export const UpdateFuelLogResponse = zod.object({
+  id: zod.number(),
+  vehicleId: zod.number(),
+  liters: zod.number(),
+  pricePerLiter: zod.number(),
+  totalCost: zod.number(),
+  odometer: zod.number(),
+  fuelType: zod.string().optional(),
+  date: zod.string(),
+  notes: zod.string().optional(),
+  createdAt: zod.string(),
+});
+
+/**
  * @summary Delete a fuel log
  */
 export const DeleteFuelLogParams = zod.object({
@@ -249,6 +299,56 @@ export const CreateMaintenanceBody = zod.object({
 });
 
 /**
+ * @summary Get a maintenance record
+ */
+export const GetMaintenanceRecordParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetMaintenanceRecordResponse = zod.object({
+  id: zod.number(),
+  vehicleId: zod.number(),
+  type: zod.string(),
+  date: zod.string(),
+  mileage: zod.number(),
+  notes: zod.string().optional(),
+  nextDueDate: zod.string().optional(),
+  nextDueMileage: zod.number().optional(),
+  cost: zod.number().optional(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Update a maintenance record
+ */
+export const UpdateMaintenanceRecordParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateMaintenanceRecordBody = zod.object({
+  type: zod.string().optional(),
+  date: zod.string().optional(),
+  mileage: zod.number().optional(),
+  notes: zod.string().optional(),
+  nextDueDate: zod.string().optional(),
+  nextDueMileage: zod.number().optional(),
+  cost: zod.number().optional(),
+});
+
+export const UpdateMaintenanceRecordResponse = zod.object({
+  id: zod.number(),
+  vehicleId: zod.number(),
+  type: zod.string(),
+  date: zod.string(),
+  mileage: zod.number(),
+  notes: zod.string().optional(),
+  nextDueDate: zod.string().optional(),
+  nextDueMileage: zod.number().optional(),
+  cost: zod.number().optional(),
+  createdAt: zod.string(),
+});
+
+/**
  * @summary Delete a maintenance record
  */
 export const DeleteMaintenanceParams = zod.object({
@@ -282,6 +382,47 @@ export const CreateDocumentBody = zod.object({
   title: zod.string(),
   notes: zod.string().optional(),
   expiryDate: zod.string().optional(),
+});
+
+/**
+ * @summary Get a document
+ */
+export const GetDocumentParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetDocumentResponse = zod.object({
+  id: zod.number(),
+  vehicleId: zod.number(),
+  type: zod.string(),
+  title: zod.string(),
+  notes: zod.string().optional(),
+  expiryDate: zod.string().optional(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Update a document
+ */
+export const UpdateDocumentParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateDocumentBody = zod.object({
+  type: zod.string().optional(),
+  title: zod.string().optional(),
+  notes: zod.string().optional(),
+  expiryDate: zod.string().optional(),
+});
+
+export const UpdateDocumentResponse = zod.object({
+  id: zod.number(),
+  vehicleId: zod.number(),
+  type: zod.string(),
+  title: zod.string(),
+  notes: zod.string().optional(),
+  expiryDate: zod.string().optional(),
+  createdAt: zod.string(),
 });
 
 /**

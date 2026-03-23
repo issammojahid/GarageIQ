@@ -247,6 +247,48 @@ paths:
                 $ref: "#/components/schemas/FuelLog"
 
   /fuel-logs/{id}:
+    get:
+      operationId: getFuelLog
+      tags: [fuel-logs]
+      summary: Get a fuel log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Fuel log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FuelLog"
+        "404":
+          description: Not found
+    put:
+      operationId: updateFuelLog
+      tags: [fuel-logs]
+      summary: Update a fuel log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFuelLogBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FuelLog"
     delete:
       operationId: deleteFuelLog
       tags: [fuel-logs]
@@ -299,6 +341,48 @@ paths:
                 $ref: "#/components/schemas/MaintenanceRecord"
 
   /maintenance/{id}:
+    get:
+      operationId: getMaintenanceRecord
+      tags: [maintenance]
+      summary: Get a maintenance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Maintenance record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MaintenanceRecord"
+        "404":
+          description: Not found
+    put:
+      operationId: updateMaintenanceRecord
+      tags: [maintenance]
+      summary: Update a maintenance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMaintenanceBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MaintenanceRecord"
     delete:
       operationId: deleteMaintenance
       tags: [maintenance]
@@ -351,6 +435,48 @@ paths:
                 $ref: "#/components/schemas/Document"
 
   /documents/{id}:
+    get:
+      operationId: getDocument
+      tags: [documents]
+      summary: Get a document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "404":
+          description: Not found
+    put:
+      operationId: updateDocument
+      tags: [documents]
+      summary: Update a document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDocumentBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
     delete:
       operationId: deleteDocument
       tags: [documents]
@@ -693,6 +819,54 @@ components:
         - vehicleId
         - type
         - title
+
+    UpdateFuelLogBody:
+      type: object
+      properties:
+        liters:
+          type: number
+        pricePerLiter:
+          type: number
+        totalCost:
+          type: number
+        odometer:
+          type: integer
+        fuelType:
+          type: string
+        date:
+          type: string
+        notes:
+          type: string
+
+    UpdateMaintenanceBody:
+      type: object
+      properties:
+        type:
+          type: string
+        date:
+          type: string
+        mileage:
+          type: integer
+        notes:
+          type: string
+        nextDueDate:
+          type: string
+        nextDueMileage:
+          type: integer
+        cost:
+          type: number
+
+    UpdateDocumentBody:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        notes:
+          type: string
+        expiryDate:
+          type: string
 
     IdentifyPartBody:
       type: object

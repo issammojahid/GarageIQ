@@ -13,8 +13,9 @@ import { router } from "expo-router";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useListVehicles } from "@workspace/api-client-react";
+import type { MaterialCommunityIconsName } from "@/types/icons";
 
-const SYSTEMS = [
+const SYSTEMS: Array<{ id: string; label: string; icon: MaterialCommunityIconsName }> = [
   { id: "engine", label: "Engine", icon: "engine" },
   { id: "brakes", label: "Brakes", icon: "car-brake-alert" },
   { id: "transmission", label: "Transmission", icon: "car-shift-pattern" },
@@ -78,7 +79,7 @@ export default function DiagnoseTab() {
         {QUICK_TIPS.map((tip) => (
           <View key={tip.id} style={styles.tipCard}>
             <View style={[styles.tipIcon, { backgroundColor: tip.color + "20" }]}>
-              <MaterialCommunityIcons name={tip.icon as any} size={22} color={tip.color} />
+              <MaterialCommunityIcons name={tip.icon} size={22} color={tip.color} />
             </View>
             <View style={styles.tipContent}>
               <Text style={styles.tipTitle}>{tip.title}</Text>
@@ -96,7 +97,7 @@ export default function DiagnoseTab() {
               style={({ pressed }) => [styles.systemItem, pressed && { opacity: 0.7 }]}
               onPress={() => router.push({ pathname: "/diagnose/new", params: { system: sys.id } })}
             >
-              <MaterialCommunityIcons name={sys.icon as any} size={26} color={Colors.accent} />
+              <MaterialCommunityIcons name={sys.icon} size={26} color={Colors.accent} />
               <Text style={styles.systemLabel}>{sys.label}</Text>
             </Pressable>
           ))}
@@ -106,7 +107,7 @@ export default function DiagnoseTab() {
   );
 }
 
-const QUICK_TIPS = [
+const QUICK_TIPS: Array<{ id: string; icon: MaterialCommunityIconsName; color: string; title: string; desc: string }> = [
   {
     id: "1",
     icon: "alert-circle",

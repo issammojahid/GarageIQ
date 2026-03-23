@@ -14,8 +14,10 @@ import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useListVehicles, useCreateDiagnosis } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { showInterstitialAd } from "@/components/AdBanner";
+import type { MaterialCommunityIconsName } from "@/types/icons";
 
-const SYSTEMS = [
+const SYSTEMS: Array<{ id: string; label: string; icon: MaterialCommunityIconsName }> = [
   { id: "engine", label: "Engine", icon: "engine" },
   { id: "brakes", label: "Brakes", icon: "car-brake-alert" },
   { id: "transmission", label: "Transmission", icon: "car-shift-pattern" },
@@ -79,6 +81,7 @@ export default function NewDiagnoseScreen() {
         },
       });
       queryClient.invalidateQueries({ queryKey: ["listDiagnoses"] });
+      showInterstitialAd().catch(() => {});
       router.replace({ pathname: "/diagnose/result", params: { id: result.id } });
     } catch (e) {
       Alert.alert("Error", "Failed to create diagnosis. Please try again.");
@@ -141,7 +144,7 @@ export default function NewDiagnoseScreen() {
               onPress={() => toggleSystem(sys.id)}
             >
               <MaterialCommunityIcons
-                name={sys.icon as any}
+                name={sys.icon}
                 size={18}
                 color={selectedSystems.includes(sys.id) ? Colors.accent : Colors.textSecondary}
               />

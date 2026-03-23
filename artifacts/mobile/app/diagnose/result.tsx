@@ -12,8 +12,9 @@ import { useLocalSearchParams, router } from "expo-router";
 import { MaterialCommunityIcons, Ionicons, Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useGetDiagnosis, useListVehicles } from "@workspace/api-client-react";
+import type { MaterialCommunityIconsName } from "@/types/icons";
 
-const SEV_CONFIG: Record<string, { color: string; bg: string; label: string; icon: string }> = {
+const SEV_CONFIG: Record<string, { color: string; bg: string; label: string; icon: MaterialCommunityIconsName }> = {
   low: { color: Colors.success, bg: Colors.success + "18", label: "Low Severity", icon: "check-circle" },
   medium: { color: Colors.warning, bg: Colors.warning + "18", label: "Medium Severity", icon: "alert-circle" },
   high: { color: "#F97316", bg: "#F9731618", label: "High Severity", icon: "alert-octagon" },
@@ -66,7 +67,7 @@ export default function DiagnosisResultScreen() {
 
       {/* Severity Banner */}
       <View style={[styles.severityBanner, { backgroundColor: sev.bg, borderColor: sev.color + "40" }]}>
-        <MaterialCommunityIcons name={sev.icon as any} size={28} color={sev.color} />
+        <MaterialCommunityIcons name={sev.icon} size={28} color={sev.color} />
         <View style={{ flex: 1 }}>
           <Text style={[styles.severityLabel, { color: sev.color }]}>{sev.label}</Text>
           <Text style={styles.urgencyText}>{result.urgency}</Text>

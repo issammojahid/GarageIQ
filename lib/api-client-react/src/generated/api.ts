@@ -34,6 +34,9 @@ import type {
   ListFuelLogsParams,
   ListMaintenanceParams,
   MaintenanceRecord,
+  UpdateDocumentBody,
+  UpdateFuelLogBody,
+  UpdateMaintenanceBody,
   Vehicle,
 } from "./api.schemas";
 
@@ -1072,6 +1075,180 @@ export const useCreateFuelLog = <
 };
 
 /**
+ * @summary Get a fuel log
+ */
+export const getGetFuelLogUrl = (id: number) => {
+  return `/api/fuel-logs/${id}`;
+};
+
+export const getFuelLog = async (
+  id: number,
+  options?: RequestInit,
+): Promise<FuelLog> => {
+  return customFetch<FuelLog>(getGetFuelLogUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetFuelLogQueryKey = (id: number) => {
+  return [`/api/fuel-logs/${id}`] as const;
+};
+
+export const getGetFuelLogQueryOptions = <
+  TData = Awaited<ReturnType<typeof getFuelLog>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getFuelLog>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetFuelLogQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getFuelLog>>> = ({
+    signal,
+  }) => getFuelLog(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getFuelLog>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetFuelLogQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getFuelLog>>
+>;
+export type GetFuelLogQueryError = ErrorType<void>;
+
+/**
+ * @summary Get a fuel log
+ */
+
+export function useGetFuelLog<
+  TData = Awaited<ReturnType<typeof getFuelLog>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getFuelLog>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetFuelLogQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update a fuel log
+ */
+export const getUpdateFuelLogUrl = (id: number) => {
+  return `/api/fuel-logs/${id}`;
+};
+
+export const updateFuelLog = async (
+  id: number,
+  updateFuelLogBody: UpdateFuelLogBody,
+  options?: RequestInit,
+): Promise<FuelLog> => {
+  return customFetch<FuelLog>(getUpdateFuelLogUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateFuelLogBody),
+  });
+};
+
+export const getUpdateFuelLogMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateFuelLog>>,
+    TError,
+    { id: number; data: BodyType<UpdateFuelLogBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateFuelLog>>,
+  TError,
+  { id: number; data: BodyType<UpdateFuelLogBody> },
+  TContext
+> => {
+  const mutationKey = ["updateFuelLog"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateFuelLog>>,
+    { id: number; data: BodyType<UpdateFuelLogBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateFuelLog(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateFuelLogMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateFuelLog>>
+>;
+export type UpdateFuelLogMutationBody = BodyType<UpdateFuelLogBody>;
+export type UpdateFuelLogMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a fuel log
+ */
+export const useUpdateFuelLog = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateFuelLog>>,
+    TError,
+    { id: number; data: BodyType<UpdateFuelLogBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateFuelLog>>,
+  TError,
+  { id: number; data: BodyType<UpdateFuelLogBody> },
+  TContext
+> => {
+  return useMutation(getUpdateFuelLogMutationOptions(options));
+};
+
+/**
  * @summary Delete a fuel log
  */
 export const getDeleteFuelLogUrl = (id: number) => {
@@ -1336,6 +1513,182 @@ export const useCreateMaintenance = <
 };
 
 /**
+ * @summary Get a maintenance record
+ */
+export const getGetMaintenanceRecordUrl = (id: number) => {
+  return `/api/maintenance/${id}`;
+};
+
+export const getMaintenanceRecord = async (
+  id: number,
+  options?: RequestInit,
+): Promise<MaintenanceRecord> => {
+  return customFetch<MaintenanceRecord>(getGetMaintenanceRecordUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMaintenanceRecordQueryKey = (id: number) => {
+  return [`/api/maintenance/${id}`] as const;
+};
+
+export const getGetMaintenanceRecordQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMaintenanceRecord>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMaintenanceRecord>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetMaintenanceRecordQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getMaintenanceRecord>>
+  > = ({ signal }) => getMaintenanceRecord(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMaintenanceRecord>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMaintenanceRecordQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMaintenanceRecord>>
+>;
+export type GetMaintenanceRecordQueryError = ErrorType<void>;
+
+/**
+ * @summary Get a maintenance record
+ */
+
+export function useGetMaintenanceRecord<
+  TData = Awaited<ReturnType<typeof getMaintenanceRecord>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMaintenanceRecord>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMaintenanceRecordQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update a maintenance record
+ */
+export const getUpdateMaintenanceRecordUrl = (id: number) => {
+  return `/api/maintenance/${id}`;
+};
+
+export const updateMaintenanceRecord = async (
+  id: number,
+  updateMaintenanceBody: UpdateMaintenanceBody,
+  options?: RequestInit,
+): Promise<MaintenanceRecord> => {
+  return customFetch<MaintenanceRecord>(getUpdateMaintenanceRecordUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateMaintenanceBody),
+  });
+};
+
+export const getUpdateMaintenanceRecordMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateMaintenanceRecord>>,
+    TError,
+    { id: number; data: BodyType<UpdateMaintenanceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateMaintenanceRecord>>,
+  TError,
+  { id: number; data: BodyType<UpdateMaintenanceBody> },
+  TContext
+> => {
+  const mutationKey = ["updateMaintenanceRecord"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateMaintenanceRecord>>,
+    { id: number; data: BodyType<UpdateMaintenanceBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateMaintenanceRecord(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateMaintenanceRecordMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateMaintenanceRecord>>
+>;
+export type UpdateMaintenanceRecordMutationBody =
+  BodyType<UpdateMaintenanceBody>;
+export type UpdateMaintenanceRecordMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a maintenance record
+ */
+export const useUpdateMaintenanceRecord = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateMaintenanceRecord>>,
+    TError,
+    { id: number; data: BodyType<UpdateMaintenanceBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateMaintenanceRecord>>,
+  TError,
+  { id: number; data: BodyType<UpdateMaintenanceBody> },
+  TContext
+> => {
+  return useMutation(getUpdateMaintenanceRecordMutationOptions(options));
+};
+
+/**
  * @summary Delete a maintenance record
  */
 export const getDeleteMaintenanceUrl = (id: number) => {
@@ -1597,6 +1950,180 @@ export const useCreateDocument = <
   TContext
 > => {
   return useMutation(getCreateDocumentMutationOptions(options));
+};
+
+/**
+ * @summary Get a document
+ */
+export const getGetDocumentUrl = (id: number) => {
+  return `/api/documents/${id}`;
+};
+
+export const getDocument = async (
+  id: number,
+  options?: RequestInit,
+): Promise<Document> => {
+  return customFetch<Document>(getGetDocumentUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetDocumentQueryKey = (id: number) => {
+  return [`/api/documents/${id}`] as const;
+};
+
+export const getGetDocumentQueryOptions = <
+  TData = Awaited<ReturnType<typeof getDocument>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getDocument>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetDocumentQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getDocument>>> = ({
+    signal,
+  }) => getDocument(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getDocument>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetDocumentQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getDocument>>
+>;
+export type GetDocumentQueryError = ErrorType<void>;
+
+/**
+ * @summary Get a document
+ */
+
+export function useGetDocument<
+  TData = Awaited<ReturnType<typeof getDocument>>,
+  TError = ErrorType<void>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getDocument>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetDocumentQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update a document
+ */
+export const getUpdateDocumentUrl = (id: number) => {
+  return `/api/documents/${id}`;
+};
+
+export const updateDocument = async (
+  id: number,
+  updateDocumentBody: UpdateDocumentBody,
+  options?: RequestInit,
+): Promise<Document> => {
+  return customFetch<Document>(getUpdateDocumentUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateDocumentBody),
+  });
+};
+
+export const getUpdateDocumentMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateDocument>>,
+    TError,
+    { id: number; data: BodyType<UpdateDocumentBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateDocument>>,
+  TError,
+  { id: number; data: BodyType<UpdateDocumentBody> },
+  TContext
+> => {
+  const mutationKey = ["updateDocument"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateDocument>>,
+    { id: number; data: BodyType<UpdateDocumentBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateDocument(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateDocumentMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateDocument>>
+>;
+export type UpdateDocumentMutationBody = BodyType<UpdateDocumentBody>;
+export type UpdateDocumentMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Update a document
+ */
+export const useUpdateDocument = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateDocument>>,
+    TError,
+    { id: number; data: BodyType<UpdateDocumentBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateDocument>>,
+  TError,
+  { id: number; data: BodyType<UpdateDocumentBody> },
+  TContext
+> => {
+  return useMutation(getUpdateDocumentMutationOptions(options));
 };
 
 /**

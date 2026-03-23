@@ -37,6 +37,34 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const [log] = await db.select().from(fuelLogsTable).where(eq(fuelLogsTable.id, id));
+    if (!log) return res.status(404).json({ error: "Fuel log not found" });
+    res.json(log);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Failed to fetch fuel log" });
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { liters, pricePerLiter, totalCost, odometer, fuelType, date, notes } = req.body;
+    const [log] = await db.update(fuelLogsTable)
+      .set({ liters, pricePerLiter, totalCost, odometer, fuelType, date, notes })
+      .where(eq(fuelLogsTable.id, id))
+      .returning();
+    if (!log) return res.status(404).json({ error: "Fuel log not found" });
+    res.json(log);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Failed to update fuel log" });
+  }
+});
+
 router.delete("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);

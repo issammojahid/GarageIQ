@@ -15,8 +15,9 @@ import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useListDocuments, useCreateDocument, useDeleteDocument, useListVehicles } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import type { MaterialCommunityIconsName } from "@/types/icons";
 
-const DOC_TYPES = [
+const DOC_TYPES: Array<{ id: string; label: string; icon: MaterialCommunityIconsName; color: string }> = [
   { id: "insurance", label: "Insurance", icon: "shield-check", color: "#3B82F6" },
   { id: "registration", label: "Registration", icon: "card-account-details", color: "#10B981" },
   { id: "inspection", label: "Inspection", icon: "clipboard-check", color: "#F59E0B" },
@@ -80,7 +81,7 @@ export default function DocumentsScreen() {
             return (
               <View style={styles.docCard}>
                 <View style={[styles.docIcon, { backgroundColor: docType.color + "20" }]}>
-                  <MaterialCommunityIcons name={docType.icon as any} size={24} color={docType.color} />
+                  <MaterialCommunityIcons name={docType.icon} size={24} color={docType.color} />
                 </View>
                 <View style={styles.docInfo}>
                   <Text style={styles.docTitle}>{item.title}</Text>
@@ -118,7 +119,7 @@ export default function DocumentsScreen() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 14 }}>
               {DOC_TYPES.map((t) => (
                 <Pressable key={t.id} style={[styles.typeChip, type === t.id && styles.typeChipActive]} onPress={() => setType(t.id)}>
-                  <MaterialCommunityIcons name={t.icon as any} size={16} color={type === t.id ? Colors.accent : Colors.textSecondary} />
+                  <MaterialCommunityIcons name={t.icon} size={16} color={type === t.id ? Colors.accent : Colors.textSecondary} />
                   <Text style={[styles.typeChipText, type === t.id && styles.typeChipTextActive]}>{t.label}</Text>
                 </Pressable>
               ))}

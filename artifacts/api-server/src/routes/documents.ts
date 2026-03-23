@@ -37,6 +37,34 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const [doc] = await db.select().from(documentsTable).where(eq(documentsTable.id, id));
+    if (!doc) return res.status(404).json({ error: "Document not found" });
+    res.json(doc);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Failed to fetch document" });
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { type, title, notes, expiryDate } = req.body;
+    const [doc] = await db.update(documentsTable)
+      .set({ type, title, notes, expiryDate })
+      .where(eq(documentsTable.id, id))
+      .returning();
+    if (!doc) return res.status(404).json({ error: "Document not found" });
+    res.json(doc);
+  } catch (err) {
+    req.log.error(err);
+    res.status(500).json({ error: "Failed to update document" });
+  }
+});
+
 router.delete("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);

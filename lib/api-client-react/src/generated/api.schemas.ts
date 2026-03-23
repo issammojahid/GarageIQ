@@ -140,6 +140,33 @@ export interface CreateDocumentBody {
   expiryDate?: string;
 }
 
+export interface UpdateFuelLogBody {
+  liters?: number;
+  pricePerLiter?: number;
+  totalCost?: number;
+  odometer?: number;
+  fuelType?: string;
+  date?: string;
+  notes?: string;
+}
+
+export interface UpdateMaintenanceBody {
+  type?: string;
+  date?: string;
+  mileage?: number;
+  notes?: string;
+  nextDueDate?: string;
+  nextDueMileage?: number;
+  cost?: number;
+}
+
+export interface UpdateDocumentBody {
+  type?: string;
+  title?: string;
+  notes?: string;
+  expiryDate?: string;
+}
+
 export interface IdentifyPartBody {
   description: string;
   vehicleMake?: string;
