@@ -13,14 +13,7 @@ import Colors from "@/constants/colors";
 import { useGetDiagnosis, useListVehicles } from "@workspace/api-client-react";
 import { showRewardedAd } from "@/components/AdBanner";
 import type { MaterialCommunityIconsName } from "@/types/icons";
-
-const SEV_CONFIG: Record<string, { color: string; bg: string; label: string; icon: MaterialCommunityIconsName }> = {
-  low: { color: Colors.success, bg: Colors.success + "18", label: "Low Severity", icon: "check-circle" },
-  medium: { color: Colors.warning, bg: Colors.warning + "18", label: "Medium Severity", icon: "alert-circle" },
-  high: { color: "#F97316", bg: "#F9731618", label: "High Severity", icon: "alert-octagon" },
-  critical: { color: Colors.danger, bg: Colors.danger + "18", label: "Critical", icon: "alert-octagon" },
-  dangerous: { color: Colors.danger, bg: Colors.danger + "18", label: "Dangerous", icon: "alert-octagon" },
-};
+import { useI18n } from "@/i18n/TranslationContext";
 
 const CONFIDENCE_CONFIG: Record<string, { color: string; bg: string }> = {
   High: { color: Colors.success, bg: Colors.success + "20" },
@@ -56,6 +49,15 @@ export default function DiagnosisResultScreen() {
   const { data: vehicles } = useListVehicles();
   const [proUnlocked, setProUnlocked] = useState(false);
   const [adLoading, setAdLoading] = useState(false);
+  const { t, isRTL } = useI18n();
+
+  const SEV_CONFIG: Record<string, { color: string; bg: string; label: string; icon: MaterialCommunityIconsName }> = {
+    low: { color: Colors.success, bg: Colors.success + "18", label: t("sev_label_low"), icon: "check-circle" },
+    medium: { color: Colors.warning, bg: Colors.warning + "18", label: t("sev_label_medium"), icon: "alert-circle" },
+    high: { color: "#F97316", bg: "#F9731618", label: t("sev_label_high"), icon: "alert-octagon" },
+    critical: { color: Colors.danger, bg: Colors.danger + "18", label: t("sev_label_critical"), icon: "alert-octagon" },
+    dangerous: { color: Colors.danger, bg: Colors.danger + "18", label: t("sev_label_dangerous"), icon: "alert-octagon" },
+  };
 
   const handleUnlockPro = async () => {
     setAdLoading(true);
@@ -73,7 +75,7 @@ export default function DiagnosisResultScreen() {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color={Colors.accent} />
-        <Text style={styles.loadingText}>Loading diagnosis...</Text>
+        <Text style={styles.loadingText}>{t("result_loading")}</Text>
       </View>
     );
   }
@@ -82,9 +84,9 @@ export default function DiagnosisResultScreen() {
     return (
       <View style={styles.center}>
         <Feather name="alert-circle" size={48} color={Colors.danger} />
-        <Text style={styles.errorText}>Diagnosis not found</Text>
+        <Text style={styles.errorText}>{t("result_not_found")}</Text>
         <Pressable style={styles.backBtn} onPress={() => router.back()}>
-          <Text style={styles.backBtnText}>Go Back</Text>
+          <Text style={styles.backBtnText}>{t("result_go_back")}</Text>
         </Pressable>
       </View>
     );
@@ -100,7 +102,7 @@ export default function DiagnosisResultScreen() {
   const costDisplay = result.estimatedCost
     ? result.estimatedCost
     : result.estimatedCostMin === 0 && result.estimatedCostMax === 0
-    ? "Contact mechanic for estimate"
+    ? t("result_contact_mechanic")
     : `$${result.estimatedCostMin} – $${result.estimatedCostMax}`;
 
   return (
@@ -136,8 +138,8 @@ export default function DiagnosisResultScreen() {
             />
           </View>
           <View style={{ flex: 1 }}>
-            <View style={styles.safeToDriveRow}>
-              <Text style={styles.safeToDriveLabel}>Safe to Drive?</Text>
+            <View style={[styles.safeToDriveRow, isRTL && { flexDirection: "row-reverse" }]}>
+              <Text style={styles.safeToDriveLabel}>{t("result_safe_to_drive")}</Text>
               <Text style={[
                 styles.safeToDriveAnswer,
                 { color: result.safeToDrive.answer === "Yes" ? Colors.success : Colors.danger },
@@ -164,12 +166,12 @@ export default function DiagnosisResultScreen() {
             <Text style={[styles.confidenceText, { color: confidenceCfg.color }]}>
               {result.confidence}
             </Text>
-            <Text style={[styles.confidenceLabel, { color: confidenceCfg.color }]}>confidence</Text>
+            <Text style={[styles.confidenceLabel, { color: confidenceCfg.color }]}>{t("result_confidence")}</Text>
           </View>
         ) : (
           <View style={[styles.diyBadge, { backgroundColor: result.diyFriendly ? Colors.success + "20" : Colors.danger + "20" }]}>
             <Text style={[styles.diyText, { color: result.diyFriendly ? Colors.success : Colors.danger }]}>
-              {result.diyFriendly ? "DIY Friendly" : "See Mechanic"}
+              {result.diyFriendly ? t("result_diy_friendly") : t("result_see_mechanic")}
             </Text>
           </View>
         )}
@@ -177,13 +179,13 @@ export default function DiagnosisResultScreen() {
 
       {/* Summary */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Summary</Text>
-        <Text style={styles.summaryText}>{result.summary}</Text>
+        <Text style={[styles.sectionTitle, isRTL && { textAlign: "right" }]}>{t("result_summary")}</Text>
+        <Text style={[styles.summaryText, isRTL && { textAlign: "right" }]}>{result.summary}</Text>
       </View>
 
       {/* Issues / Causes */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Likely Causes</Text>
+        <Text style={[styles.sectionTitle, isRTL && { textAlign: "right" }]}>{t("result_likely_causes")}</Text>
         {result.issues.map((issue, i) => (
           <View key={i} style={styles.bulletRow}>
             <View style={styles.bullet} />
@@ -194,7 +196,7 @@ export default function DiagnosisResultScreen() {
 
       {/* Repair Steps / Solution */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recommended Solution</Text>
+        <Text style={[styles.sectionTitle, isRTL && { textAlign: "right" }]}>{t("result_solution")}</Text>
         {result.repairSteps.map((step, i) => (
           <View key={i} style={styles.stepRow}>
             {result.repairSteps.length > 1 ? (
@@ -208,10 +210,10 @@ export default function DiagnosisResultScreen() {
       </View>
 
       {/* Cost Estimate */}
-      <View style={styles.costCard}>
+      <View style={[styles.costCard, isRTL && { flexDirection: "row-reverse" }]}>
         <MaterialCommunityIcons name="cash" size={22} color={Colors.success} />
         <View style={{ flex: 1 }}>
-          <Text style={styles.costLabel}>Estimated Cost</Text>
+          <Text style={[styles.costLabel, isRTL && { textAlign: "right" }]}>{t("result_cost")}</Text>
           <Text style={styles.costRange}>{costDisplay}</Text>
         </View>
         <View style={[styles.diyBadge2, { backgroundColor: result.diyFriendly ? Colors.success + "20" : Colors.danger + "20" }]}>
@@ -226,7 +228,7 @@ export default function DiagnosisResultScreen() {
       {/* Maintenance Tips */}
       {result.maintenanceTips && result.maintenanceTips.length > 0 && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Maintenance Tips</Text>
+          <Text style={[styles.sectionTitle, isRTL && { textAlign: "right" }]}>{t("result_tips")}</Text>
           {result.maintenanceTips.map((tip, i) => (
             <View key={i} style={styles.tipRow}>
               <Ionicons name="shield-checkmark-outline" size={16} color={Colors.accent} />
@@ -246,7 +248,7 @@ export default function DiagnosisResultScreen() {
 
       {/* Systems */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Affected Systems</Text>
+        <Text style={[styles.sectionTitle, isRTL && { textAlign: "right" }]}>{t("result_systems")}</Text>
         <View style={styles.tagsRow}>
           {diagnosis.systems.map((s) => (
             <View key={s} style={styles.tag}>
@@ -261,11 +263,11 @@ export default function DiagnosisResultScreen() {
         <View style={styles.proSection}>
           <View style={styles.proHeader}>
             <MaterialCommunityIcons name="crown" size={18} color={Colors.accent} />
-            <Text style={styles.proTitle}>Advanced Analysis</Text>
+            <Text style={[styles.proTitle, isRTL && { textAlign: "right" }]}>{t("result_advanced")}</Text>
           </View>
 
           <View style={styles.proBlock}>
-            <Text style={styles.proBlockTitle}>Questions to Ask Your Mechanic</Text>
+            <Text style={[styles.proBlockTitle, isRTL && { textAlign: "right" }]}>{t("result_questions_title")}</Text>
             {proInsights.questions.map((q, i) => (
               <View key={i} style={styles.proBulletRow}>
                 <Ionicons name="chatbubble-ellipses-outline" size={14} color={Colors.accent} />
@@ -275,7 +277,7 @@ export default function DiagnosisResultScreen() {
           </View>
 
           <View style={styles.proBlock}>
-            <Text style={styles.proBlockTitle}>Parts You May Need</Text>
+            <Text style={[styles.proBlockTitle, isRTL && { textAlign: "right" }]}>{t("result_parts_title")}</Text>
             {proInsights.parts.map((p, i) => (
               <View key={i} style={styles.proBulletRow}>
                 <Ionicons name="construct-outline" size={14} color={Colors.warning} />
@@ -285,7 +287,7 @@ export default function DiagnosisResultScreen() {
           </View>
 
           <View style={styles.proBlock}>
-            <Text style={styles.proBlockTitle}>Prevention Tips</Text>
+            <Text style={[styles.proBlockTitle, isRTL && { textAlign: "right" }]}>{t("result_prevention_title")}</Text>
             {proInsights.tips.map((t, i) => (
               <View key={i} style={styles.proBulletRow}>
                 <Ionicons name="shield-checkmark-outline" size={14} color={Colors.success} />
@@ -299,10 +301,8 @@ export default function DiagnosisResultScreen() {
           <View style={styles.proLockedIcon}>
             <MaterialCommunityIcons name="crown" size={28} color={Colors.accent} />
           </View>
-          <Text style={styles.proLockedTitle}>Advanced Analysis</Text>
-          <Text style={styles.proLockedDesc}>
-            Unlock personalized mechanic questions, required parts list, and prevention tips for this diagnosis.
-          </Text>
+          <Text style={[styles.proLockedTitle, isRTL && { textAlign: "right" }]}>{t("result_advanced")}</Text>
+          <Text style={[styles.proLockedDesc, isRTL && { textAlign: "right" }]}>{t("result_pro_desc")}</Text>
           <Pressable
             style={({ pressed }) => [styles.watchAdBtn, pressed && { opacity: 0.85 }, adLoading && { opacity: 0.6 }]}
             onPress={handleUnlockPro}
@@ -313,7 +313,7 @@ export default function DiagnosisResultScreen() {
             ) : (
               <>
                 <MaterialCommunityIcons name="play-circle-outline" size={18} color="#fff" />
-                <Text style={styles.watchAdText}>Watch Ad to Unlock</Text>
+                <Text style={styles.watchAdText}>{t("result_watch_ad")}</Text>
               </>
             )}
           </Pressable>
@@ -326,7 +326,7 @@ export default function DiagnosisResultScreen() {
         onPress={() => router.push("/diagnose/new")}
       >
         <MaterialCommunityIcons name="stethoscope" size={18} color="#fff" />
-        <Text style={styles.newDiagText}>New Diagnosis</Text>
+        <Text style={styles.newDiagText}>{t("result_new")}</Text>
       </Pressable>
     </ScrollView>
   );

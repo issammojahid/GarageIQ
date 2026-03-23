@@ -6,11 +6,13 @@ import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Colors from "@/constants/colors";
+import { useI18n } from "@/i18n/TranslationContext";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const isIOS = Platform.OS === "ios";
   const isWeb = Platform.OS === "web";
+  const { t } = useI18n();
 
   return (
     <Tabs
@@ -43,7 +45,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Diagnose",
+          title: t("tab_diagnose"),
           tabBarIcon: ({ color, size }) =>
             isIOS ? (
               <SymbolView name="stethoscope" tintColor={color} size={size} />
@@ -55,7 +57,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="history"
         options={{
-          title: "History",
+          title: t("tab_history"),
           tabBarIcon: ({ color, size }) =>
             isIOS ? (
               <SymbolView name="clock" tintColor={color} size={size} />
@@ -67,7 +69,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="garage"
         options={{
-          title: "My Garage",
+          title: t("tab_garage"),
           tabBarIcon: ({ color, size }) =>
             isIOS ? (
               <SymbolView name="car.2" tintColor={color} size={size} />
@@ -79,7 +81,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="more"
         options={{
-          title: "More",
+          title: t("tab_more"),
           tabBarIcon: ({ color, size }) =>
             isIOS ? (
               <SymbolView name="square.grid.2x2" tintColor={color} size={size} />

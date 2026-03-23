@@ -5,41 +5,49 @@ import Colors from "@/constants/colors";
 import { useListVehicles, useListDiagnoses, useListFuelLogs } from "@workspace/api-client-react";
 import type { MaterialCommunityIconsName } from "@/types/icons";
 import { useLanguagePref, LANGUAGES } from "@/hooks/useLanguagePref";
+import { useI18n } from "@/i18n/TranslationContext";
+import type { T } from "@/i18n/translations";
 
 export default function SettingsScreen() {
   const { data: vehicles } = useListVehicles();
   const { data: diagnoses } = useListDiagnoses({});
   const { data: fuelLogs } = useListFuelLogs({});
   const { language, setLanguage } = useLanguagePref();
+  const { t, tf, isRTL } = useI18n();
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
 
   const selectedLang = LANGUAGES.find((l) => l.code === language) ?? LANGUAGES[0];
 
-  const SETTINGS_SECTIONS: Array<{
-    title: string;
-    items: Array<{ icon: MaterialCommunityIconsName; label: string; type: string; value?: string; url?: string }>;
-  }> = [
+  type SettingItem = {
+    icon: MaterialCommunityIconsName;
+    labelKey: keyof T;
+    type: string;
+    value?: string;
+    url?: string;
+  };
+
+  const SETTINGS_SECTIONS: Array<{ titleKey: keyof T; items: SettingItem[] }> = [
     {
-      title: "Your Data",
+      titleKey: "settings_your_data",
       items: [
-        { icon: "car", label: "Vehicles", value: `${vehicles?.length ?? 0} vehicles`, type: "info" },
-        { icon: "stethoscope", label: "Diagnoses", value: `${diagnoses?.length ?? 0} records`, type: "info" },
-        { icon: "gas-station", label: "Fuel Logs", value: `${fuelLogs?.length ?? 0} entries`, type: "info" },
+        { icon: "car", labelKey: "settings_vehicles", value: tf("settings_vehicles_count", vehicles?.length ?? 0), type: "info" },
+        { icon: "stethoscope", labelKey: "settings_diagnoses", value: tf("settings_records_count", diagnoses?.length ?? 0), type: "info" },
+        { icon: "gas-station", labelKey: "settings_fuel_logs", value: tf("settings_entries_count", fuelLogs?.length ?? 0), type: "info" },
       ],
     },
     {
-      title: "App Info",
+      titleKey: "settings_app_info",
       items: [
-        { icon: "information-outline", label: "Version", value: "1.0.0", type: "info" },
-        { icon: "shield-lock-outline", label: "Privacy Policy", type: "link", url: "https://garageiq.app/privacy" },
-        { icon: "file-document-outline", label: "Terms of Service", type: "link", url: "https://garageiq.app/terms" },
+        { icon: "information-outline", labelKey: "settings_version", value: "1.0.0", type: "info" },
+        { icon: "shield-lock-outline", labelKey: "settings_privacy", type: "link", url: "https://garageiq.app/privacy" },
+        { icon: "file-document-outline", labelKey: "settings_terms", type: "link", url: "https://garageiq.app/terms" },
       ],
     },
     {
-      title: "Support",
+      titleKey: "settings_support",
       items: [
-        { icon: "email-outline", label: "Contact Support", type: "link", url: "mailto:support@garageiq.app" },
-        { icon: "star-outline", label: "Rate GarageIQ", type: "link", url: "https://apps.apple.com" },
+        { icon: "email-outline", labelKey: "settings_contact", type: "link", url: "mailto:support@garageiq.app" },
+        { icon: "star-outline", labelKey: "settings_rate", type: "link", url: "https://apps.apple.com" },
       ],
     },
   ];
@@ -48,65 +56,66 @@ export default function SettingsScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Profile Header */}
-        <View style={styles.profileCard}>
+        <View style={[styles.profileCard, isRTL && styles.rowReverse]}>
           <View style={styles.avatarWrap}>
             <MaterialCommunityIcons name="shield-car" size={36} color={Colors.accent} />
           </View>
           <View>
-            <Text style={styles.appName}>GarageIQ</Text>
-            <Text style={styles.appTagline}>AI-Powered Car Diagnosis</Text>
+            <Text style={[styles.appName, isRTL && styles.textRight]}>GarageIQ</Text>
+            <Text style={[styles.appTagline, isRTL && styles.textRight]}>AI-Powered Car Diagnosis</Text>
           </View>
         </View>
 
         {/* AI Settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>AI Settings</Text>
+          <Text style={[styles.sectionTitle, isRTL && styles.textRight]}>{t("settings_ai_settings")}</Text>
           <View style={styles.sectionCard}>
             <Pressable
               style={({ pressed }) => [styles.settingRow, pressed && { opacity: 0.7 }]}
               onPress={() => setLanguageModalVisible(true)}
             >
-              <View style={styles.settingLeft}>
+              <View style={[styles.settingLeft, isRTL && styles.rowReverse]}>
                 <View style={[styles.settingIconWrap, { backgroundColor: Colors.accent + "20" }]}>
                   <Ionicons name="language-outline" size={18} color={Colors.accent} />
                 </View>
                 <View>
-                  <Text style={styles.settingLabel}>AI Language</Text>
-                  <Text style={styles.settingSubLabel}>Language for diagnosis responses</Text>
+                  <Text style={[styles.settingLabel, isRTL && styles.textRight]}>{t("settings_ai_language")}</Text>
+                  <Text style={[styles.settingSubLabel, isRTL && styles.textRight]}>{t("settings_ai_language_desc")}</Text>
                 </View>
               </View>
-              <View style={styles.settingRight}>
+              <View style={[styles.settingRight, isRTL && styles.rowReverse]}>
                 <Text style={[styles.settingValue, { color: Colors.accent }]}>{selectedLang.native}</Text>
-                <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
+                <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={16} color={Colors.textTertiary} />
               </View>
             </Pressable>
           </View>
         </View>
 
         {SETTINGS_SECTIONS.map((section) => (
-          <View key={section.title} style={styles.section}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
+          <View key={String(section.titleKey)} style={styles.section}>
+            <Text style={[styles.sectionTitle, isRTL && styles.textRight]}>{t(section.titleKey)}</Text>
             <View style={styles.sectionCard}>
               {section.items.map((item, index) => (
                 <Pressable
-                  key={item.label}
+                  key={String(item.labelKey)}
                   style={({ pressed }) => [
                     styles.settingRow,
+                    isRTL && styles.rowReverse,
                     index < section.items.length - 1 && styles.settingRowBorder,
                     pressed && item.type === "link" && { opacity: 0.7 },
                   ]}
                   onPress={() => item.type === "link" && item.url && Linking.openURL(item.url)}
                 >
-                  <View style={styles.settingLeft}>
+                  <View style={[styles.settingLeft, isRTL && styles.rowReverse]}>
                     <View style={styles.settingIconWrap}>
                       <MaterialCommunityIcons name={item.icon} size={18} color={Colors.textSecondary} />
                     </View>
-                    <Text style={styles.settingLabel}>{item.label}</Text>
+                    <Text style={[styles.settingLabel, isRTL && styles.textRight]}>{t(item.labelKey)}</Text>
                   </View>
-                  <View style={styles.settingRight}>
+                  <View style={[styles.settingRight, isRTL && styles.rowReverse]}>
                     {item.value && <Text style={styles.settingValue}>{item.value}</Text>}
                     {item.type === "link" && (
-                      <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
+                      <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={16} color={Colors.textTertiary} />
                     )}
                   </View>
                 </Pressable>
@@ -116,14 +125,12 @@ export default function SettingsScreen() {
         ))}
 
         {/* AdMob Info */}
-        <View style={styles.adCard}>
+        <View style={[styles.adCard, isRTL && styles.rowReverse]}>
           <MaterialCommunityIcons name="advertisements" size={20} color={Colors.textTertiary} />
-          <Text style={styles.adText}>
-            GarageIQ uses ads to remain free. Your data stays on your device and is never sold.
-          </Text>
+          <Text style={[styles.adText, isRTL && styles.textRight]}>{t("settings_ads")}</Text>
         </View>
 
-        <Text style={styles.footer}>Made with care for car enthusiasts everywhere</Text>
+        <Text style={styles.footer}>{t("settings_footer")}</Text>
       </ScrollView>
 
       {/* Language Picker Modal */}
@@ -136,10 +143,8 @@ export default function SettingsScreen() {
         <Pressable style={styles.modalOverlay} onPress={() => setLanguageModalVisible(false)}>
           <Pressable style={styles.modalSheet} onPress={() => {}}>
             <View style={styles.modalHandle} />
-            <Text style={styles.modalTitle}>AI Response Language</Text>
-            <Text style={styles.modalSubtitle}>
-              The AI mechanic will respond in your selected language.
-            </Text>
+            <Text style={[styles.modalTitle, isRTL && styles.textRight]}>{t("settings_modal_title")}</Text>
+            <Text style={[styles.modalSubtitle, isRTL && styles.textRight]}>{t("settings_modal_desc")}</Text>
             <FlatList
               data={LANGUAGES}
               keyExtractor={(item) => item.code}
@@ -147,6 +152,7 @@ export default function SettingsScreen() {
                 <Pressable
                   style={({ pressed }) => [
                     styles.langRow,
+                    isRTL && styles.rowReverse,
                     item.code === language && styles.langRowSelected,
                     pressed && { opacity: 0.7 },
                   ]}
@@ -156,10 +162,10 @@ export default function SettingsScreen() {
                   }}
                 >
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.langLabel, item.code === language && styles.langLabelSelected]}>
+                    <Text style={[styles.langLabel, isRTL && styles.textRight, item.code === language && styles.langLabelSelected]}>
                       {item.label}
                     </Text>
-                    <Text style={styles.langNative}>{item.native}</Text>
+                    <Text style={[styles.langNative, isRTL && styles.textRight]}>{item.native}</Text>
                   </View>
                   {item.code === language && (
                     <Ionicons name="checkmark-circle" size={22} color={Colors.accent} />
@@ -179,6 +185,8 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   content: { padding: 20, paddingBottom: 40 },
+  rowReverse: { flexDirection: "row-reverse" },
+  textRight: { textAlign: "right" },
   profileCard: { flexDirection: "row", alignItems: "center", gap: 16, backgroundColor: Colors.card, borderRadius: 18, padding: 20, marginBottom: 24, borderWidth: 1, borderColor: Colors.accent + "30" },
   avatarWrap: { width: 64, height: 64, borderRadius: 20, backgroundColor: Colors.accent + "15", alignItems: "center", justifyContent: "center" },
   appName: { fontFamily: "Inter_700Bold", fontSize: 22, color: Colors.text },
@@ -198,13 +206,7 @@ const styles = StyleSheet.create({
   adText: { flex: 1, fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary, lineHeight: 18 },
   footer: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textTertiary, textAlign: "center" },
   modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-end" },
-  modalSheet: {
-    backgroundColor: Colors.card,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 20,
-    paddingBottom: 40,
-  },
+  modalSheet: { backgroundColor: Colors.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 40 },
   modalHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: "center", marginBottom: 16 },
   modalTitle: { fontFamily: "Inter_700Bold", fontSize: 18, color: Colors.text, marginBottom: 4 },
   modalSubtitle: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary, marginBottom: 20, lineHeight: 18 },

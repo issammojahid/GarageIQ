@@ -20,21 +20,28 @@ import { useQueryClient } from "@tanstack/react-query";
 import { showInterstitialAd } from "@/components/AdBanner";
 import type { MaterialCommunityIconsName } from "@/types/icons";
 import { useLanguagePref, LANGUAGES } from "@/hooks/useLanguagePref";
+import { useI18n } from "@/i18n/TranslationContext";
+import type { T } from "@/i18n/translations";
 
-const SYSTEMS: Array<{ id: string; label: string; icon: MaterialCommunityIconsName }> = [
-  { id: "engine", label: "Engine", icon: "engine" },
-  { id: "brakes", label: "Brakes", icon: "car-brake-alert" },
-  { id: "transmission", label: "Transmission", icon: "car-shift-pattern" },
-  { id: "electrical", label: "Electrical", icon: "flash" },
-  { id: "suspension", label: "Suspension", icon: "car-seat" },
-  { id: "cooling", label: "Cooling", icon: "thermometer" },
-  { id: "exhaust", label: "Exhaust", icon: "smoke" },
-  { id: "fuel", label: "Fuel System", icon: "fuel" },
-  { id: "ac", label: "A/C", icon: "air-conditioner" },
-  { id: "steering", label: "Steering", icon: "steering" },
+const SYSTEMS: Array<{ id: string; labelKey: keyof T; icon: MaterialCommunityIconsName }> = [
+  { id: "engine", labelKey: "sys_engine", icon: "engine" },
+  { id: "brakes", labelKey: "sys_brakes", icon: "car-brake-alert" },
+  { id: "transmission", labelKey: "sys_transmission", icon: "car-shift-pattern" },
+  { id: "electrical", labelKey: "sys_electrical", icon: "flash" },
+  { id: "suspension", labelKey: "sys_suspension", icon: "car-seat" },
+  { id: "cooling", labelKey: "sys_cooling", icon: "thermometer" },
+  { id: "exhaust", labelKey: "sys_exhaust", icon: "smoke" },
+  { id: "fuel", labelKey: "sys_fuel", icon: "fuel" },
+  { id: "ac", labelKey: "sys_ac", icon: "air-conditioner" },
+  { id: "steering", labelKey: "sys_steering", icon: "steering" },
 ];
 
-const DRIVING_CONDITIONS = ["City", "Highway", "Off-road", "Mixed"];
+const DRIVING_CONDITION_KEYS: Array<{ key: string; labelKey: keyof T }> = [
+  { key: "City", labelKey: "form_condition_city" },
+  { key: "Highway", labelKey: "form_condition_highway" },
+  { key: "Off-road", labelKey: "form_condition_offroad" },
+  { key: "Mixed", labelKey: "form_condition_mixed" },
+];
 
 const CURRENCIES = [
   { code: "USD", symbol: "$" },
@@ -57,6 +64,7 @@ export default function NewDiagnoseScreen() {
   const queryClient = useQueryClient();
   const createDiagnosis = useCreateDiagnosis();
   const { language: selectedLanguage } = useLanguagePref();
+  const { t, isRTL } = useI18n();
 
   const selectedLangInfo = LANGUAGES.find((l) => l.code === selectedLanguage) ?? LANGUAGES[0];
 
@@ -180,11 +188,11 @@ export default function NewDiagnoseScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* Vehicle Select */}
-        <Text style={styles.sectionLabel}>Select Vehicle</Text>
+        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>{t("form_select_vehicle")}</Text>
         {!vehicles || vehicles.length === 0 ? (
-          <Pressable style={styles.addVehicleBtn} onPress={() => router.push("/vehicle/add")}>
+          <Pressable style={[styles.addVehicleBtn, isRTL && styles.rowReverse]} onPress={() => router.push("/vehicle/add")}>
             <Ionicons name="add-circle-outline" size={20} color={Colors.accent} />
-            <Text style={styles.addVehicleText}>Add a Vehicle First</Text>
+            <Text style={styles.addVehicleText}>{t("form_add_vehicle_first")}</Text>
           </Pressable>
         ) : (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.vehicleScroll}>
@@ -208,21 +216,22 @@ export default function NewDiagnoseScreen() {
         )}
 
         {/* Symptoms */}
-        <Text style={styles.sectionLabel}>Describe Symptoms</Text>
+        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>{t("form_symptoms_label")}</Text>
         <TextInput
-          style={styles.textArea}
+          style={[styles.textArea, isRTL && styles.textRight]}
           multiline
           numberOfLines={4}
-          placeholder="e.g. My car makes a knocking sound when accelerating, especially at low RPM. The check engine light came on yesterday..."
+          placeholder={t("form_symptoms_placeholder")}
           placeholderTextColor={Colors.textTertiary}
           value={symptoms}
           onChangeText={setSymptoms}
           textAlignVertical="top"
+          textAlign={isRTL ? "right" : "left"}
         />
 
         {/* Photo */}
-        <Text style={styles.sectionLabel}>
-          Photo <Text style={styles.optional}>(optional)</Text>
+        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>
+          {t("form_photo_label")} <Text style={styles.optional}>({t("form_optional")})</Text>
         </Text>
         {photoUri ? (
           <View style={styles.photoPreviewContainer}>
@@ -243,7 +252,7 @@ export default function NewDiagnoseScreen() {
               testID="take-photo-btn"
             >
               <Ionicons name="camera-outline" size={20} color={Colors.accent} />
-              <Text style={styles.photoBtnText}>Take Photo</Text>
+              <Text style={styles.photoBtnText}>{t("form_take_photo")}</Text>
             </Pressable>
             <Pressable
               style={({ pressed }) => [styles.photoBtn, pressed && { opacity: 0.7 }]}
@@ -251,13 +260,13 @@ export default function NewDiagnoseScreen() {
               testID="choose-photo-btn"
             >
               <Ionicons name="image-outline" size={20} color={Colors.accent} />
-              <Text style={styles.photoBtnText}>Choose Photo</Text>
+              <Text style={styles.photoBtnText}>{t("form_choose_photo")}</Text>
             </Pressable>
           </View>
         )}
 
         {/* Systems */}
-        <Text style={styles.sectionLabel}>Affected Systems</Text>
+        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>{t("form_systems_label")}</Text>
         <View style={styles.systemGrid}>
           {SYSTEMS.map((sys) => (
             <Pressable
@@ -273,58 +282,62 @@ export default function NewDiagnoseScreen() {
               <Text
                 style={[styles.systemChipText, selectedSystems.includes(sys.id) && styles.systemChipTextSelected]}
               >
-                {sys.label}
+                {t(sys.labelKey)}
               </Text>
             </Pressable>
           ))}
         </View>
 
         {/* Driving Conditions */}
-        <Text style={styles.sectionLabel}>
-          Driving Conditions <Text style={styles.optional}>(optional)</Text>
+        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>
+          {t("form_conditions_label")} <Text style={styles.optional}>({t("form_optional")})</Text>
         </Text>
-        <View style={styles.conditionRow}>
-          {DRIVING_CONDITIONS.map((condition) => (
+        <View style={[styles.conditionRow, isRTL && styles.rowReverse]}>
+          {DRIVING_CONDITION_KEYS.map((cond) => (
             <Pressable
-              key={condition}
-              style={[styles.conditionChip, selectedCondition === condition && styles.conditionChipSelected]}
-              onPress={() => setSelectedCondition(selectedCondition === condition ? null : condition)}
+              key={cond.key}
+              style={[styles.conditionChip, selectedCondition === cond.key && styles.conditionChipSelected]}
+              onPress={() => setSelectedCondition(selectedCondition === cond.key ? null : cond.key)}
             >
-              <Text style={[styles.conditionChipText, selectedCondition === condition && styles.conditionChipTextSelected]}>
-                {condition}
+              <Text style={[styles.conditionChipText, selectedCondition === cond.key && styles.conditionChipTextSelected]}>
+                {t(cond.labelKey)}
               </Text>
             </Pressable>
           ))}
         </View>
 
         {/* Previous Issues */}
-        <Text style={styles.sectionLabel}>
-          Previous Issues <Text style={styles.optional}>(optional)</Text>
+        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>
+          {t("form_prev_issues_label")} <Text style={styles.optional}>({t("form_optional")})</Text>
         </Text>
         <TextInput
-          style={styles.textArea}
+          style={[styles.textArea, isRTL && styles.textRight]}
           multiline
           numberOfLines={3}
-          placeholder="e.g. Oil change done 3 months ago, replaced battery last year, had a similar knocking 6 months ago..."
+          placeholder={t("form_prev_issues_placeholder")}
           placeholderTextColor={Colors.textTertiary}
           value={previousIssues}
           onChangeText={setPreviousIssues}
           textAlignVertical="top"
+          textAlign={isRTL ? "right" : "left"}
         />
 
         {/* Error Codes */}
-        <Text style={styles.sectionLabel}>OBD-II Error Codes <Text style={styles.optional}>(optional)</Text></Text>
+        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>
+          {t("form_error_codes_label")} <Text style={styles.optional}>({t("form_optional")})</Text>
+        </Text>
         <TextInput
-          style={styles.input}
-          placeholder="e.g. P0300, P0171"
+          style={[styles.input, isRTL && styles.textRight]}
+          placeholder={t("form_error_codes_placeholder")}
           placeholderTextColor={Colors.textTertiary}
           value={errorCodes}
           onChangeText={setErrorCodes}
           autoCapitalize="characters"
+          textAlign={isRTL ? "right" : "left"}
         />
 
         {/* Currency */}
-        <Text style={styles.sectionLabel}>Currency for Cost Estimate</Text>
+        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>{t("form_currency_label")}</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.currencyScroll}>
           {CURRENCIES.map((c) => (
             <Pressable
@@ -343,13 +356,13 @@ export default function NewDiagnoseScreen() {
         </ScrollView>
 
         {/* Language indicator */}
-        <View style={styles.languageRow}>
+        <View style={[styles.languageRow, isRTL && styles.rowReverse]}>
           <Ionicons name="language-outline" size={14} color={Colors.textTertiary} />
           <Text style={styles.languageText}>
-            AI will respond in: <Text style={styles.languageHighlight}>{selectedLangInfo.native}</Text>
+            {t("form_language_prefix")} <Text style={styles.languageHighlight}>{selectedLangInfo.native}</Text>
           </Text>
           <Pressable onPress={() => router.push("/screens/settings")}>
-            <Text style={styles.languageChange}>Change</Text>
+            <Text style={styles.languageChange}>{t("form_change")}</Text>
           </Pressable>
         </View>
 
@@ -365,7 +378,7 @@ export default function NewDiagnoseScreen() {
           ) : (
             <>
               <MaterialCommunityIcons name="stethoscope" size={20} color="#fff" />
-              <Text style={styles.submitText}>Diagnose with AI</Text>
+              <Text style={styles.submitText}>{t("form_diagnose_btn")}</Text>
             </>
           )}
         </Pressable>
@@ -377,6 +390,8 @@ export default function NewDiagnoseScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   content: { padding: 20, paddingBottom: 40 },
+  rowReverse: { flexDirection: "row-reverse" },
+  textRight: { textAlign: "right" },
   sectionLabel: { fontFamily: "Inter_600SemiBold", fontSize: 16, color: Colors.text, marginBottom: 10, marginTop: 20 },
   optional: { fontFamily: "Inter_400Regular", fontSize: 14, color: Colors.textTertiary },
   vehicleScroll: { marginBottom: 4 },

@@ -15,6 +15,8 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { setBaseUrl } from "@workspace/api-client-react";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { TranslationProvider } from "@/i18n/TranslationContext";
+import { useI18n } from "@/i18n/TranslationContext";
 
 if (process.env.EXPO_PUBLIC_DOMAIN) {
   setBaseUrl(`https://${process.env.EXPO_PUBLIC_DOMAIN}`);
@@ -40,52 +42,53 @@ const HEADER_TITLE_STYLE = {
 };
 
 function RootLayoutNav() {
+  const { t } = useI18n();
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
         name="diagnose/new"
-        options={{ headerShown: true, title: "New Diagnosis", headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE, presentation: "modal" }}
+        options={{ headerShown: true, title: t("screen_new_diagnosis"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE, presentation: "modal" }}
       />
       <Stack.Screen
         name="diagnose/result"
-        options={{ headerShown: true, title: "Diagnosis Result", headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
+        options={{ headerShown: true, title: t("screen_result"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
       />
       <Stack.Screen
         name="vehicle/add"
-        options={{ headerShown: true, title: "Add Vehicle", headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE, presentation: "modal" }}
+        options={{ headerShown: true, title: t("screen_add_vehicle"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE, presentation: "modal" }}
       />
       <Stack.Screen
         name="vehicle/edit"
-        options={{ headerShown: true, title: "Edit Vehicle", headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE, presentation: "modal" }}
+        options={{ headerShown: true, title: t("screen_edit_vehicle"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE, presentation: "modal" }}
       />
       <Stack.Screen
         name="screens/fuel-log"
-        options={{ headerShown: true, title: "Fuel Log", headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
+        options={{ headerShown: true, title: t("screen_fuel_log"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
       />
       <Stack.Screen
         name="screens/maintenance"
-        options={{ headerShown: true, title: "Maintenance", headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
+        options={{ headerShown: true, title: t("screen_maintenance"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
       />
       <Stack.Screen
         name="screens/documents"
-        options={{ headerShown: true, title: "Documents", headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
+        options={{ headerShown: true, title: t("screen_documents"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
       />
       <Stack.Screen
         name="screens/identify-part"
-        options={{ headerShown: true, title: "Identify Part", headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
+        options={{ headerShown: true, title: t("screen_identify_part"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
       />
       <Stack.Screen
         name="screens/statistics"
-        options={{ headerShown: true, title: "Statistics", headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
+        options={{ headerShown: true, title: t("screen_statistics"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
       />
       <Stack.Screen
         name="screens/nearby-workshops"
-        options={{ headerShown: true, title: "Nearby Workshops", headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
+        options={{ headerShown: true, title: t("screen_nearby"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
       />
       <Stack.Screen
         name="screens/settings"
-        options={{ headerShown: true, title: "Settings", headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
+        options={{ headerShown: true, title: t("screen_settings"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
       />
     </Stack>
   );
@@ -113,7 +116,9 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView style={{ flex: 1 }}>
             <KeyboardProvider>
-              <RootLayoutNav />
+              <TranslationProvider>
+                <RootLayoutNav />
+              </TranslationProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>
         </QueryClientProvider>
