@@ -1,10 +1,11 @@
 import { pgTable, serial, text, integer, real, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
+import { vehiclesTable } from "./vehicles";
 
 export const fuelLogsTable = pgTable("fuel_logs", {
   id: serial("id").primaryKey(),
-  vehicleId: integer("vehicle_id").notNull(),
+  vehicleId: integer("vehicle_id").notNull().references(() => vehiclesTable.id, { onDelete: "cascade" }),
   liters: real("liters").notNull(),
   pricePerLiter: real("price_per_liter").notNull(),
   totalCost: real("total_cost").notNull(),
