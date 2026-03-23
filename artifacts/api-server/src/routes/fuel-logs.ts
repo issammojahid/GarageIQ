@@ -64,6 +64,10 @@ router.put("/:id", async (req, res) => {
     if (!parsed.success) {
       return res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten().fieldErrors });
     }
+    const fields = Object.fromEntries(Object.entries(parsed.data).filter(([, v]) => v !== undefined));
+    if (Object.keys(fields).length === 0) {
+      return res.status(400).json({ error: "No fields to update" });
+    }
     const { liters, pricePerLiter, totalCost, odometer, fuelType, date, notes } = parsed.data;
     const [log] = await db.update(fuelLogsTable)
       .set({ liters, pricePerLiter, totalCost, odometer, fuelType, date, notes })

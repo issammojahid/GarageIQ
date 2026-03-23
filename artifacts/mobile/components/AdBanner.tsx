@@ -98,12 +98,16 @@ export async function showInterstitialAd(): Promise<boolean> {
       requestNonPersonalizedAdsOnly: true,
     });
     return new Promise((resolve) => {
-      const unsubscribeLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
-        ad.show();
+      let unsubscribeLoaded: AdEventListener;
+      let unsubscribeFailed: AdEventListener;
+      unsubscribeLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
         unsubscribeLoaded();
+        unsubscribeFailed();
+        ad.show();
         resolve(true);
       });
-      const unsubscribeFailed = ad.addAdEventListener(AdEventType.ERROR, () => {
+      unsubscribeFailed = ad.addAdEventListener(AdEventType.ERROR, () => {
+        unsubscribeLoaded();
         unsubscribeFailed();
         resolve(false);
       });
@@ -123,19 +127,27 @@ export async function showRewardedAd(): Promise<boolean> {
     });
     return new Promise((resolve) => {
       let earned = false;
-      const unsubscribeLoaded = ad.addAdEventListener(RewardedAdEventType.LOADED, () => {
+      let unsubscribeLoaded: AdEventListener;
+      let unsubscribeEarned: AdEventListener;
+      let unsubscribeClosed: AdEventListener;
+      let unsubscribeFailed: AdEventListener;
+      unsubscribeLoaded = ad.addAdEventListener(RewardedAdEventType.LOADED, () => {
         unsubscribeLoaded();
         ad.show();
       });
-      const unsubscribeEarned = ad.addAdEventListener(RewardedAdEventType.EARNED_REWARD, () => {
+      unsubscribeEarned = ad.addAdEventListener(RewardedAdEventType.EARNED_REWARD, () => {
         earned = true;
         unsubscribeEarned();
       });
-      const unsubscribeClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
+      unsubscribeClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
+        unsubscribeEarned();
         unsubscribeClosed();
         resolve(earned);
       });
-      const unsubscribeFailed = ad.addAdEventListener(AdEventType.ERROR, () => {
+      unsubscribeFailed = ad.addAdEventListener(AdEventType.ERROR, () => {
+        unsubscribeLoaded();
+        unsubscribeEarned();
+        unsubscribeClosed();
         unsubscribeFailed();
         resolve(false);
       });
