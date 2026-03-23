@@ -14,6 +14,7 @@ import { router } from "expo-router";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useListDiagnoses, useListVehicles, type Diagnosis } from "@workspace/api-client-react";
+import { BannerAd } from "@/components/AdBanner";
 
 const SEVERITY_CONFIG = {
   low: { color: Colors.success, label: "Low" },
@@ -87,6 +88,8 @@ export default function HistoryTab() {
           {diagnoses?.length ?? 0} diagnoses
         </Text>
       </View>
+
+      <BannerAd size="banner" />
 
       {isLoading ? (
         <ActivityIndicator color={Colors.accent} style={{ flex: 1 }} />

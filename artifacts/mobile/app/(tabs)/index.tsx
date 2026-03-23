@@ -14,6 +14,7 @@ import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useListVehicles } from "@workspace/api-client-react";
 import type { MaterialCommunityIconsName } from "@/types/icons";
+import { BannerAd } from "@/components/AdBanner";
 
 const SYSTEMS: Array<{ id: string; label: string; icon: MaterialCommunityIconsName }> = [
   { id: "engine", label: "Engine", icon: "engine" },
@@ -102,6 +103,8 @@ export default function DiagnoseTab() {
             </Pressable>
           ))}
         </View>
+
+        <BannerAd size="banner" />
       </ScrollView>
     </View>
   );
