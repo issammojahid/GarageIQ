@@ -16,7 +16,7 @@ interface AdEventListener {
 }
 
 interface AdInstance {
-  addAdEventListener(event: string, handler: () => void): AdEventListener;
+  addAdEventListener(event: string, handler: (reward?: unknown) => void): AdEventListener;
   load(): void;
   show(): void;
 }
@@ -42,6 +42,8 @@ interface AdMobModule {
   BannerAdSize: BannerAdSizeMap;
   InterstitialAd: InterstitialAdStatic;
   RewardedAd: RewardedAdStatic;
+  AdEventType: Record<string, string>;
+  RewardedAdEventType: Record<string, string>;
 }
 
 let admob: AdMobModule | null = null;
@@ -91,16 +93,17 @@ export function BannerAd({ size = "banner" }: BannerAdProps) {
 export async function showInterstitialAd(): Promise<boolean> {
   if (!isAdMobAvailable() || !admob) return false;
   try {
+    const { AdEventType } = admob;
     const ad = admob.InterstitialAd.createForAdRequest(AD_UNIT_IDS.interstitial, {
       requestNonPersonalizedAdsOnly: true,
     });
     return new Promise((resolve) => {
-      const unsubscribeLoaded = ad.addAdEventListener("loaded", () => {
+      const unsubscribeLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
         ad.show();
         unsubscribeLoaded();
         resolve(true);
       });
-      const unsubscribeFailed = ad.addAdEventListener("error", () => {
+      const unsubscribeFailed = ad.addAdEventListener(AdEventType.ERROR, () => {
         unsubscribeFailed();
         resolve(false);
       });
@@ -114,24 +117,25 @@ export async function showInterstitialAd(): Promise<boolean> {
 export async function showRewardedAd(): Promise<boolean> {
   if (!isAdMobAvailable() || !admob) return false;
   try {
+    const { RewardedAdEventType, AdEventType } = admob;
     const ad = admob.RewardedAd.createForAdRequest(AD_UNIT_IDS.rewarded, {
       requestNonPersonalizedAdsOnly: true,
     });
     return new Promise((resolve) => {
       let earned = false;
-      const unsubscribeLoaded = ad.addAdEventListener("loaded", () => {
+      const unsubscribeLoaded = ad.addAdEventListener(RewardedAdEventType.LOADED, () => {
         unsubscribeLoaded();
         ad.show();
       });
-      const unsubscribeEarned = ad.addAdEventListener("earned_reward", () => {
+      const unsubscribeEarned = ad.addAdEventListener(RewardedAdEventType.EARNED_REWARD, () => {
         earned = true;
         unsubscribeEarned();
       });
-      const unsubscribeClosed = ad.addAdEventListener("closed", () => {
+      const unsubscribeClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
         unsubscribeClosed();
         resolve(earned);
       });
-      const unsubscribeFailed = ad.addAdEventListener("error", () => {
+      const unsubscribeFailed = ad.addAdEventListener(AdEventType.ERROR, () => {
         unsubscribeFailed();
         resolve(false);
       });
