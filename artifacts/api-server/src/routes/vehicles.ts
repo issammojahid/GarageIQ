@@ -1,6 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db, vehiclesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { CreateVehicleBody } from "@workspace/api-zod";
 
 const router: IRouter = Router();
 
@@ -16,10 +17,11 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { make, model, year, mileage, licensePlate, color, notes } = req.body;
-    if (!make || !model || !year || mileage === undefined) {
-      return res.status(400).json({ error: "make, model, year, mileage required" });
+    const parsed = CreateVehicleBody.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten().fieldErrors });
     }
+    const { make, model, year, mileage, licensePlate, color, notes } = parsed.data;
     const [vehicle] = await db.insert(vehiclesTable).values({
       make, model, year, mileage, licensePlate, color, notes,
     }).returning();

@@ -59,20 +59,41 @@ Respond ONLY with a valid JSON object in this exact format:
     });
 
     const content = completion.choices[0]?.message?.content ?? "{}";
-    let result: Record<string, unknown>;
+    type PartResult = {
+      partName: string;
+      partDescription: string;
+      partNumber: string;
+      function: string;
+      location: string;
+      commonIssues: string[];
+      estimatedCost: string;
+      replacementDifficulty: string;
+    };
+    const fallback: PartResult = {
+      partName: "Unknown Part",
+      partDescription: "Could not identify part",
+      partNumber: "N/A",
+      function: "Unknown",
+      location: "Unknown",
+      commonIssues: ["Unable to determine"],
+      estimatedCost: "N/A",
+      replacementDifficulty: "Consult a mechanic",
+    };
+    let result: PartResult;
     try {
-      result = JSON.parse(content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()) as Record<string, unknown>;
-    } catch {
+      const parsed = JSON.parse(content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()) as Record<string, unknown>;
       result = {
-        partName: "Unknown Part",
-        partDescription: "Could not identify part",
-        partNumber: "N/A",
-        function: "Unknown",
-        location: "Unknown",
-        commonIssues: ["Unable to determine"],
-        estimatedCost: "N/A",
-        replacementDifficulty: "Consult a mechanic",
+        partName: typeof parsed.partName === "string" ? parsed.partName : fallback.partName,
+        partDescription: typeof parsed.partDescription === "string" ? parsed.partDescription : fallback.partDescription,
+        partNumber: typeof parsed.partNumber === "string" ? parsed.partNumber : fallback.partNumber,
+        function: typeof parsed.function === "string" ? parsed.function : fallback.function,
+        location: typeof parsed.location === "string" ? parsed.location : fallback.location,
+        commonIssues: Array.isArray(parsed.commonIssues) ? (parsed.commonIssues as string[]) : fallback.commonIssues,
+        estimatedCost: typeof parsed.estimatedCost === "string" ? parsed.estimatedCost : fallback.estimatedCost,
+        replacementDifficulty: typeof parsed.replacementDifficulty === "string" ? parsed.replacementDifficulty : fallback.replacementDifficulty,
       };
+    } catch {
+      result = fallback;
     }
 
     return res.json(result);

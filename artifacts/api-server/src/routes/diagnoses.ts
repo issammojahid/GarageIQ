@@ -87,30 +87,46 @@ Respond ONLY with a valid JSON object in this exact format:
     });
 
     const content = completion.choices[0]?.message?.content ?? "{}";
+    type Severity = "low" | "medium" | "high" | "critical";
     type DiagnosisResult = {
       summary: string;
       issues: string[];
-      severity: string;
+      severity: Severity;
       repairSteps: string[];
       estimatedCostMin: number;
       estimatedCostMax: number;
       diyFriendly: boolean;
       urgency: string;
     };
+    const VALID_SEVERITIES: Severity[] = ["low", "medium", "high", "critical"];
+    const fallbackResult: DiagnosisResult = {
+      summary: "Unable to parse diagnosis result",
+      issues: ["Unknown issue"],
+      severity: "medium",
+      repairSteps: ["Please consult a mechanic"],
+      estimatedCostMin: 0,
+      estimatedCostMax: 0,
+      diyFriendly: false,
+      urgency: "See a mechanic",
+    };
     let aiResult: DiagnosisResult;
     try {
-      aiResult = JSON.parse(content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()) as DiagnosisResult;
-    } catch {
+      const parsed = JSON.parse(content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()) as Record<string, unknown>;
+      const severity = VALID_SEVERITIES.includes(parsed.severity as Severity)
+        ? (parsed.severity as Severity)
+        : "medium";
       aiResult = {
-        summary: "Unable to parse diagnosis result",
-        issues: ["Unknown issue"],
-        severity: "medium",
-        repairSteps: ["Please consult a mechanic"],
-        estimatedCostMin: 0,
-        estimatedCostMax: 0,
-        diyFriendly: false,
-        urgency: "See a mechanic",
+        summary: typeof parsed.summary === "string" ? parsed.summary : fallbackResult.summary,
+        issues: Array.isArray(parsed.issues) ? (parsed.issues as string[]) : ["Unknown issue"],
+        severity,
+        repairSteps: Array.isArray(parsed.repairSteps) ? (parsed.repairSteps as string[]) : ["Please consult a mechanic"],
+        estimatedCostMin: typeof parsed.estimatedCostMin === "number" ? parsed.estimatedCostMin : 0,
+        estimatedCostMax: typeof parsed.estimatedCostMax === "number" ? parsed.estimatedCostMax : 0,
+        diyFriendly: typeof parsed.diyFriendly === "boolean" ? parsed.diyFriendly : false,
+        urgency: typeof parsed.urgency === "string" ? parsed.urgency : "See a mechanic",
       };
+    } catch {
+      aiResult = fallbackResult;
     }
 
     const [diagnosis] = await db.insert(diagnosesTable).values({

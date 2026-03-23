@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -30,18 +30,17 @@ export default function EditVehicleScreen() {
   const [color, setColor] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
-  const [initialized, setInitialized] = useState(false);
-
-  if (vehicle && !initialized) {
-    setMake(vehicle.make);
-    setModel(vehicle.model);
-    setYear(String(vehicle.year));
-    setMileage(String(vehicle.mileage));
-    setLicensePlate(vehicle.licensePlate || "");
-    setColor(vehicle.color || "");
-    setNotes(vehicle.notes || "");
-    setInitialized(true);
-  }
+  useEffect(() => {
+    if (vehicle) {
+      setMake(vehicle.make);
+      setModel(vehicle.model);
+      setYear(String(vehicle.year));
+      setMileage(String(vehicle.mileage));
+      setLicensePlate(vehicle.licensePlate || "");
+      setColor(vehicle.color || "");
+      setNotes(vehicle.notes || "");
+    }
+  }, [vehicle]);
 
   const handleSave = async () => {
     if (!make.trim() || !model.trim()) {
