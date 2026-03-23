@@ -43,6 +43,13 @@
         {
           "locationWhenInUsePermission": "GarageIQ needs your location to find nearby workshops."
         }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-8545693631358718~5967737694",
+          "iosAppId": "ca-app-pub-8545693631358718~5967737694"
+        }
       ]
     ],
     "experiments": {

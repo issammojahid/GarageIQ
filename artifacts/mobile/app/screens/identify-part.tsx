@@ -11,14 +11,14 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-import { useListVehicles, useIdentifyPart } from "@workspace/api-client-react";
+import { useListVehicles, useIdentifyPart, type IdentifyPartResult } from "@workspace/api-client-react";
 
 export default function IdentifyPartScreen() {
   const { data: vehicles } = useListVehicles();
   const [description, setDescription] = useState("");
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any | null>(null);
+  const [result, setResult] = useState<IdentifyPartResult | null>(null);
 
   const identifyPart = useIdentifyPart();
   const selectedVehicle = vehicles?.find((v) => v.id === selectedVehicleId);

@@ -55,8 +55,6 @@ export default function DiagnosisResultScreen() {
       const earned = await showRewardedAd();
       if (earned) {
         setProUnlocked(true);
-      } else {
-        setProUnlocked(true);
       }
     } finally {
       setAdLoading(false);
