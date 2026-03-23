@@ -1,13 +1,34 @@
 import { Router, type IRouter } from "express";
-import { openai } from "@workspace/integrations-openai-ai-server";
+
+type OpenAIClient = Awaited<typeof import("@workspace/integrations-openai-ai-server")>["openai"];
+let _openai: OpenAIClient | null = null;
+async function getOpenAI(): Promise<OpenAIClient | null> {
+  if (_openai) return _openai;
+  try {
+    const mod = await import("@workspace/integrations-openai-ai-server");
+    _openai = mod.openai;
+    return _openai;
+  } catch {
+    return null;
+  }
+}
 
 const router: IRouter = Router();
 
 router.post("/", async (req, res) => {
   try {
-    const { description, vehicleMake, vehicleModel, vehicleYear } = req.body;
-    if (!description) {
-      return res.status(400).json({ error: "description required" });
+    const { description, vehicleMake, vehicleModel, vehicleYear } = req.body as {
+      description?: unknown;
+      vehicleMake?: unknown;
+      vehicleModel?: unknown;
+      vehicleYear?: unknown;
+    };
+    if (!description || typeof description !== "string" || description.trim().length === 0) {
+      return res.status(400).json({ error: "description is required and must be a string" });
+    }
+    const aiClient = await getOpenAI();
+    if (!aiClient) {
+      return res.status(503).json({ error: "AI service unavailable. Please configure OpenAI integration." });
     }
 
     const vehicleContext = vehicleMake && vehicleModel
@@ -31,7 +52,7 @@ Respond ONLY with a valid JSON object in this exact format:
   "replacementDifficulty": "Easy / Moderate / Difficult / Professional required"
 }`;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await aiClient.chat.completions.create({
       model: "gpt-5.2",
       max_completion_tokens: 8192,
       messages: [{ role: "user", content: prompt }],

@@ -1,7 +1,19 @@
 import { Router, type IRouter } from "express";
 import { db, diagnosesTable, vehiclesTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
-import { openai } from "@workspace/integrations-openai-ai-server";
+
+type OpenAIClient = Awaited<typeof import("@workspace/integrations-openai-ai-server")>["openai"];
+let _openai: OpenAIClient | null = null;
+async function getOpenAI(): Promise<OpenAIClient | null> {
+  if (_openai) return _openai;
+  try {
+    const mod = await import("@workspace/integrations-openai-ai-server");
+    _openai = mod.openai;
+    return _openai;
+  } catch {
+    return null;
+  }
+}
 
 const router: IRouter = Router();
 
@@ -24,9 +36,24 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { vehicleId, symptoms, systems, errorCodes } = req.body;
-    if (!vehicleId || !symptoms || !systems) {
-      return res.status(400).json({ error: "vehicleId, symptoms, systems required" });
+    const { vehicleId, symptoms, systems, errorCodes } = req.body as {
+      vehicleId?: unknown;
+      symptoms?: unknown;
+      systems?: unknown;
+      errorCodes?: unknown;
+    };
+    if (!vehicleId || typeof vehicleId !== "number") {
+      return res.status(400).json({ error: "vehicleId must be a number" });
+    }
+    if (!symptoms || typeof symptoms !== "string" || symptoms.trim().length === 0) {
+      return res.status(400).json({ error: "symptoms is required" });
+    }
+    if (!Array.isArray(systems)) {
+      return res.status(400).json({ error: "systems must be an array" });
+    }
+    const aiClient = await getOpenAI();
+    if (!aiClient) {
+      return res.status(503).json({ error: "AI service unavailable. Please configure OpenAI integration." });
     }
 
     const [vehicle] = await db.select().from(vehiclesTable).where(eq(vehiclesTable.id, vehicleId));
@@ -53,7 +80,7 @@ Respond ONLY with a valid JSON object in this exact format:
   "urgency": "Can wait / Should fix soon / Fix immediately"
 }`;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await aiClient.chat.completions.create({
       model: "gpt-5.2",
       max_completion_tokens: 8192,
       messages: [{ role: "user", content: prompt }],
@@ -87,10 +114,10 @@ Respond ONLY with a valid JSON object in this exact format:
     }
 
     const [diagnosis] = await db.insert(diagnosesTable).values({
-      vehicleId,
-      symptoms,
-      systems,
-      errorCodes: errorCodes || null,
+      vehicleId: vehicleId as number,
+      symptoms: symptoms as string,
+      systems: systems as string[],
+      errorCodes: (errorCodes as string | undefined) || null,
       result: aiResult,
     }).returning();
 

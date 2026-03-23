@@ -118,13 +118,18 @@ export async function showRewardedAd(): Promise<boolean> {
       requestNonPersonalizedAdsOnly: true,
     });
     return new Promise((resolve) => {
+      let earned = false;
       const unsubscribeLoaded = ad.addAdEventListener("loaded", () => {
         unsubscribeLoaded();
         ad.show();
       });
       const unsubscribeEarned = ad.addAdEventListener("earned_reward", () => {
+        earned = true;
         unsubscribeEarned();
-        resolve(true);
+      });
+      const unsubscribeClosed = ad.addAdEventListener("closed", () => {
+        unsubscribeClosed();
+        resolve(earned);
       });
       const unsubscribeFailed = ad.addAdEventListener("error", () => {
         unsubscribeFailed();
