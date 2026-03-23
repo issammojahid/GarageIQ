@@ -16,9 +16,11 @@ import Colors from "@/constants/colors";
 import {
   useListMaintenance,
   useCreateMaintenance,
+  useUpdateMaintenanceRecord,
   useDeleteMaintenance,
   useListVehicles,
   getListMaintenanceQueryKey,
+  type MaintenanceRecord,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -33,6 +35,7 @@ export default function MaintenanceScreen() {
   const { data: vehicles } = useListVehicles();
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<MaintenanceRecord | null>(null);
   const [type, setType] = useState("Oil Change");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [mileage, setMileage] = useState("");
@@ -45,28 +48,63 @@ export default function MaintenanceScreen() {
   const vehicleId = selectedVehicleId ?? vehicles?.[0]?.id;
   const { data: records, isLoading, refetch } = useListMaintenance({ vehicleId });
   const createMaintenance = useCreateMaintenance();
+  const updateMaintenance = useUpdateMaintenanceRecord();
   const deleteMaintenance = useDeleteMaintenance();
+
+  const openAdd = () => {
+    setEditingItem(null);
+    setType("Oil Change");
+    setDate(new Date().toISOString().split("T")[0]);
+    setMileage(""); setCost(""); setNextDueDate(""); setNextDueMileage(""); setNotes("");
+    setShowModal(true);
+  };
+
+  const openEdit = (item: MaintenanceRecord) => {
+    setEditingItem(item);
+    setType(item.type);
+    setDate(item.date);
+    setMileage(String(item.mileage));
+    setCost(item.cost ? String(item.cost) : "");
+    setNextDueDate(item.nextDueDate ?? "");
+    setNextDueMileage(item.nextDueMileage ? String(item.nextDueMileage) : "");
+    setNotes(item.notes ?? "");
+    setShowModal(true);
+  };
 
   const handleSave = async () => {
     if (!vehicleId) { Alert.alert("No vehicle", "Please add a vehicle first"); return; }
     if (!mileage) { Alert.alert("Missing info", "Mileage is required"); return; }
     setSaving(true);
     try {
-      await createMaintenance.mutateAsync({
-        data: {
-          vehicleId,
-          type,
-          date,
-          mileage: parseInt(mileage),
-          cost: cost ? parseFloat(cost) : undefined,
-          nextDueDate: nextDueDate || undefined,
-          nextDueMileage: nextDueMileage ? parseInt(nextDueMileage) : undefined,
-          notes: notes || undefined,
-        },
-      });
+      if (editingItem) {
+        await updateMaintenance.mutateAsync({
+          id: editingItem.id,
+          data: {
+            type,
+            date,
+            mileage: parseInt(mileage),
+            cost: cost ? parseFloat(cost) : undefined,
+            nextDueDate: nextDueDate || undefined,
+            nextDueMileage: nextDueMileage ? parseInt(nextDueMileage) : undefined,
+            notes: notes || undefined,
+          },
+        });
+      } else {
+        await createMaintenance.mutateAsync({
+          data: {
+            vehicleId,
+            type,
+            date,
+            mileage: parseInt(mileage),
+            cost: cost ? parseFloat(cost) : undefined,
+            nextDueDate: nextDueDate || undefined,
+            nextDueMileage: nextDueMileage ? parseInt(nextDueMileage) : undefined,
+            notes: notes || undefined,
+          },
+        });
+      }
       queryClient.invalidateQueries({ queryKey: getListMaintenanceQueryKey() });
       setShowModal(false);
-      setMileage(""); setCost(""); setNextDueDate(""); setNextDueMileage(""); setNotes("");
     } catch { Alert.alert("Error", "Failed to save"); }
     finally { setSaving(false); }
   };
@@ -102,6 +140,9 @@ export default function MaintenanceScreen() {
                 {item.nextDueDate && <Text style={styles.nextDue}>Next: {item.nextDueDate}</Text>}
                 {item.notes ? <Text style={styles.recordNotes}>{item.notes}</Text> : null}
               </View>
+              <Pressable hitSlop={10} onPress={() => openEdit(item)} style={{ marginRight: 8 }}>
+                <Ionicons name="pencil-outline" size={18} color={Colors.textSecondary} />
+              </Pressable>
               <Pressable hitSlop={10} onPress={() => {
                 Alert.alert("Delete", "Remove this record?", [
                   { text: "Cancel", style: "cancel" },
@@ -116,14 +157,14 @@ export default function MaintenanceScreen() {
         />
       )}
 
-      <Pressable style={styles.fab} onPress={() => setShowModal(true)}>
+      <Pressable style={styles.fab} onPress={openAdd}>
         <Ionicons name="add" size={28} color="#fff" />
       </Pressable>
 
       <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Maintenance Record</Text>
+            <Text style={styles.modalTitle}>{editingItem ? "Edit Record" : "Add Maintenance Record"}</Text>
             <Text style={styles.fieldLabel}>Type</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 14 }}>
               {MAINTENANCE_TYPES.map((t) => (
@@ -157,7 +198,7 @@ export default function MaintenanceScreen() {
             <View style={styles.modalActions}>
               <Pressable style={styles.cancelBtn} onPress={() => setShowModal(false)}><Text style={styles.cancelBtnText}>Cancel</Text></Pressable>
               <Pressable style={styles.saveBtn} onPress={handleSave} disabled={saving}>
-                {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Save</Text>}
+                {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>{editingItem ? "Update" : "Save"}</Text>}
               </Pressable>
             </View>
           </View>

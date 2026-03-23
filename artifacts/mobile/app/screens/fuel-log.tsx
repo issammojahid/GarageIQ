@@ -16,9 +16,11 @@ import Colors from "@/constants/colors";
 import {
   useListFuelLogs,
   useCreateFuelLog,
+  useUpdateFuelLog,
   useDeleteFuelLog,
   useListVehicles,
   getListFuelLogsQueryKey,
+  type FuelLog,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -27,6 +29,7 @@ export default function FuelLogScreen() {
   const { data: vehicles } = useListVehicles();
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<FuelLog | null>(null);
   const [liters, setLiters] = useState("");
   const [pricePerLiter, setPricePerLiter] = useState("");
   const [odometer, setOdometer] = useState("");
@@ -38,32 +41,66 @@ export default function FuelLogScreen() {
   const vehicleId = selectedVehicleId ?? vehicles?.[0]?.id;
   const { data: fuelLogs, isLoading, refetch } = useListFuelLogs({ vehicleId });
   const createFuelLog = useCreateFuelLog();
+  const updateFuelLog = useUpdateFuelLog();
   const deleteFuelLog = useDeleteFuelLog();
 
   const totalCost = liters && pricePerLiter
     ? (parseFloat(liters) * parseFloat(pricePerLiter)).toFixed(2)
     : "0.00";
 
+  const openAdd = () => {
+    setEditingItem(null);
+    setLiters(""); setPricePerLiter(""); setOdometer("");
+    setFuelType("gasoline"); setNotes("");
+    setDate(new Date().toISOString().split("T")[0]);
+    setShowModal(true);
+  };
+
+  const openEdit = (item: FuelLog) => {
+    setEditingItem(item);
+    setLiters(String(item.liters));
+    setPricePerLiter(String(item.pricePerLiter));
+    setOdometer(String(item.odometer));
+    setFuelType(item.fuelType ?? "gasoline");
+    setDate(item.date);
+    setNotes(item.notes ?? "");
+    setShowModal(true);
+  };
+
   const handleSave = async () => {
     if (!vehicleId) { Alert.alert("No vehicle", "Please add a vehicle first"); return; }
     if (!liters || !pricePerLiter || !odometer) { Alert.alert("Missing info", "Please fill all required fields"); return; }
     setSaving(true);
     try {
-      await createFuelLog.mutateAsync({
-        data: {
-          vehicleId,
-          liters: parseFloat(liters),
-          pricePerLiter: parseFloat(pricePerLiter),
-          totalCost: parseFloat(totalCost),
-          odometer: parseInt(odometer),
-          fuelType,
-          date,
-          notes: notes || undefined,
-        },
-      });
+      if (editingItem) {
+        await updateFuelLog.mutateAsync({
+          id: editingItem.id,
+          data: {
+            liters: parseFloat(liters),
+            pricePerLiter: parseFloat(pricePerLiter),
+            totalCost: parseFloat(totalCost),
+            odometer: parseInt(odometer),
+            fuelType,
+            date,
+            notes: notes || undefined,
+          },
+        });
+      } else {
+        await createFuelLog.mutateAsync({
+          data: {
+            vehicleId,
+            liters: parseFloat(liters),
+            pricePerLiter: parseFloat(pricePerLiter),
+            totalCost: parseFloat(totalCost),
+            odometer: parseInt(odometer),
+            fuelType,
+            date,
+            notes: notes || undefined,
+          },
+        });
+      }
       queryClient.invalidateQueries({ queryKey: getListFuelLogsQueryKey() });
       setShowModal(false);
-      setLiters(""); setPricePerLiter(""); setOdometer(""); setNotes("");
     } catch { Alert.alert("Error", "Failed to save"); }
     finally { setSaving(false); }
   };
@@ -86,7 +123,6 @@ export default function FuelLogScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Vehicle Selector */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.vehicleBar}>
         {(vehicles ?? []).map((v) => (
           <Pressable
@@ -101,7 +137,6 @@ export default function FuelLogScreen() {
         ))}
       </ScrollView>
 
-      {/* Stats */}
       <View style={styles.statsRow}>
         <View style={styles.stat}>
           <Text style={styles.statValue}>${totalSpent.toFixed(0)}</Text>
@@ -117,7 +152,6 @@ export default function FuelLogScreen() {
         </View>
       </View>
 
-      {/* List */}
       {isLoading ? (
         <ActivityIndicator color={Colors.accent} style={{ flex: 1 }} />
       ) : (
@@ -141,6 +175,9 @@ export default function FuelLogScreen() {
                 <Text style={styles.logCost}>${item.totalCost.toFixed(2)}</Text>
                 <Text style={styles.logLiters}>{item.liters.toFixed(1)}L</Text>
               </View>
+              <Pressable hitSlop={10} onPress={() => openEdit(item)} style={{ marginRight: 8 }}>
+                <Ionicons name="pencil-outline" size={18} color={Colors.textSecondary} />
+              </Pressable>
               <Pressable hitSlop={10} onPress={() => handleDelete(item.id)}>
                 <Ionicons name="trash-outline" size={18} color={Colors.textTertiary} />
               </Pressable>
@@ -155,16 +192,14 @@ export default function FuelLogScreen() {
         />
       )}
 
-      {/* FAB */}
-      <Pressable style={styles.fab} onPress={() => setShowModal(true)}>
+      <Pressable style={styles.fab} onPress={openAdd}>
         <Ionicons name="add" size={28} color="#fff" />
       </Pressable>
 
-      {/* Modal */}
       <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Fuel Log</Text>
+            <Text style={styles.modalTitle}>{editingItem ? "Edit Fuel Log" : "Add Fuel Log"}</Text>
             <View style={styles.row}>
               <View style={styles.halfField}>
                 <Text style={styles.fieldLabel}>Liters *</Text>
@@ -188,7 +223,7 @@ export default function FuelLogScreen() {
                 <Text style={styles.cancelBtnText}>Cancel</Text>
               </Pressable>
               <Pressable style={styles.saveBtn} onPress={handleSave} disabled={saving}>
-                {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Save</Text>}
+                {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>{editingItem ? "Update" : "Save"}</Text>}
               </Pressable>
             </View>
           </View>

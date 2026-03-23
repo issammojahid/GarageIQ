@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-import { useListDocuments, useCreateDocument, useDeleteDocument, useListVehicles, getListDocumentsQueryKey } from "@workspace/api-client-react";
+import { useListDocuments, useCreateDocument, useUpdateDocument, useDeleteDocument, useListVehicles, getListDocumentsQueryKey, type Document } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { MaterialCommunityIconsName } from "@/types/icons";
 
@@ -33,6 +33,7 @@ export default function DocumentsScreen() {
   const { data: vehicles } = useListVehicles();
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<Document | null>(null);
   const [type, setType] = useState("insurance");
   const [title, setTitle] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
@@ -42,17 +43,41 @@ export default function DocumentsScreen() {
   const vehicleId = selectedVehicleId ?? vehicles?.[0]?.id;
   const { data: docs, isLoading, refetch } = useListDocuments({ vehicleId });
   const createDocument = useCreateDocument();
+  const updateDocument = useUpdateDocument();
   const deleteDocument = useDeleteDocument();
+
+  const openAdd = () => {
+    setEditingItem(null);
+    setType("insurance"); setTitle(""); setExpiryDate(""); setNotes("");
+    setShowModal(true);
+  };
+
+  const openEdit = (item: Document) => {
+    setEditingItem(item);
+    setType(item.type);
+    setTitle(item.title);
+    setExpiryDate(item.expiryDate ?? "");
+    setNotes(item.notes ?? "");
+    setShowModal(true);
+  };
 
   const handleSave = async () => {
     if (!vehicleId) { Alert.alert("No vehicle", "Add a vehicle first"); return; }
     if (!title.trim()) { Alert.alert("Required", "Title is required"); return; }
     setSaving(true);
     try {
-      await createDocument.mutateAsync({ data: { vehicleId, type, title: title.trim(), expiryDate: expiryDate || undefined, notes: notes || undefined } });
+      if (editingItem) {
+        await updateDocument.mutateAsync({
+          id: editingItem.id,
+          data: { type, title: title.trim(), expiryDate: expiryDate || undefined, notes: notes || undefined },
+        });
+      } else {
+        await createDocument.mutateAsync({
+          data: { vehicleId, type, title: title.trim(), expiryDate: expiryDate || undefined, notes: notes || undefined },
+        });
+      }
       queryClient.invalidateQueries({ queryKey: getListDocumentsQueryKey() });
       setShowModal(false);
-      setTitle(""); setExpiryDate(""); setNotes("");
     } catch { Alert.alert("Error", "Failed to save"); }
     finally { setSaving(false); }
   };
@@ -92,6 +117,9 @@ export default function DocumentsScreen() {
                     </Text>
                   )}
                 </View>
+                <Pressable hitSlop={10} onPress={() => openEdit(item)} style={{ marginRight: 8 }}>
+                  <Ionicons name="pencil-outline" size={18} color={Colors.textSecondary} />
+                </Pressable>
                 <Pressable hitSlop={10} onPress={() => {
                   Alert.alert("Delete", "Remove this document?", [
                     { text: "Cancel", style: "cancel" },
@@ -107,14 +135,14 @@ export default function DocumentsScreen() {
         />
       )}
 
-      <Pressable style={styles.fab} onPress={() => setShowModal(true)}>
+      <Pressable style={styles.fab} onPress={openAdd}>
         <Ionicons name="add" size={28} color="#fff" />
       </Pressable>
 
       <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Document</Text>
+            <Text style={styles.modalTitle}>{editingItem ? "Edit Document" : "Add Document"}</Text>
             <Text style={styles.fieldLabel}>Type</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 14 }}>
               {DOC_TYPES.map((t) => (
@@ -133,7 +161,7 @@ export default function DocumentsScreen() {
             <View style={styles.modalActions}>
               <Pressable style={styles.cancelBtn} onPress={() => setShowModal(false)}><Text style={styles.cancelBtnText}>Cancel</Text></Pressable>
               <Pressable style={styles.saveBtn} onPress={handleSave} disabled={saving}>
-                {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>Save</Text>}
+                {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>{editingItem ? "Update" : "Save"}</Text>}
               </Pressable>
             </View>
           </View>
