@@ -15,6 +15,9 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
+const aiModel = process.env.OPENAI_MODEL ?? "gpt-4o";
+logger.info({ aiModel }, "AI model configured");
+
 app.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");

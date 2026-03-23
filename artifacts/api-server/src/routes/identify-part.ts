@@ -49,8 +49,9 @@ Respond ONLY with a valid JSON object in this exact format:
   "replacementDifficulty": "Easy / Moderate / Difficult / Professional required"
 }`;
 
+    const model = process.env.OPENAI_MODEL ?? "gpt-4o";
     const completion = await aiClient.chat.completions.create({
-      model: "gpt-5.2",
+      model,
       max_completion_tokens: 8192,
       messages: [{ role: "user", content: prompt }],
     });
