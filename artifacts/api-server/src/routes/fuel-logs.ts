@@ -14,10 +14,10 @@ router.get("/", async (req, res) => {
       return res.json(logs);
     }
     const logs = await db.select().from(fuelLogsTable).orderBy(fuelLogsTable.date);
-    res.json(logs);
+    return res.json(logs);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to fetch fuel logs" });
+    return res.status(500).json({ error: "Failed to fetch fuel logs" });
   }
 });
 
@@ -30,10 +30,10 @@ router.post("/", async (req, res) => {
     const [log] = await db.insert(fuelLogsTable).values({
       vehicleId, liters, pricePerLiter, totalCost, odometer, fuelType, date, notes,
     }).returning();
-    res.status(201).json(log);
+    return res.status(201).json(log);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to create fuel log" });
+    return res.status(500).json({ error: "Failed to create fuel log" });
   }
 });
 
@@ -42,10 +42,10 @@ router.get("/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     const [log] = await db.select().from(fuelLogsTable).where(eq(fuelLogsTable.id, id));
     if (!log) return res.status(404).json({ error: "Fuel log not found" });
-    res.json(log);
+    return res.json(log);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to fetch fuel log" });
+    return res.status(500).json({ error: "Failed to fetch fuel log" });
   }
 });
 
@@ -58,10 +58,10 @@ router.put("/:id", async (req, res) => {
       .where(eq(fuelLogsTable.id, id))
       .returning();
     if (!log) return res.status(404).json({ error: "Fuel log not found" });
-    res.json(log);
+    return res.json(log);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to update fuel log" });
+    return res.status(500).json({ error: "Failed to update fuel log" });
   }
 });
 
@@ -69,10 +69,10 @@ router.delete("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     await db.delete(fuelLogsTable).where(eq(fuelLogsTable.id, id));
-    res.status(204).send();
+    return res.status(204).send();
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to delete fuel log" });
+    return res.status(500).json({ error: "Failed to delete fuel log" });
   }
 });
 

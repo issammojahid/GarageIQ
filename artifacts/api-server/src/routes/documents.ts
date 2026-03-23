@@ -14,10 +14,10 @@ router.get("/", async (req, res) => {
       return res.json(docs);
     }
     const docs = await db.select().from(documentsTable).orderBy(documentsTable.createdAt);
-    res.json(docs);
+    return res.json(docs);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to fetch documents" });
+    return res.status(500).json({ error: "Failed to fetch documents" });
   }
 });
 
@@ -30,10 +30,10 @@ router.post("/", async (req, res) => {
     const [doc] = await db.insert(documentsTable).values({
       vehicleId, type, title, notes, expiryDate,
     }).returning();
-    res.status(201).json(doc);
+    return res.status(201).json(doc);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to create document" });
+    return res.status(500).json({ error: "Failed to create document" });
   }
 });
 
@@ -42,10 +42,10 @@ router.get("/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     const [doc] = await db.select().from(documentsTable).where(eq(documentsTable.id, id));
     if (!doc) return res.status(404).json({ error: "Document not found" });
-    res.json(doc);
+    return res.json(doc);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to fetch document" });
+    return res.status(500).json({ error: "Failed to fetch document" });
   }
 });
 
@@ -58,10 +58,10 @@ router.put("/:id", async (req, res) => {
       .where(eq(documentsTable.id, id))
       .returning();
     if (!doc) return res.status(404).json({ error: "Document not found" });
-    res.json(doc);
+    return res.json(doc);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to update document" });
+    return res.status(500).json({ error: "Failed to update document" });
   }
 });
 
@@ -69,10 +69,10 @@ router.delete("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     await db.delete(documentsTable).where(eq(documentsTable.id, id));
-    res.status(204).send();
+    return res.status(204).send();
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to delete document" });
+    return res.status(500).json({ error: "Failed to delete document" });
   }
 });
 

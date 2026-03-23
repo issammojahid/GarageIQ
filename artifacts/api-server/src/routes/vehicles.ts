@@ -7,10 +7,10 @@ const router: IRouter = Router();
 router.get("/", async (req, res) => {
   try {
     const vehicles = await db.select().from(vehiclesTable).orderBy(vehiclesTable.createdAt);
-    res.json(vehicles);
+    return res.json(vehicles);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to fetch vehicles" });
+    return res.status(500).json({ error: "Failed to fetch vehicles" });
   }
 });
 
@@ -23,10 +23,10 @@ router.post("/", async (req, res) => {
     const [vehicle] = await db.insert(vehiclesTable).values({
       make, model, year, mileage, licensePlate, color, notes,
     }).returning();
-    res.status(201).json(vehicle);
+    return res.status(201).json(vehicle);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to create vehicle" });
+    return res.status(500).json({ error: "Failed to create vehicle" });
   }
 });
 
@@ -35,10 +35,10 @@ router.get("/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     const [vehicle] = await db.select().from(vehiclesTable).where(eq(vehiclesTable.id, id));
     if (!vehicle) return res.status(404).json({ error: "Vehicle not found" });
-    res.json(vehicle);
+    return res.json(vehicle);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to fetch vehicle" });
+    return res.status(500).json({ error: "Failed to fetch vehicle" });
   }
 });
 
@@ -51,10 +51,10 @@ router.put("/:id", async (req, res) => {
       .where(eq(vehiclesTable.id, id))
       .returning();
     if (!vehicle) return res.status(404).json({ error: "Vehicle not found" });
-    res.json(vehicle);
+    return res.json(vehicle);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to update vehicle" });
+    return res.status(500).json({ error: "Failed to update vehicle" });
   }
 });
 
@@ -62,10 +62,10 @@ router.delete("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     await db.delete(vehiclesTable).where(eq(vehiclesTable.id, id));
-    res.status(204).send();
+    return res.status(204).send();
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to delete vehicle" });
+    return res.status(500).json({ error: "Failed to delete vehicle" });
   }
 });
 

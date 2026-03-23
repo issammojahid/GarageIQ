@@ -95,6 +95,10 @@ export async function showRewardedAd(): Promise<boolean> {
       requestNonPersonalizedAdsOnly: true,
     });
     return new Promise((resolve) => {
+      const unsubscribeLoaded = ad.addAdEventListener("loaded", () => {
+        unsubscribeLoaded();
+        ad.show();
+      });
       const unsubscribeEarned = ad.addAdEventListener("earned_reward", () => {
         unsubscribeEarned();
         resolve(true);

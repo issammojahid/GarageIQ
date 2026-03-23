@@ -8,18 +8,17 @@ const router: IRouter = Router();
 router.get("/", async (req, res) => {
   try {
     const vehicleId = req.query.vehicleId ? parseInt(req.query.vehicleId as string) : undefined;
-    let query = db.select().from(diagnosesTable).orderBy(diagnosesTable.createdAt);
     if (vehicleId) {
       const results = await db.select().from(diagnosesTable)
         .where(eq(diagnosesTable.vehicleId, vehicleId))
         .orderBy(diagnosesTable.createdAt);
       return res.json(results);
     }
-    const results = await query;
-    res.json(results);
+    const results = await db.select().from(diagnosesTable).orderBy(diagnosesTable.createdAt);
+    return res.json(results);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to fetch diagnoses" });
+    return res.status(500).json({ error: "Failed to fetch diagnoses" });
   }
 });
 
@@ -30,7 +29,6 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "vehicleId, symptoms, systems required" });
     }
 
-    // Get vehicle info for better AI context
     const [vehicle] = await db.select().from(vehiclesTable).where(eq(vehiclesTable.id, vehicleId));
     const vehicleContext = vehicle
       ? `${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.mileage} km)`
@@ -62,9 +60,19 @@ Respond ONLY with a valid JSON object in this exact format:
     });
 
     const content = completion.choices[0]?.message?.content ?? "{}";
-    let aiResult;
+    type DiagnosisResult = {
+      summary: string;
+      issues: string[];
+      severity: string;
+      repairSteps: string[];
+      estimatedCostMin: number;
+      estimatedCostMax: number;
+      diyFriendly: boolean;
+      urgency: string;
+    };
+    let aiResult: DiagnosisResult;
     try {
-      aiResult = JSON.parse(content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+      aiResult = JSON.parse(content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()) as DiagnosisResult;
     } catch {
       aiResult = {
         summary: "Unable to parse diagnosis result",
@@ -86,10 +94,10 @@ Respond ONLY with a valid JSON object in this exact format:
       result: aiResult,
     }).returning();
 
-    res.status(201).json(diagnosis);
+    return res.status(201).json(diagnosis);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to create diagnosis" });
+    return res.status(500).json({ error: "Failed to create diagnosis" });
   }
 });
 
@@ -98,10 +106,10 @@ router.get("/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     const [diagnosis] = await db.select().from(diagnosesTable).where(eq(diagnosesTable.id, id));
     if (!diagnosis) return res.status(404).json({ error: "Diagnosis not found" });
-    res.json(diagnosis);
+    return res.json(diagnosis);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to fetch diagnosis" });
+    return res.status(500).json({ error: "Failed to fetch diagnosis" });
   }
 });
 
@@ -109,10 +117,10 @@ router.delete("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     await db.delete(diagnosesTable).where(eq(diagnosesTable.id, id));
-    res.status(204).send();
+    return res.status(204).send();
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to delete diagnosis" });
+    return res.status(500).json({ error: "Failed to delete diagnosis" });
   }
 });
 

@@ -14,10 +14,10 @@ router.get("/", async (req, res) => {
       return res.json(records);
     }
     const records = await db.select().from(maintenanceTable).orderBy(maintenanceTable.date);
-    res.json(records);
+    return res.json(records);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to fetch maintenance records" });
+    return res.status(500).json({ error: "Failed to fetch maintenance records" });
   }
 });
 
@@ -30,10 +30,10 @@ router.post("/", async (req, res) => {
     const [record] = await db.insert(maintenanceTable).values({
       vehicleId, type, date, mileage, notes, nextDueDate, nextDueMileage, cost,
     }).returning();
-    res.status(201).json(record);
+    return res.status(201).json(record);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to create maintenance record" });
+    return res.status(500).json({ error: "Failed to create maintenance record" });
   }
 });
 
@@ -42,10 +42,10 @@ router.get("/:id", async (req, res) => {
     const id = parseInt(req.params.id);
     const [record] = await db.select().from(maintenanceTable).where(eq(maintenanceTable.id, id));
     if (!record) return res.status(404).json({ error: "Maintenance record not found" });
-    res.json(record);
+    return res.json(record);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to fetch maintenance record" });
+    return res.status(500).json({ error: "Failed to fetch maintenance record" });
   }
 });
 
@@ -58,10 +58,10 @@ router.put("/:id", async (req, res) => {
       .where(eq(maintenanceTable.id, id))
       .returning();
     if (!record) return res.status(404).json({ error: "Maintenance record not found" });
-    res.json(record);
+    return res.json(record);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to update maintenance record" });
+    return res.status(500).json({ error: "Failed to update maintenance record" });
   }
 });
 
@@ -69,10 +69,10 @@ router.delete("/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     await db.delete(maintenanceTable).where(eq(maintenanceTable.id, id));
-    res.status(204).send();
+    return res.status(204).send();
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to delete maintenance record" });
+    return res.status(500).json({ error: "Failed to delete maintenance record" });
   }
 });
 

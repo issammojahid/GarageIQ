@@ -38,9 +38,9 @@ Respond ONLY with a valid JSON object in this exact format:
     });
 
     const content = completion.choices[0]?.message?.content ?? "{}";
-    let result;
+    let result: Record<string, unknown>;
     try {
-      result = JSON.parse(content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+      result = JSON.parse(content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()) as Record<string, unknown>;
     } catch {
       result = {
         partName: "Unknown Part",
@@ -54,10 +54,10 @@ Respond ONLY with a valid JSON object in this exact format:
       };
     }
 
-    res.json(result);
+    return res.json(result);
   } catch (err) {
     req.log.error(err);
-    res.status(500).json({ error: "Failed to identify part" });
+    return res.status(500).json({ error: "Failed to identify part" });
   }
 });
 

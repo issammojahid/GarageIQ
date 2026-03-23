@@ -14,7 +14,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { router } from "expo-router";
 import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-import { useListVehicles, useDeleteVehicle, useListDiagnoses } from "@workspace/api-client-react";
+import { useListVehicles, useDeleteVehicle, useListDiagnoses, type Vehicle } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function GarageTab() {
@@ -81,7 +81,7 @@ export default function GarageTab() {
     return "Poor";
   };
 
-  const renderItem = ({ item }: { item: any }) => {
+  const renderItem = ({ item }: { item: Vehicle }) => {
     const diags = getVehicleDiagnoses(item.id);
     const lastDiag = diags[diags.length - 1];
     const vehicleName = `${item.year} ${item.make} ${item.model}`;
