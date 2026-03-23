@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "16660a8e-2e51-4304-9ea4-900ff28e6601"
+      }
+    },
+    "android": {
+      "package": "com.garageiq.workspace"
+    }
+  }
+}
