@@ -17,13 +17,13 @@
       "supportsTablet": false,
       "bundleIdentifier": "com.garageiq.app",
       "config": {
-        "googleMobileAdsAppId": "ca-app-pub-8545693631358718~5967737694"
+        "googleMobileAdsAppId": "ca-app-pub-8545693631358718~1318648888"
       }
     },
     "android": {
       "package": "com.garageiq.app",
       "config": {
-        "googleMobileAdsAppId": "ca-app-pub-8545693631358718~5967737694"
+        "googleMobileAdsAppId": "ca-app-pub-8545693631358718~1318648888"
       }
     },
     "web": {
@@ -47,8 +47,8 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-8545693631358718~5967737694",
-          "iosAppId": "ca-app-pub-8545693631358718~5967737694"
+          "androidAppId": "ca-app-pub-8545693631358718~1318648888",
+          "iosAppId": "ca-app-pub-8545693631358718~1318648888"
         }
       ]
     ],

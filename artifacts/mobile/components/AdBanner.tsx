@@ -4,9 +4,9 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 
 const AD_UNIT_IDS = {
-  banner: "ca-app-pub-8545693631358718/2943920859",
-  interstitial: "ca-app-pub-8545693631358718/9182026147",
-  rewarded: "ca-app-pub-8545693631358718/9605265229",
+  banner: "ca-app-pub-8545693631358718/1498610826",
+  interstitial: "ca-app-pub-8545693631358718/3295843133",
+  rewarded: "ca-app-pub-8545693631358718/2246587176",
 } as const;
 
 export { AD_UNIT_IDS };

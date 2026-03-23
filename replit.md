@@ -58,7 +58,7 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 - **Navigation**: 4-tab layout (Diagnose, History, My Garage, More) using `expo-router`
 - **AI Integration**: OpenAI via `@workspace/api-client-react` hooks → API server → OpenAI
 - **AI Diagnosis Enhanced**: Professional mechanic prompt, multilingual (auto-detects device locale), currency-aware cost estimates, driving conditions, previous issues field. Result shows: Safe to Drive card, Confidence badge, Maintenance Tips, Notes.
-- **AdMob**: App ID `ca-app-pub-8545693631358718~5967737694` (requires EAS Build for native SDK)
+- **AdMob**: App ID `ca-app-pub-8545693631358718~1318648888` (requires EAS Build for native SDK)
 - **Screens**: `app/(tabs)/` (4 tabs), `app/diagnose/` (new, result), `app/vehicle/` (add, edit), `app/screens/` (fuel-log, maintenance, documents, identify-part, statistics, nearby-workshops, settings)
 - **Constants**: `constants/colors.ts` — all theme colors as `Colors` named export
 - **`EXPO_PUBLIC_DOMAIN`**: Must be set to the API server domain for API calls to work in production
