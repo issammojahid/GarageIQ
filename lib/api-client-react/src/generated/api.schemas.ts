@@ -44,6 +44,7 @@ export const DiagnosisResultSeverity = {
   medium: "medium",
   high: "high",
   critical: "critical",
+  dangerous: "dangerous",
 } as const;
 
 export interface DiagnosisResult {
@@ -53,8 +54,13 @@ export interface DiagnosisResult {
   repairSteps: string[];
   estimatedCostMin: number;
   estimatedCostMax: number;
+  estimatedCost?: string;
   diyFriendly: boolean;
   urgency: string;
+  safeToDrive?: { answer: "Yes" | "No"; explanation: string };
+  confidence?: "High" | "Medium" | "Low";
+  maintenanceTips?: string[];
+  notes?: string;
 }
 
 export interface Diagnosis {
@@ -76,6 +82,14 @@ export interface CreateDiagnosisBody {
   imageBase64?: string;
   /** MIME type of the image (e.g. image/jpeg, image/png). Defaults to image/jpeg if not provided. */
   imageMimeType?: string;
+  /** User's language/locale for AI response (e.g. en, fr, ar). Auto-detected from device. */
+  language?: string;
+  /** Currency for cost estimates (e.g. USD, EUR, MAD, GBP) */
+  currency?: string;
+  /** Driving conditions (City, Highway, Off-road, Mixed) */
+  drivingConditions?: string;
+  /** Any previous issues or repairs the user wants to mention */
+  previousIssues?: string;
 }
 
 export interface FuelLog {

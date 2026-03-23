@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -33,6 +33,35 @@ const SYSTEMS: Array<{ id: string; label: string; icon: MaterialCommunityIconsNa
   { id: "steering", label: "Steering", icon: "steering" },
 ];
 
+const DRIVING_CONDITIONS = ["City", "Highway", "Off-road", "Mixed"];
+
+const CURRENCIES = [
+  { code: "USD", symbol: "$" },
+  { code: "EUR", symbol: "€" },
+  { code: "MAD", symbol: "MAD" },
+  { code: "GBP", symbol: "£" },
+  { code: "CAD", symbol: "CA$" },
+  { code: "AED", symbol: "AED" },
+  { code: "SAR", symbol: "SAR" },
+  { code: "TRY", symbol: "₺" },
+];
+
+function detectLanguage(): string {
+  try {
+    const locale = Intl.DateTimeFormat().resolvedOptions().locale ?? "en";
+    const lang = locale.split("-")[0];
+    const langNames: Record<string, string> = {
+      en: "English", fr: "French", ar: "Arabic", es: "Spanish",
+      de: "German", it: "Italian", pt: "Portuguese", ru: "Russian",
+      zh: "Chinese", ja: "Japanese", ko: "Korean", tr: "Turkish",
+      nl: "Dutch", pl: "Polish", sv: "Swedish",
+    };
+    return langNames[lang] ?? "English";
+  } catch {
+    return "English";
+  }
+}
+
 export default function NewDiagnoseScreen() {
   const { vehicleId: paramVehicleId, system: paramSystem } = useLocalSearchParams<{
     vehicleId?: string;
@@ -42,6 +71,8 @@ export default function NewDiagnoseScreen() {
   const { data: vehicles } = useListVehicles();
   const queryClient = useQueryClient();
   const createDiagnosis = useCreateDiagnosis();
+
+  const detectedLanguage = useMemo(() => detectLanguage(), []);
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(
     paramVehicleId ? parseInt(paramVehicleId) : null
@@ -55,6 +86,9 @@ export default function NewDiagnoseScreen() {
   const [photoBase64, setPhotoBase64] = useState<string | null>(null);
   const [photoMimeType, setPhotoMimeType] = useState<string>("image/jpeg");
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [selectedCurrency, setSelectedCurrency] = useState("USD");
+  const [selectedCondition, setSelectedCondition] = useState<string | null>(null);
+  const [previousIssues, setPreviousIssues] = useState("");
 
   const toggleSystem = (id: string) => {
     setSelectedSystems((prev) =>
@@ -140,6 +174,10 @@ export default function NewDiagnoseScreen() {
           errorCodes: errorCodes.trim() || undefined,
           imageBase64: photoBase64 ?? undefined,
           imageMimeType: photoBase64 ? photoMimeType : undefined,
+          language: detectedLanguage,
+          currency: selectedCurrency,
+          drivingConditions: selectedCondition ?? undefined,
+          previousIssues: previousIssues.trim() || undefined,
         },
       });
       queryClient.invalidateQueries({ queryKey: getListDiagnosesQueryKey() });
@@ -255,6 +293,39 @@ export default function NewDiagnoseScreen() {
           ))}
         </View>
 
+        {/* Driving Conditions */}
+        <Text style={styles.sectionLabel}>
+          Driving Conditions <Text style={styles.optional}>(optional)</Text>
+        </Text>
+        <View style={styles.conditionRow}>
+          {DRIVING_CONDITIONS.map((condition) => (
+            <Pressable
+              key={condition}
+              style={[styles.conditionChip, selectedCondition === condition && styles.conditionChipSelected]}
+              onPress={() => setSelectedCondition(selectedCondition === condition ? null : condition)}
+            >
+              <Text style={[styles.conditionChipText, selectedCondition === condition && styles.conditionChipTextSelected]}>
+                {condition}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        {/* Previous Issues */}
+        <Text style={styles.sectionLabel}>
+          Previous Issues <Text style={styles.optional}>(optional)</Text>
+        </Text>
+        <TextInput
+          style={styles.textArea}
+          multiline
+          numberOfLines={3}
+          placeholder="e.g. Oil change done 3 months ago, replaced battery last year, had a similar knocking 6 months ago..."
+          placeholderTextColor={Colors.textTertiary}
+          value={previousIssues}
+          onChangeText={setPreviousIssues}
+          textAlignVertical="top"
+        />
+
         {/* Error Codes */}
         <Text style={styles.sectionLabel}>OBD-II Error Codes <Text style={styles.optional}>(optional)</Text></Text>
         <TextInput
@@ -265,6 +336,31 @@ export default function NewDiagnoseScreen() {
           onChangeText={setErrorCodes}
           autoCapitalize="characters"
         />
+
+        {/* Currency */}
+        <Text style={styles.sectionLabel}>Currency for Cost Estimate</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.currencyScroll}>
+          {CURRENCIES.map((c) => (
+            <Pressable
+              key={c.code}
+              style={[styles.currencyChip, selectedCurrency === c.code && styles.currencyChipSelected]}
+              onPress={() => setSelectedCurrency(c.code)}
+            >
+              <Text style={[styles.currencySymbol, selectedCurrency === c.code && styles.currencySymbolSelected]}>
+                {c.symbol}
+              </Text>
+              <Text style={[styles.currencyCode, selectedCurrency === c.code && styles.currencyCodeSelected]}>
+                {c.code}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+
+        {/* Language indicator */}
+        <View style={styles.languageRow}>
+          <Ionicons name="language-outline" size={14} color={Colors.textTertiary} />
+          <Text style={styles.languageText}>AI will respond in: {detectedLanguage}</Text>
+        </View>
 
         {/* Submit */}
         <Pressable
@@ -326,7 +422,7 @@ const styles = StyleSheet.create({
     color: Colors.text,
     fontFamily: "Inter_400Regular",
     fontSize: 14,
-    minHeight: 110,
+    minHeight: 90,
     borderWidth: 1,
     borderColor: Colors.border,
     lineHeight: 20,
@@ -381,6 +477,44 @@ const styles = StyleSheet.create({
   systemChipSelected: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
   systemChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.textSecondary },
   systemChipTextSelected: { color: Colors.accent },
+  conditionRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  conditionChip: {
+    backgroundColor: Colors.card,
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  conditionChipSelected: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
+  conditionChipText: { fontFamily: "Inter_500Medium", fontSize: 14, color: Colors.textSecondary },
+  conditionChipTextSelected: { color: Colors.accent },
+  currencyScroll: { marginBottom: 4 },
+  currencyChip: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: Colors.card,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    minWidth: 60,
+  },
+  currencyChipSelected: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
+  currencySymbol: { fontFamily: "Inter_700Bold", fontSize: 15, color: Colors.textSecondary },
+  currencySymbolSelected: { color: Colors.accent },
+  currencyCode: { fontFamily: "Inter_400Regular", fontSize: 11, color: Colors.textTertiary, marginTop: 2 },
+  currencyCodeSelected: { color: Colors.accent },
+  languageRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 10,
+    marginBottom: 4,
+  },
+  languageText: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textTertiary },
   input: {
     backgroundColor: Colors.card,
     borderRadius: 14,

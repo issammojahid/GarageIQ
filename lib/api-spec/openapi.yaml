@@ -594,7 +594,7 @@ components:
             type: string
         severity:
           type: string
-          enum: [low, medium, high, critical]
+          enum: [low, medium, high, critical, dangerous]
         repairSteps:
           type: array
           items:
@@ -603,9 +603,32 @@ components:
           type: integer
         estimatedCostMax:
           type: integer
+        estimatedCost:
+          type: string
+          description: Cost estimate as a string with currency symbol (e.g. "$200–$500")
         diyFriendly:
           type: boolean
         urgency:
+          type: string
+        safeToDrive:
+          type: object
+          properties:
+            answer:
+              type: string
+              enum: [Yes, No]
+            explanation:
+              type: string
+          required:
+            - answer
+            - explanation
+        confidence:
+          type: string
+          enum: [High, Medium, Low]
+        maintenanceTips:
+          type: array
+          items:
+            type: string
+        notes:
           type: string
       required:
         - summary
@@ -663,6 +686,18 @@ components:
         imageMimeType:
           type: string
           description: MIME type of the image (e.g. image/jpeg, image/png). Defaults to image/jpeg if not provided.
+        language:
+          type: string
+          description: User's language/locale for AI response (e.g. en, fr, ar). Auto-detected from device.
+        currency:
+          type: string
+          description: Currency for cost estimates (e.g. USD, EUR, MAD, GBP)
+        drivingConditions:
+          type: string
+          description: Driving conditions (City, Highway, Off-road, Mixed)
+        previousIssues:
+          type: string
+          description: Any previous issues or repairs the user wants to mention
       required:
         - vehicleId
         - symptoms

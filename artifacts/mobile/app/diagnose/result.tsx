@@ -19,6 +19,13 @@ const SEV_CONFIG: Record<string, { color: string; bg: string; label: string; ico
   medium: { color: Colors.warning, bg: Colors.warning + "18", label: "Medium Severity", icon: "alert-circle" },
   high: { color: "#F97316", bg: "#F9731618", label: "High Severity", icon: "alert-octagon" },
   critical: { color: Colors.danger, bg: Colors.danger + "18", label: "Critical", icon: "alert-octagon" },
+  dangerous: { color: Colors.danger, bg: Colors.danger + "18", label: "Dangerous", icon: "alert-octagon" },
+};
+
+const CONFIDENCE_CONFIG: Record<string, { color: string; bg: string }> = {
+  High: { color: Colors.success, bg: Colors.success + "20" },
+  Medium: { color: Colors.warning, bg: Colors.warning + "20" },
+  Low: { color: Colors.danger, bg: Colors.danger + "20" },
 };
 
 function buildProInsights(issues: string[], repairSteps: string[], severity: string) {
@@ -31,6 +38,7 @@ function buildProInsights(issues: string[], repairSteps: string[], severity: str
     .map((s) => s.split(" ").slice(0, 6).join(" ") + "…");
   const tips: Record<string, string[]> = {
     critical: ["Get this fixed immediately — driving risks further damage.", "Do not ignore warning lights.", "Get a second mechanic opinion for cost verification."],
+    dangerous: ["Get this fixed immediately — driving risks further damage.", "Do not ignore warning lights.", "Get a second mechanic opinion for cost verification."],
     high: ["Schedule a repair within the week.", "Avoid long trips until resolved.", "Document symptoms for the mechanic."],
     medium: ["Monitor for worsening symptoms.", "Plan a repair within the month.", "Check related fluid levels weekly."],
     low: ["Address at next service visit.", "Keep an eye on symptom frequency.", "Log any changes in vehicle behavior."],
@@ -87,6 +95,13 @@ export default function DiagnosisResultScreen() {
   const vehicle = vehicles?.find((v) => v.id === diagnosis.vehicleId);
   const vehicleName = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : "Vehicle";
   const proInsights = buildProInsights(result.issues, result.repairSteps, result.severity);
+  const confidenceCfg = result.confidence ? CONFIDENCE_CONFIG[result.confidence] : null;
+
+  const costDisplay = result.estimatedCost
+    ? result.estimatedCost
+    : result.estimatedCostMin === 0 && result.estimatedCostMax === 0
+    ? "Contact mechanic for estimate"
+    : `$${result.estimatedCostMin} – $${result.estimatedCostMax}`;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -101,6 +116,42 @@ export default function DiagnosisResultScreen() {
         </Text>
       </View>
 
+      {/* Safe to Drive Card */}
+      {result.safeToDrive && (
+        <View style={[
+          styles.safeToDriveCard,
+          {
+            backgroundColor: result.safeToDrive.answer === "Yes" ? Colors.success + "15" : Colors.danger + "15",
+            borderColor: result.safeToDrive.answer === "Yes" ? Colors.success + "50" : Colors.danger + "50",
+          },
+        ]}>
+          <View style={[
+            styles.safeToDriveIcon,
+            { backgroundColor: result.safeToDrive.answer === "Yes" ? Colors.success + "25" : Colors.danger + "25" },
+          ]}>
+            <MaterialCommunityIcons
+              name={result.safeToDrive.answer === "Yes" ? "check-circle" : "car-off"}
+              size={26}
+              color={result.safeToDrive.answer === "Yes" ? Colors.success : Colors.danger}
+            />
+          </View>
+          <View style={{ flex: 1 }}>
+            <View style={styles.safeToDriveRow}>
+              <Text style={styles.safeToDriveLabel}>Safe to Drive?</Text>
+              <Text style={[
+                styles.safeToDriveAnswer,
+                { color: result.safeToDrive.answer === "Yes" ? Colors.success : Colors.danger },
+              ]}>
+                {result.safeToDrive.answer}
+              </Text>
+            </View>
+            {result.safeToDrive.explanation ? (
+              <Text style={styles.safeToDriveExplanation}>{result.safeToDrive.explanation}</Text>
+            ) : null}
+          </View>
+        </View>
+      )}
+
       {/* Severity Banner */}
       <View style={[styles.severityBanner, { backgroundColor: sev.bg, borderColor: sev.color + "40" }]}>
         <MaterialCommunityIcons name={sev.icon} size={28} color={sev.color} />
@@ -108,11 +159,20 @@ export default function DiagnosisResultScreen() {
           <Text style={[styles.severityLabel, { color: sev.color }]}>{sev.label}</Text>
           <Text style={styles.urgencyText}>{result.urgency}</Text>
         </View>
-        <View style={[styles.diyBadge, { backgroundColor: result.diyFriendly ? Colors.success + "20" : Colors.danger + "20" }]}>
-          <Text style={[styles.diyText, { color: result.diyFriendly ? Colors.success : Colors.danger }]}>
-            {result.diyFriendly ? "DIY Friendly" : "See Mechanic"}
-          </Text>
-        </View>
+        {result.confidence && confidenceCfg ? (
+          <View style={[styles.confidenceBadge, { backgroundColor: confidenceCfg.bg }]}>
+            <Text style={[styles.confidenceText, { color: confidenceCfg.color }]}>
+              {result.confidence}
+            </Text>
+            <Text style={[styles.confidenceLabel, { color: confidenceCfg.color }]}>confidence</Text>
+          </View>
+        ) : (
+          <View style={[styles.diyBadge, { backgroundColor: result.diyFriendly ? Colors.success + "20" : Colors.danger + "20" }]}>
+            <Text style={[styles.diyText, { color: result.diyFriendly ? Colors.success : Colors.danger }]}>
+              {result.diyFriendly ? "DIY Friendly" : "See Mechanic"}
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Summary */}
@@ -121,9 +181,9 @@ export default function DiagnosisResultScreen() {
         <Text style={styles.summaryText}>{result.summary}</Text>
       </View>
 
-      {/* Issues */}
+      {/* Issues / Causes */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Identified Issues</Text>
+        <Text style={styles.sectionTitle}>Likely Causes</Text>
         {result.issues.map((issue, i) => (
           <View key={i} style={styles.bulletRow}>
             <View style={styles.bullet} />
@@ -132,15 +192,17 @@ export default function DiagnosisResultScreen() {
         ))}
       </View>
 
-      {/* Repair Steps */}
+      {/* Repair Steps / Solution */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Repair Steps</Text>
+        <Text style={styles.sectionTitle}>Recommended Solution</Text>
         {result.repairSteps.map((step, i) => (
           <View key={i} style={styles.stepRow}>
-            <View style={styles.stepNum}>
-              <Text style={styles.stepNumText}>{i + 1}</Text>
-            </View>
-            <Text style={styles.stepText}>{step}</Text>
+            {result.repairSteps.length > 1 ? (
+              <View style={styles.stepNum}>
+                <Text style={styles.stepNumText}>{i + 1}</Text>
+              </View>
+            ) : null}
+            <Text style={[styles.stepText, result.repairSteps.length === 1 && { paddingTop: 0 }]}>{step}</Text>
           </View>
         ))}
       </View>
@@ -150,9 +212,7 @@ export default function DiagnosisResultScreen() {
         <MaterialCommunityIcons name="cash" size={22} color={Colors.success} />
         <View style={{ flex: 1 }}>
           <Text style={styles.costLabel}>Estimated Cost</Text>
-          <Text style={styles.costRange}>
-            ${result.estimatedCostMin} – ${result.estimatedCostMax}
-          </Text>
+          <Text style={styles.costRange}>{costDisplay}</Text>
         </View>
         <View style={[styles.diyBadge2, { backgroundColor: result.diyFriendly ? Colors.success + "20" : Colors.danger + "20" }]}>
           <Ionicons
@@ -162,6 +222,27 @@ export default function DiagnosisResultScreen() {
           />
         </View>
       </View>
+
+      {/* Maintenance Tips */}
+      {result.maintenanceTips && result.maintenanceTips.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Maintenance Tips</Text>
+          {result.maintenanceTips.map((tip, i) => (
+            <View key={i} style={styles.tipRow}>
+              <Ionicons name="shield-checkmark-outline" size={16} color={Colors.accent} />
+              <Text style={styles.tipText}>{tip}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* Notes */}
+      {result.notes ? (
+        <View style={styles.notesCard}>
+          <Ionicons name="information-circle-outline" size={18} color={Colors.textSecondary} />
+          <Text style={styles.notesText}>{result.notes}</Text>
+        </View>
+      ) : null}
 
       {/* Systems */}
       <View style={styles.section}>
@@ -263,6 +344,26 @@ const styles = StyleSheet.create({
   metaItem: { flexDirection: "row", alignItems: "center", gap: 6 },
   metaText: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary },
   metaDate: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textTertiary },
+  safeToDriveCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    borderRadius: 16,
+    padding: 14,
+    gap: 12,
+    borderWidth: 1,
+    marginBottom: 14,
+  },
+  safeToDriveIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  safeToDriveRow: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
+  safeToDriveLabel: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: Colors.text },
+  safeToDriveAnswer: { fontFamily: "Inter_700Bold", fontSize: 16 },
+  safeToDriveExplanation: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary, lineHeight: 18 },
   severityBanner: {
     flexDirection: "row",
     alignItems: "center",
@@ -276,6 +377,15 @@ const styles = StyleSheet.create({
   urgencyText: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   diyBadge: { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, alignItems: "center", justifyContent: "center" },
   diyText: { fontFamily: "Inter_600SemiBold", fontSize: 12 },
+  confidenceBadge: {
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  confidenceText: { fontFamily: "Inter_700Bold", fontSize: 13 },
+  confidenceLabel: { fontFamily: "Inter_400Regular", fontSize: 10, marginTop: 1 },
   section: { marginBottom: 24 },
   sectionTitle: { fontFamily: "Inter_600SemiBold", fontSize: 17, color: Colors.text, marginBottom: 12 },
   summaryText: { fontFamily: "Inter_400Regular", fontSize: 15, color: Colors.textSecondary, lineHeight: 22 },
@@ -305,10 +415,24 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   costLabel: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary },
-  costRange: { fontFamily: "Inter_700Bold", fontSize: 20, color: Colors.text, marginTop: 2 },
+  costRange: { fontFamily: "Inter_700Bold", fontSize: 18, color: Colors.text, marginTop: 2 },
   diyBadge2: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  tipRow: { flexDirection: "row", alignItems: "flex-start", gap: 10, marginBottom: 8 },
+  tipText: { flex: 1, fontFamily: "Inter_400Regular", fontSize: 14, color: Colors.text, lineHeight: 21 },
+  notesCard: {
+    backgroundColor: Colors.card2 ?? Colors.card,
+    borderRadius: 14,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    marginBottom: 24,
+  },
+  notesText: { flex: 1, fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
   tagsRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  tag: { backgroundColor: Colors.card2, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: Colors.border },
+  tag: { backgroundColor: Colors.card2 ?? Colors.card, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: Colors.border },
   tagText: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.textSecondary, textTransform: "capitalize" },
   newDiagBtn: {
     backgroundColor: Colors.accent,

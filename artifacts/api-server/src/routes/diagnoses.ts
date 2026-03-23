@@ -45,38 +45,78 @@ router.post("/", async (req, res) => {
     if (!parsed.success) {
       return res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten().fieldErrors });
     }
-    const { vehicleId, symptoms, systems, errorCodes, imageBase64, imageMimeType } = parsed.data;
+    const {
+      vehicleId,
+      symptoms,
+      systems,
+      errorCodes,
+      imageBase64,
+      imageMimeType,
+      language,
+      currency,
+      drivingConditions,
+      previousIssues,
+    } = parsed.data;
+
     const aiClient = await getOpenAI();
     if (!aiClient) {
       return res.status(503).json({ error: "AI service unavailable. Please configure OpenAI integration." });
     }
 
     const [vehicle] = await db.select().from(vehiclesTable).where(eq(vehiclesTable.id, vehicleId));
-    const vehicleContext = vehicle
-      ? `${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.mileage} km)`
-      : `Vehicle ID: ${vehicleId}`;
+    const make = vehicle?.make ?? "Unknown";
+    const model = vehicle?.model ?? "Vehicle";
+    const year = vehicle?.year ?? "";
+    const mileage = vehicle?.mileage != null ? `${vehicle.mileage}` : "N/A";
 
-    const textPrompt = `You are an expert automotive mechanic. Diagnose the following car problem and provide a detailed analysis.
+    const userLanguage = language ?? "English";
+    const selectedCurrency = currency ?? "USD";
+    const conditions = drivingConditions ?? "Not specified";
+    const prevIssues = previousIssues?.trim() || "None";
+    const errorSection = errorCodes ? `\n- OBD-II Codes: ${errorCodes}` : "";
+    const imageNote = imageBase64
+      ? "A photo of the issue has been provided. Analyze the image carefully and factor it into your diagnosis."
+      : "";
 
-Vehicle: ${vehicleContext}
-Symptoms: ${symptoms}
-Affected Systems: ${systems.join(", ")}
-${errorCodes ? `OBD-II Error Codes: ${errorCodes}` : ""}
-${imageBase64 ? "A photo of the issue has been provided. Describe what you observe in the image and factor it into your diagnosis." : ""}
+    const systemPrompt = `You are a professional car mechanic AI.
 
-Respond ONLY with a valid JSON object in this exact format:
+User input:
+- Image: ${imageBase64 ? "(car problem photo provided)" : "(no photo)"}
+- Description: ${symptoms}
+- Car: ${make} ${model} ${year}
+- Language: ${userLanguage}
+- Currency: ${selectedCurrency}
+- Mileage: ${mileage} km/miles${errorSection}
+- Driving conditions: ${conditions}
+- Previous issues: ${prevIssues}
+
+${imageNote}
+Respond ONLY in the user's selected language (${userLanguage}).
+
+Return your answer ONLY as a valid JSON object with these exact fields:
 {
-  "summary": "Brief one-sentence summary of the likely issue",
-  "issues": ["Issue 1", "Issue 2"],
-  "severity": "low|medium|high|critical",
-  "repairSteps": ["Step 1", "Step 2", "Step 3"],
-  "estimatedCostMin": 50,
-  "estimatedCostMax": 300,
-  "diyFriendly": true,
-  "urgency": "Can wait / Should fix soon / Fix immediately"
-}`;
+  "problem": "Most likely issue",
+  "causes": ["Main cause", "Second cause", "Third cause"],
+  "severity": "Low | Medium | High | Dangerous",
+  "safeToDrive": { "answer": "Yes | No", "explanation": "short reason" },
+  "solution": "Step-by-step fix instructions",
+  "estimatedCost": "Realistic range in ${selectedCurrency} (e.g. ${selectedCurrency === "USD" ? "$200–$500" : selectedCurrency === "EUR" ? "€200–€500" : selectedCurrency === "MAD" ? "2000–5000 MAD" : selectedCurrency === "GBP" ? "£150–£400" : "200–500 " + selectedCurrency})",
+  "recommendation": "DIY or Mechanic",
+  "maintenanceTips": ["tip 1", "tip 2"],
+  "confidence": "High | Medium | Low",
+  "notes": "Optional: if image is unclear or more context needed, otherwise empty string"
+}
 
-    const model = process.env.OPENAI_MODEL ?? "gpt-4o";
+Rules:
+- Use simple, clear language in ${userLanguage}
+- Avoid complex jargon
+- Adapt currency to the ${selectedCurrency} symbol
+- Include mileage and driving conditions in your analysis
+- Suggest maintenance tips if relevant
+- Always provide practical and actionable advice
+- Return ONLY the JSON object, no markdown, no extra text`;
+
+    const model_name = process.env.OPENAI_MODEL ?? "gpt-4o";
 
     type ChatMessage = Parameters<typeof aiClient.chat.completions.create>[0]["messages"][0];
 
@@ -85,7 +125,7 @@ Respond ONLY with a valid JSON object in this exact format:
       userMessage = {
         role: "user",
         content: [
-          { type: "text", text: textPrompt },
+          { type: "text", text: systemPrompt },
           {
             type: "image_url",
             image_url: {
@@ -96,17 +136,20 @@ Respond ONLY with a valid JSON object in this exact format:
         ],
       };
     } else {
-      userMessage = { role: "user", content: textPrompt };
+      userMessage = { role: "user", content: systemPrompt };
     }
 
     const completion = await aiClient.chat.completions.create({
-      model,
+      model: model_name,
       max_completion_tokens: 8192,
       messages: [userMessage],
     });
 
     const content = completion.choices[0]?.message?.content ?? "{}";
-    type Severity = "low" | "medium" | "high" | "critical";
+
+    type Severity = "low" | "medium" | "high" | "critical" | "dangerous";
+    type SafeToDrive = { answer: "Yes" | "No"; explanation: string };
+    type Confidence = "High" | "Medium" | "Low";
     type DiagnosisResult = {
       summary: string;
       issues: string[];
@@ -114,10 +157,18 @@ Respond ONLY with a valid JSON object in this exact format:
       repairSteps: string[];
       estimatedCostMin: number;
       estimatedCostMax: number;
+      estimatedCost?: string;
       diyFriendly: boolean;
       urgency: string;
+      safeToDrive?: SafeToDrive;
+      confidence?: Confidence;
+      maintenanceTips?: string[];
+      notes?: string;
     };
-    const VALID_SEVERITIES: Severity[] = ["low", "medium", "high", "critical"];
+
+    const VALID_SEVERITIES: Severity[] = ["low", "medium", "high", "critical", "dangerous"];
+    const VALID_CONFIDENCE: Confidence[] = ["High", "Medium", "Low"];
+
     const fallbackResult: DiagnosisResult = {
       summary: "Unable to parse diagnosis result",
       issues: ["Unknown issue"],
@@ -128,21 +179,65 @@ Respond ONLY with a valid JSON object in this exact format:
       diyFriendly: false,
       urgency: "See a mechanic",
     };
+
     let aiResult: DiagnosisResult;
     try {
-      const parsedResult = JSON.parse(content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()) as Record<string, unknown>;
-      const severity = VALID_SEVERITIES.includes(parsedResult.severity as Severity)
-        ? (parsedResult.severity as Severity)
+      const raw = JSON.parse(content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()) as Record<string, unknown>;
+
+      const rawSeverity = typeof raw.severity === "string" ? raw.severity.toLowerCase() : "";
+      const normalizedSeverity = rawSeverity === "dangerous" ? "dangerous"
+        : rawSeverity === "high" ? "high"
+        : rawSeverity === "medium" ? "medium"
+        : rawSeverity === "low" ? "low"
         : "medium";
+      const severity: Severity = VALID_SEVERITIES.includes(normalizedSeverity as Severity)
+        ? (normalizedSeverity as Severity)
+        : "medium";
+
+      const problem = typeof raw.problem === "string" ? raw.problem : "";
+      const causes = Array.isArray(raw.causes) ? (raw.causes as string[]) : [];
+      const solution = typeof raw.solution === "string" ? raw.solution : "";
+      const estimatedCost = typeof raw.estimatedCost === "string" ? raw.estimatedCost : undefined;
+      const recommendation = typeof raw.recommendation === "string" ? raw.recommendation : "";
+      const diyFriendly = recommendation.toLowerCase().includes("diy");
+      const maintenanceTips = Array.isArray(raw.maintenanceTips) ? (raw.maintenanceTips as string[]) : undefined;
+      const rawConfidence = typeof raw.confidence === "string" ? raw.confidence : "";
+      const confidence: Confidence | undefined = VALID_CONFIDENCE.includes(rawConfidence as Confidence)
+        ? (rawConfidence as Confidence)
+        : undefined;
+      const rawNotes = typeof raw.notes === "string" ? raw.notes.trim() : "";
+      const notes = rawNotes && rawNotes.toLowerCase() !== "null" ? rawNotes : undefined;
+
+      let safeToDrive: SafeToDrive | undefined;
+      if (raw.safeToDrive && typeof raw.safeToDrive === "object") {
+        const std = raw.safeToDrive as Record<string, unknown>;
+        const answer = typeof std.answer === "string" && (std.answer === "Yes" || std.answer === "No") ? std.answer : "No";
+        const explanation = typeof std.explanation === "string" ? std.explanation : "";
+        safeToDrive = { answer, explanation };
+      }
+
+      const urgency = safeToDrive?.answer === "No"
+        ? "Fix immediately"
+        : severity === "high" || severity === "dangerous"
+        ? "Should fix soon"
+        : severity === "medium"
+        ? "Monitor and plan repair"
+        : "Can wait until next service";
+
       aiResult = {
-        summary: typeof parsedResult.summary === "string" ? parsedResult.summary : fallbackResult.summary,
-        issues: Array.isArray(parsedResult.issues) ? (parsedResult.issues as string[]) : ["Unknown issue"],
+        summary: problem || causes[0] || fallbackResult.summary,
+        issues: causes.length > 0 ? causes : ["See solution below"],
         severity,
-        repairSteps: Array.isArray(parsedResult.repairSteps) ? (parsedResult.repairSteps as string[]) : ["Please consult a mechanic"],
-        estimatedCostMin: typeof parsedResult.estimatedCostMin === "number" ? parsedResult.estimatedCostMin : 0,
-        estimatedCostMax: typeof parsedResult.estimatedCostMax === "number" ? parsedResult.estimatedCostMax : 0,
-        diyFriendly: typeof parsedResult.diyFriendly === "boolean" ? parsedResult.diyFriendly : false,
-        urgency: typeof parsedResult.urgency === "string" ? parsedResult.urgency : "See a mechanic",
+        repairSteps: solution ? [solution] : ["Please consult a mechanic"],
+        estimatedCostMin: 0,
+        estimatedCostMax: 0,
+        estimatedCost,
+        diyFriendly,
+        urgency,
+        safeToDrive,
+        confidence,
+        maintenanceTips,
+        notes,
       };
     } catch {
       aiResult = fallbackResult;
