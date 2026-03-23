@@ -18,6 +18,7 @@ import {
   useCreateMaintenance,
   useDeleteMaintenance,
   useListVehicles,
+  getListMaintenanceQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -63,7 +64,7 @@ export default function MaintenanceScreen() {
           notes: notes || undefined,
         },
       });
-      queryClient.invalidateQueries({ queryKey: ["listMaintenance"] });
+      queryClient.invalidateQueries({ queryKey: getListMaintenanceQueryKey() });
       setShowModal(false);
       setMileage(""); setCost(""); setNextDueDate(""); setNextDueMileage(""); setNotes("");
     } catch { Alert.alert("Error", "Failed to save"); }
@@ -104,7 +105,7 @@ export default function MaintenanceScreen() {
               <Pressable hitSlop={10} onPress={() => {
                 Alert.alert("Delete", "Remove this record?", [
                   { text: "Cancel", style: "cancel" },
-                  { text: "Delete", style: "destructive", onPress: async () => { await deleteMaintenance.mutateAsync({ id: item.id }); queryClient.invalidateQueries({ queryKey: ["listMaintenance"] }); } }
+                  { text: "Delete", style: "destructive", onPress: async () => { await deleteMaintenance.mutateAsync({ id: item.id }); queryClient.invalidateQueries({ queryKey: getListMaintenanceQueryKey() }); } }
                 ]);
               }}>
                 <Ionicons name="trash-outline" size={18} color={Colors.textTertiary} />

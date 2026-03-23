@@ -9,30 +9,52 @@ const AD_UNIT_IDS = {
   rewarded: "ca-app-pub-8545693631358718/9605265229",
 } as const;
 
-let MobileAds: any = null;
-let BannerAdComponent: any = null;
-let BannerAdSize: any = null;
-let InterstitialAdClass: any = null;
-let RewardedAdClass: any = null;
-let TestIds: any = null;
-
-try {
-  const module = require("react-native-google-mobile-ads");
-  MobileAds = module.default;
-  BannerAdComponent = module.BannerAd;
-  BannerAdSize = module.BannerAdSize;
-  InterstitialAdClass = module.InterstitialAd;
-  RewardedAdClass = module.RewardedAd;
-  TestIds = module.TestIds;
-
-  MobileAds().initialize().catch(() => {});
-} catch {
-}
-
 export { AD_UNIT_IDS };
 
+interface AdEventListener {
+  (): void;
+}
+
+interface AdInstance {
+  addAdEventListener(event: string, handler: () => void): AdEventListener;
+  load(): void;
+  show(): void;
+}
+
+interface InterstitialAdStatic {
+  createForAdRequest(unitId: string, options?: { requestNonPersonalizedAdsOnly?: boolean }): AdInstance;
+}
+
+interface RewardedAdStatic {
+  createForAdRequest(unitId: string, options?: { requestNonPersonalizedAdsOnly?: boolean }): AdInstance;
+}
+
+type BannerAdSizeMap = Record<string, string>;
+
+interface AdMobModule {
+  default: () => { initialize(): Promise<void> };
+  BannerAd: React.ComponentType<{
+    unitId: string;
+    size: string;
+    requestOptions?: { requestNonPersonalizedAdsOnly?: boolean };
+    onAdFailedToLoad?: () => void;
+  }>;
+  BannerAdSize: BannerAdSizeMap;
+  InterstitialAd: InterstitialAdStatic;
+  RewardedAd: RewardedAdStatic;
+}
+
+let admob: AdMobModule | null = null;
+
+try {
+  admob = require("react-native-google-mobile-ads") as AdMobModule;
+  admob.default().initialize().catch(() => {});
+} catch {
+  admob = null;
+}
+
 export function isAdMobAvailable(): boolean {
-  return BannerAdComponent !== null && Platform.OS !== "web";
+  return admob !== null && Platform.OS !== "web";
 }
 
 interface BannerAdProps {
@@ -40,8 +62,9 @@ interface BannerAdProps {
 }
 
 export function BannerAd({ size = "banner" }: BannerAdProps) {
-  if (isAdMobAvailable() && BannerAdComponent && BannerAdSize) {
-    const sizeMap: Record<string, any> = {
+  if (isAdMobAvailable() && admob) {
+    const { BannerAd: BannerAdComponent, BannerAdSize } = admob;
+    const sizeMap: BannerAdSizeMap = {
       banner: BannerAdSize.BANNER,
       leaderboard: BannerAdSize.LEADERBOARD,
       mediumRectangle: BannerAdSize.MEDIUM_RECTANGLE,
@@ -66,9 +89,9 @@ export function BannerAd({ size = "banner" }: BannerAdProps) {
 }
 
 export async function showInterstitialAd(): Promise<boolean> {
-  if (!isAdMobAvailable() || !InterstitialAdClass) return false;
+  if (!isAdMobAvailable() || !admob) return false;
   try {
-    const ad = InterstitialAdClass.createForAdRequest(AD_UNIT_IDS.interstitial, {
+    const ad = admob.InterstitialAd.createForAdRequest(AD_UNIT_IDS.interstitial, {
       requestNonPersonalizedAdsOnly: true,
     });
     return new Promise((resolve) => {
@@ -89,9 +112,9 @@ export async function showInterstitialAd(): Promise<boolean> {
 }
 
 export async function showRewardedAd(): Promise<boolean> {
-  if (!isAdMobAvailable() || !RewardedAdClass) return false;
+  if (!isAdMobAvailable() || !admob) return false;
   try {
-    const ad = RewardedAdClass.createForAdRequest(AD_UNIT_IDS.rewarded, {
+    const ad = admob.RewardedAd.createForAdRequest(AD_UNIT_IDS.rewarded, {
       requestNonPersonalizedAdsOnly: true,
     });
     return new Promise((resolve) => {

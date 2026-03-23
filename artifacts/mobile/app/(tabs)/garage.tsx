@@ -8,13 +8,20 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
+  type DimensionValue,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { router } from "expo-router";
 import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-import { useListVehicles, useDeleteVehicle, useListDiagnoses, type Vehicle } from "@workspace/api-client-react";
+import {
+  useListVehicles,
+  useDeleteVehicle,
+  useListDiagnoses,
+  getListVehiclesQueryKey,
+  type Vehicle,
+} from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function GarageTab() {
@@ -40,7 +47,7 @@ export default function GarageTab() {
           onPress: async () => {
             try {
               await deleteVehicleMutation.mutateAsync({ id });
-              queryClient.invalidateQueries({ queryKey: ["listVehicles"] });
+              queryClient.invalidateQueries({ queryKey: getListVehiclesQueryKey() });
             } catch (e) {
               Alert.alert("Error", "Failed to delete vehicle");
             }
@@ -63,7 +70,7 @@ export default function GarageTab() {
       low: 5,
     };
     const penalty = recent.reduce((acc, d) => {
-      const s = (d.result as any)?.severity?.toLowerCase() ?? "low";
+      const s = (d.result.severity ?? "low").toLowerCase();
       return acc + (severityPenalty[s] ?? 5);
     }, 0);
     return Math.max(0, 100 - penalty);
@@ -117,7 +124,7 @@ export default function GarageTab() {
         <View style={styles.healthRow}>
           <Text style={styles.healthLabel}>Vehicle Health</Text>
           <View style={styles.healthBarWrap}>
-            <View style={[styles.healthBar, { width: `${healthScore}%` as any, backgroundColor: healthColor }]} />
+            <View style={[styles.healthBar, { width: `${healthScore}%` as DimensionValue, backgroundColor: healthColor }]} />
           </View>
           <Text style={[styles.healthValue, { color: healthColor }]}>{healthScore}% {healthLabel}</Text>
         </View>

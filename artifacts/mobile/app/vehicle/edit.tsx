@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { useGetVehicle, useUpdateVehicle } from "@workspace/api-client-react";
+import { useGetVehicle, useUpdateVehicle, getListVehiclesQueryKey, getGetVehicleQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -62,8 +62,8 @@ export default function EditVehicleScreen() {
           notes: notes.trim() || undefined,
         },
       });
-      queryClient.invalidateQueries({ queryKey: ["listVehicles"] });
-      queryClient.invalidateQueries({ queryKey: ["getVehicle", vehicleId] });
+      queryClient.invalidateQueries({ queryKey: getListVehiclesQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getGetVehicleQueryKey(vehicleId) });
       router.back();
     } catch (e) {
       Alert.alert("Error", "Failed to update vehicle");

@@ -12,7 +12,7 @@ import {
 import { router, useLocalSearchParams } from "expo-router";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-import { useListVehicles, useCreateDiagnosis } from "@workspace/api-client-react";
+import { useListVehicles, useCreateDiagnosis, getListDiagnosesQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { showInterstitialAd } from "@/components/AdBanner";
 import type { MaterialCommunityIconsName } from "@/types/icons";
@@ -80,7 +80,7 @@ export default function NewDiagnoseScreen() {
           errorCodes: errorCodes.trim() || undefined,
         },
       });
-      queryClient.invalidateQueries({ queryKey: ["listDiagnoses"] });
+      queryClient.invalidateQueries({ queryKey: getListDiagnosesQueryKey() });
       showInterstitialAd().catch(() => {});
       router.replace({ pathname: "/diagnose/result", params: { id: result.id } });
     } catch (e) {

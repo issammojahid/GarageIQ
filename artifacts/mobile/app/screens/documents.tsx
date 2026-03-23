@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-import { useListDocuments, useCreateDocument, useDeleteDocument, useListVehicles } from "@workspace/api-client-react";
+import { useListDocuments, useCreateDocument, useDeleteDocument, useListVehicles, getListDocumentsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { MaterialCommunityIconsName } from "@/types/icons";
 
@@ -50,7 +50,7 @@ export default function DocumentsScreen() {
     setSaving(true);
     try {
       await createDocument.mutateAsync({ data: { vehicleId, type, title: title.trim(), expiryDate: expiryDate || undefined, notes: notes || undefined } });
-      queryClient.invalidateQueries({ queryKey: ["listDocuments"] });
+      queryClient.invalidateQueries({ queryKey: getListDocumentsQueryKey() });
       setShowModal(false);
       setTitle(""); setExpiryDate(""); setNotes("");
     } catch { Alert.alert("Error", "Failed to save"); }
@@ -95,7 +95,7 @@ export default function DocumentsScreen() {
                 <Pressable hitSlop={10} onPress={() => {
                   Alert.alert("Delete", "Remove this document?", [
                     { text: "Cancel", style: "cancel" },
-                    { text: "Delete", style: "destructive", onPress: async () => { await deleteDocument.mutateAsync({ id: item.id }); queryClient.invalidateQueries({ queryKey: ["listDocuments"] }); } }
+                    { text: "Delete", style: "destructive", onPress: async () => { await deleteDocument.mutateAsync({ id: item.id }); queryClient.invalidateQueries({ queryKey: getListDocumentsQueryKey() }); } }
                   ]);
                 }}>
                   <Ionicons name="trash-outline" size={18} color={Colors.textTertiary} />

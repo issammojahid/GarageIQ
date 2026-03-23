@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { router } from "expo-router";
-import { useCreateVehicle } from "@workspace/api-client-react";
+import { useCreateVehicle, getListVehiclesQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -55,7 +55,7 @@ export default function AddVehicleScreen() {
           notes: notes.trim() || undefined,
         },
       });
-      queryClient.invalidateQueries({ queryKey: ["listVehicles"] });
+      queryClient.invalidateQueries({ queryKey: getListVehiclesQueryKey() });
       router.back();
     } catch (e) {
       Alert.alert("Error", "Failed to add vehicle. Please try again.");

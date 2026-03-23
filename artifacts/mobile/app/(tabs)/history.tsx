@@ -13,7 +13,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { router } from "expo-router";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-import { useListDiagnoses, useListVehicles } from "@workspace/api-client-react";
+import { useListDiagnoses, useListVehicles, type Diagnosis } from "@workspace/api-client-react";
 
 const SEVERITY_CONFIG = {
   low: { color: Colors.success, label: "Low" },
@@ -36,7 +36,7 @@ export default function HistoryTab() {
     return v ? `${v.year} ${v.make} ${v.model}` : "Unknown Vehicle";
   };
 
-  const renderItem = ({ item }: { item: any }) => {
+  const renderItem = ({ item }: { item: Diagnosis }) => {
     const sev = SEVERITY_CONFIG[item.result?.severity as keyof typeof SEVERITY_CONFIG] || SEVERITY_CONFIG.medium;
     const date = new Date(item.createdAt).toLocaleDateString("en-US", {
       month: "short",

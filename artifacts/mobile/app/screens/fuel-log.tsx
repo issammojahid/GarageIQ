@@ -18,6 +18,7 @@ import {
   useCreateFuelLog,
   useDeleteFuelLog,
   useListVehicles,
+  getListFuelLogsQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -60,7 +61,7 @@ export default function FuelLogScreen() {
           notes: notes || undefined,
         },
       });
-      queryClient.invalidateQueries({ queryKey: ["listFuelLogs"] });
+      queryClient.invalidateQueries({ queryKey: getListFuelLogsQueryKey() });
       setShowModal(false);
       setLiters(""); setPricePerLiter(""); setOdometer(""); setNotes("");
     } catch { Alert.alert("Error", "Failed to save"); }
@@ -73,7 +74,7 @@ export default function FuelLogScreen() {
       {
         text: "Delete", style: "destructive", onPress: async () => {
           await deleteFuelLog.mutateAsync({ id });
-          queryClient.invalidateQueries({ queryKey: ["listFuelLogs"] });
+          queryClient.invalidateQueries({ queryKey: getListFuelLogsQueryKey() });
         }
       }
     ]);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,12 +6,12 @@ import {
   ScrollView,
   Pressable,
   ActivityIndicator,
-  Platform,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { MaterialCommunityIcons, Ionicons, Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useGetDiagnosis, useListVehicles } from "@workspace/api-client-react";
+import { showRewardedAd } from "@/components/AdBanner";
 import type { MaterialCommunityIconsName } from "@/types/icons";
 
 const SEV_CONFIG: Record<string, { color: string; bg: string; label: string; icon: MaterialCommunityIconsName }> = {
@@ -21,10 +21,47 @@ const SEV_CONFIG: Record<string, { color: string; bg: string; label: string; ico
   critical: { color: Colors.danger, bg: Colors.danger + "18", label: "Critical", icon: "alert-octagon" },
 };
 
+function buildProInsights(issues: string[], repairSteps: string[], severity: string) {
+  const questions = issues.slice(0, 3).map(
+    (issue) => `Ask about: "${issue.length > 60 ? issue.slice(0, 60) + "…" : issue}"`
+  );
+  const parts = repairSteps
+    .filter((s) => /replace|install|check|inspect/i.test(s))
+    .slice(0, 3)
+    .map((s) => s.split(" ").slice(0, 6).join(" ") + "…");
+  const tips: Record<string, string[]> = {
+    critical: ["Get this fixed immediately — driving risks further damage.", "Do not ignore warning lights.", "Get a second mechanic opinion for cost verification."],
+    high: ["Schedule a repair within the week.", "Avoid long trips until resolved.", "Document symptoms for the mechanic."],
+    medium: ["Monitor for worsening symptoms.", "Plan a repair within the month.", "Check related fluid levels weekly."],
+    low: ["Address at next service visit.", "Keep an eye on symptom frequency.", "Log any changes in vehicle behavior."],
+  };
+  return {
+    questions: questions.length > 0 ? questions : ["Ask for a full diagnostic report.", "Inquire about warranty on parts.", "Request itemized repair estimate."],
+    parts: parts.length > 0 ? parts : ["Diagnostic report", "Relevant replacement parts", "Labor estimate"],
+    tips: tips[severity] ?? tips.medium,
+  };
+}
+
 export default function DiagnosisResultScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: diagnosis, isLoading } = useGetDiagnosis(parseInt(id || "0"));
   const { data: vehicles } = useListVehicles();
+  const [proUnlocked, setProUnlocked] = useState(false);
+  const [adLoading, setAdLoading] = useState(false);
+
+  const handleUnlockPro = async () => {
+    setAdLoading(true);
+    try {
+      const earned = await showRewardedAd();
+      if (earned) {
+        setProUnlocked(true);
+      } else {
+        setProUnlocked(true);
+      }
+    } finally {
+      setAdLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -51,6 +88,7 @@ export default function DiagnosisResultScreen() {
   const sev = SEV_CONFIG[result.severity] || SEV_CONFIG.medium;
   const vehicle = vehicles?.find((v) => v.id === diagnosis.vehicleId);
   const vehicleName = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : "Vehicle";
+  const proInsights = buildProInsights(result.issues, result.repairSteps, result.severity);
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -139,6 +177,70 @@ export default function DiagnosisResultScreen() {
         </View>
       </View>
 
+      {/* Advanced Analysis — Rewarded Ad Gate */}
+      {proUnlocked ? (
+        <View style={styles.proSection}>
+          <View style={styles.proHeader}>
+            <MaterialCommunityIcons name="crown" size={18} color={Colors.accent} />
+            <Text style={styles.proTitle}>Advanced Analysis</Text>
+          </View>
+
+          <View style={styles.proBlock}>
+            <Text style={styles.proBlockTitle}>Questions to Ask Your Mechanic</Text>
+            {proInsights.questions.map((q, i) => (
+              <View key={i} style={styles.proBulletRow}>
+                <Ionicons name="chatbubble-ellipses-outline" size={14} color={Colors.accent} />
+                <Text style={styles.proBulletText}>{q}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.proBlock}>
+            <Text style={styles.proBlockTitle}>Parts You May Need</Text>
+            {proInsights.parts.map((p, i) => (
+              <View key={i} style={styles.proBulletRow}>
+                <Ionicons name="construct-outline" size={14} color={Colors.warning} />
+                <Text style={styles.proBulletText}>{p}</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.proBlock}>
+            <Text style={styles.proBlockTitle}>Prevention Tips</Text>
+            {proInsights.tips.map((t, i) => (
+              <View key={i} style={styles.proBulletRow}>
+                <Ionicons name="shield-checkmark-outline" size={14} color={Colors.success} />
+                <Text style={styles.proBulletText}>{t}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      ) : (
+        <View style={styles.proLocked}>
+          <View style={styles.proLockedIcon}>
+            <MaterialCommunityIcons name="crown" size={28} color={Colors.accent} />
+          </View>
+          <Text style={styles.proLockedTitle}>Advanced Analysis</Text>
+          <Text style={styles.proLockedDesc}>
+            Unlock personalized mechanic questions, required parts list, and prevention tips for this diagnosis.
+          </Text>
+          <Pressable
+            style={({ pressed }) => [styles.watchAdBtn, pressed && { opacity: 0.85 }, adLoading && { opacity: 0.6 }]}
+            onPress={handleUnlockPro}
+            disabled={adLoading}
+          >
+            {adLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <MaterialCommunityIcons name="play-circle-outline" size={18} color="#fff" />
+                <Text style={styles.watchAdText}>Watch Ad to Unlock</Text>
+              </>
+            )}
+          </Pressable>
+        </View>
+      )}
+
       {/* Actions */}
       <Pressable
         style={({ pressed }) => [styles.newDiagBtn, pressed && { opacity: 0.9 }]}
@@ -221,4 +323,58 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   newDiagText: { fontFamily: "Inter_700Bold", fontSize: 16, color: "#fff" },
+  proLocked: {
+    backgroundColor: Colors.card,
+    borderRadius: 16,
+    padding: 20,
+    alignItems: "center",
+    gap: 10,
+    borderWidth: 1,
+    borderColor: Colors.accent + "40",
+    marginBottom: 20,
+  },
+  proLockedIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.accent + "20",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  proLockedTitle: { fontFamily: "Inter_700Bold", fontSize: 17, color: Colors.text },
+  proLockedDesc: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 14,
+    color: Colors.textSecondary,
+    textAlign: "center",
+    lineHeight: 20,
+  },
+  watchAdBtn: {
+    backgroundColor: Colors.accent,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 4,
+    minWidth: 180,
+    justifyContent: "center",
+  },
+  watchAdText: { fontFamily: "Inter_700Bold", fontSize: 15, color: "#fff" },
+  proSection: {
+    backgroundColor: Colors.card,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: Colors.accent + "40",
+    marginBottom: 20,
+    gap: 16,
+  },
+  proHeader: { flexDirection: "row", alignItems: "center", gap: 8 },
+  proTitle: { fontFamily: "Inter_700Bold", fontSize: 17, color: Colors.accent },
+  proBlock: { gap: 8 },
+  proBlockTitle: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: Colors.text, marginBottom: 4 },
+  proBulletRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+  proBulletText: { flex: 1, fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
 });
