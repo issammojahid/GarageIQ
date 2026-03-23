@@ -8,9 +8,12 @@ import {
   TextInput,
   ActivityIndicator,
   Alert,
+  Image,
+  Platform,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import Colors from "@/constants/colors";
 import { useListVehicles, useCreateDiagnosis, getListDiagnosesQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -49,11 +52,68 @@ export default function NewDiagnoseScreen() {
   );
   const [errorCodes, setErrorCodes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [photoBase64, setPhotoBase64] = useState<string | null>(null);
+  const [photoMimeType, setPhotoMimeType] = useState<string>("image/jpeg");
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
 
   const toggleSystem = (id: string) => {
     setSelectedSystems((prev) =>
       prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
     );
+  };
+
+  const handleTakePhoto = async () => {
+    if (Platform.OS === "web") {
+      Alert.alert("Not supported", "Camera capture is not available on web. Please use Choose Photo instead.");
+      return;
+    }
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Camera Permission Required",
+        "Please allow camera access in your settings to take a photo.",
+      );
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: "images",
+      quality: 0.7,
+      base64: true,
+      allowsEditing: true,
+    });
+    if (!result.canceled && result.assets[0]) {
+      setPhotoUri(result.assets[0].uri);
+      setPhotoBase64(result.assets[0].base64 ?? null);
+      setPhotoMimeType(result.assets[0].mimeType ?? "image/jpeg");
+    }
+  };
+
+  const handleChoosePhoto = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Photo Library Permission Required",
+        "Please allow photo library access in your settings to choose a photo.",
+      );
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      quality: 0.7,
+      base64: true,
+      allowsEditing: true,
+    });
+    if (!result.canceled && result.assets[0]) {
+      setPhotoUri(result.assets[0].uri);
+      setPhotoBase64(result.assets[0].base64 ?? null);
+      setPhotoMimeType(result.assets[0].mimeType ?? "image/jpeg");
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setPhotoUri(null);
+    setPhotoBase64(null);
+    setPhotoMimeType("image/jpeg");
   };
 
   const handleSubmit = async () => {
@@ -78,6 +138,8 @@ export default function NewDiagnoseScreen() {
           symptoms: symptoms.trim(),
           systems: selectedSystems,
           errorCodes: errorCodes.trim() || undefined,
+          imageBase64: photoBase64 ?? undefined,
+          imageMimeType: photoBase64 ? photoMimeType : undefined,
         },
       });
       queryClient.invalidateQueries({ queryKey: getListDiagnosesQueryKey() });
@@ -134,6 +196,42 @@ export default function NewDiagnoseScreen() {
           textAlignVertical="top"
         />
 
+        {/* Photo */}
+        <Text style={styles.sectionLabel}>
+          Photo <Text style={styles.optional}>(optional)</Text>
+        </Text>
+        {photoUri ? (
+          <View style={styles.photoPreviewContainer}>
+            <Image source={{ uri: photoUri }} style={styles.photoPreview} resizeMode="cover" />
+            <Pressable
+              style={styles.removePhotoBtn}
+              onPress={handleRemovePhoto}
+              testID="remove-photo-btn"
+            >
+              <Ionicons name="close-circle" size={26} color={Colors.accent} />
+            </Pressable>
+          </View>
+        ) : (
+          <View style={styles.photoButtonRow}>
+            <Pressable
+              style={({ pressed }) => [styles.photoBtn, pressed && { opacity: 0.7 }]}
+              onPress={handleTakePhoto}
+              testID="take-photo-btn"
+            >
+              <Ionicons name="camera-outline" size={20} color={Colors.accent} />
+              <Text style={styles.photoBtnText}>Take Photo</Text>
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.photoBtn, pressed && { opacity: 0.7 }]}
+              onPress={handleChoosePhoto}
+              testID="choose-photo-btn"
+            >
+              <Ionicons name="image-outline" size={20} color={Colors.accent} />
+              <Text style={styles.photoBtnText}>Choose Photo</Text>
+            </Pressable>
+          </View>
+        )}
+
         {/* Systems */}
         <Text style={styles.sectionLabel}>Affected Systems</Text>
         <View style={styles.systemGrid}>
@@ -173,6 +271,7 @@ export default function NewDiagnoseScreen() {
           style={({ pressed }) => [styles.submitBtn, (loading || !symptoms) && styles.submitDisabled, pressed && { opacity: 0.9 }]}
           onPress={handleSubmit}
           disabled={loading}
+          testID="diagnose-submit-btn"
         >
           {loading ? (
             <ActivityIndicator color="#fff" />
@@ -231,6 +330,41 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     lineHeight: 20,
+  },
+  photoButtonRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  photoBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: Colors.card,
+    borderRadius: 12,
+    paddingVertical: 14,
+    borderWidth: 1,
+    borderColor: Colors.accent + "50",
+  },
+  photoBtnText: { fontFamily: "Inter_500Medium", fontSize: 14, color: Colors.accent },
+  photoPreviewContainer: {
+    position: "relative",
+    alignSelf: "flex-start",
+  },
+  photoPreview: {
+    width: 120,
+    height: 120,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  removePhotoBtn: {
+    position: "absolute",
+    top: -10,
+    right: -10,
+    backgroundColor: Colors.bg,
+    borderRadius: 13,
   },
   systemGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
   systemChip: {

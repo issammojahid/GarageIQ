@@ -657,6 +657,12 @@ components:
             type: string
         errorCodes:
           type: string
+        imageBase64:
+          type: string
+          description: Base64-encoded image of the car issue (optional, used for AI visual analysis)
+        imageMimeType:
+          type: string
+          description: MIME type of the image (e.g. image/jpeg, image/png). Defaults to image/jpeg if not provided.
       required:
         - vehicleId
         - symptoms

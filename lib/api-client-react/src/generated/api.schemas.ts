@@ -72,6 +72,10 @@ export interface CreateDiagnosisBody {
   symptoms: string;
   systems: string[];
   errorCodes?: string;
+  /** Base64-encoded image of the car issue (optional, used for AI visual analysis) */
+  imageBase64?: string;
+  /** MIME type of the image (e.g. image/jpeg, image/png). Defaults to image/jpeg if not provided. */
+  imageMimeType?: string;
 }
 
 export interface FuelLog {

@@ -136,6 +136,18 @@ export const CreateDiagnosisBody = zod.object({
   symptoms: zod.string(),
   systems: zod.array(zod.string()),
   errorCodes: zod.string().optional(),
+  imageBase64: zod
+    .string()
+    .optional()
+    .describe(
+      "Base64-encoded image of the car issue (optional, used for AI visual analysis)",
+    ),
+  imageMimeType: zod
+    .string()
+    .optional()
+    .describe(
+      "MIME type of the image (e.g. image\/jpeg, image\/png). Defaults to image\/jpeg if not provided.",
+    ),
 });
 
 /**

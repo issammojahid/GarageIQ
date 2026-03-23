@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
     if (!parsed.success) {
       return res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten().fieldErrors });
     }
-    const { vehicleId, symptoms, systems, errorCodes } = parsed.data;
+    const { vehicleId, symptoms, systems, errorCodes, imageBase64, imageMimeType } = parsed.data;
     const aiClient = await getOpenAI();
     if (!aiClient) {
       return res.status(503).json({ error: "AI service unavailable. Please configure OpenAI integration." });
@@ -56,12 +56,13 @@ router.post("/", async (req, res) => {
       ? `${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.mileage} km)`
       : `Vehicle ID: ${vehicleId}`;
 
-    const prompt = `You are an expert automotive mechanic. Diagnose the following car problem and provide a detailed analysis.
+    const textPrompt = `You are an expert automotive mechanic. Diagnose the following car problem and provide a detailed analysis.
 
 Vehicle: ${vehicleContext}
 Symptoms: ${symptoms}
 Affected Systems: ${systems.join(", ")}
 ${errorCodes ? `OBD-II Error Codes: ${errorCodes}` : ""}
+${imageBase64 ? "A photo of the issue has been provided. Describe what you observe in the image and factor it into your diagnosis." : ""}
 
 Respond ONLY with a valid JSON object in this exact format:
 {
@@ -76,10 +77,32 @@ Respond ONLY with a valid JSON object in this exact format:
 }`;
 
     const model = process.env.OPENAI_MODEL ?? "gpt-4o";
+
+    type ChatMessage = Parameters<typeof aiClient.chat.completions.create>[0]["messages"][0];
+
+    let userMessage: ChatMessage;
+    if (imageBase64) {
+      userMessage = {
+        role: "user",
+        content: [
+          { type: "text", text: textPrompt },
+          {
+            type: "image_url",
+            image_url: {
+              url: `data:${imageMimeType ?? "image/jpeg"};base64,${imageBase64}`,
+              detail: "auto",
+            },
+          },
+        ],
+      };
+    } else {
+      userMessage = { role: "user", content: textPrompt };
+    }
+
     const completion = await aiClient.chat.completions.create({
       model,
       max_completion_tokens: 8192,
-      messages: [{ role: "user", content: prompt }],
+      messages: [userMessage],
     });
 
     const content = completion.choices[0]?.message?.content ?? "{}";
@@ -107,19 +130,19 @@ Respond ONLY with a valid JSON object in this exact format:
     };
     let aiResult: DiagnosisResult;
     try {
-      const parsed = JSON.parse(content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()) as Record<string, unknown>;
-      const severity = VALID_SEVERITIES.includes(parsed.severity as Severity)
-        ? (parsed.severity as Severity)
+      const parsedResult = JSON.parse(content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim()) as Record<string, unknown>;
+      const severity = VALID_SEVERITIES.includes(parsedResult.severity as Severity)
+        ? (parsedResult.severity as Severity)
         : "medium";
       aiResult = {
-        summary: typeof parsed.summary === "string" ? parsed.summary : fallbackResult.summary,
-        issues: Array.isArray(parsed.issues) ? (parsed.issues as string[]) : ["Unknown issue"],
+        summary: typeof parsedResult.summary === "string" ? parsedResult.summary : fallbackResult.summary,
+        issues: Array.isArray(parsedResult.issues) ? (parsedResult.issues as string[]) : ["Unknown issue"],
         severity,
-        repairSteps: Array.isArray(parsed.repairSteps) ? (parsed.repairSteps as string[]) : ["Please consult a mechanic"],
-        estimatedCostMin: typeof parsed.estimatedCostMin === "number" ? parsed.estimatedCostMin : 0,
-        estimatedCostMax: typeof parsed.estimatedCostMax === "number" ? parsed.estimatedCostMax : 0,
-        diyFriendly: typeof parsed.diyFriendly === "boolean" ? parsed.diyFriendly : false,
-        urgency: typeof parsed.urgency === "string" ? parsed.urgency : "See a mechanic",
+        repairSteps: Array.isArray(parsedResult.repairSteps) ? (parsedResult.repairSteps as string[]) : ["Please consult a mechanic"],
+        estimatedCostMin: typeof parsedResult.estimatedCostMin === "number" ? parsedResult.estimatedCostMin : 0,
+        estimatedCostMax: typeof parsedResult.estimatedCostMax === "number" ? parsedResult.estimatedCostMax : 0,
+        diyFriendly: typeof parsedResult.diyFriendly === "boolean" ? parsedResult.diyFriendly : false,
+        urgency: typeof parsedResult.urgency === "string" ? parsedResult.urgency : "See a mechanic",
       };
     } catch {
       aiResult = fallbackResult;
