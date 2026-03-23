@@ -1,14 +1,19 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView, Pressable, Switch, Linking } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, ScrollView, Pressable, Linking, Modal, FlatList } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useListVehicles, useListDiagnoses, useListFuelLogs } from "@workspace/api-client-react";
 import type { MaterialCommunityIconsName } from "@/types/icons";
+import { useLanguagePref, LANGUAGES } from "@/hooks/useLanguagePref";
 
 export default function SettingsScreen() {
   const { data: vehicles } = useListVehicles();
   const { data: diagnoses } = useListDiagnoses({});
   const { data: fuelLogs } = useListFuelLogs({});
+  const { language, setLanguage } = useLanguagePref();
+  const [languageModalVisible, setLanguageModalVisible] = useState(false);
+
+  const selectedLang = LANGUAGES.find((l) => l.code === language) ?? LANGUAGES[0];
 
   const SETTINGS_SECTIONS: Array<{
     title: string;
@@ -50,6 +55,31 @@ export default function SettingsScreen() {
           <View>
             <Text style={styles.appName}>GarageIQ</Text>
             <Text style={styles.appTagline}>AI-Powered Car Diagnosis</Text>
+          </View>
+        </View>
+
+        {/* AI Settings */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>AI Settings</Text>
+          <View style={styles.sectionCard}>
+            <Pressable
+              style={({ pressed }) => [styles.settingRow, pressed && { opacity: 0.7 }]}
+              onPress={() => setLanguageModalVisible(true)}
+            >
+              <View style={styles.settingLeft}>
+                <View style={[styles.settingIconWrap, { backgroundColor: Colors.accent + "20" }]}>
+                  <Ionicons name="language-outline" size={18} color={Colors.accent} />
+                </View>
+                <View>
+                  <Text style={styles.settingLabel}>AI Language</Text>
+                  <Text style={styles.settingSubLabel}>Language for diagnosis responses</Text>
+                </View>
+              </View>
+              <View style={styles.settingRight}>
+                <Text style={[styles.settingValue, { color: Colors.accent }]}>{selectedLang.native}</Text>
+                <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
+              </View>
+            </Pressable>
           </View>
         </View>
 
@@ -95,6 +125,53 @@ export default function SettingsScreen() {
 
         <Text style={styles.footer}>Made with care for car enthusiasts everywhere</Text>
       </ScrollView>
+
+      {/* Language Picker Modal */}
+      <Modal
+        visible={languageModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setLanguageModalVisible(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setLanguageModalVisible(false)}>
+          <Pressable style={styles.modalSheet} onPress={() => {}}>
+            <View style={styles.modalHandle} />
+            <Text style={styles.modalTitle}>AI Response Language</Text>
+            <Text style={styles.modalSubtitle}>
+              The AI mechanic will respond in your selected language.
+            </Text>
+            <FlatList
+              data={LANGUAGES}
+              keyExtractor={(item) => item.code}
+              renderItem={({ item }) => (
+                <Pressable
+                  style={({ pressed }) => [
+                    styles.langRow,
+                    item.code === language && styles.langRowSelected,
+                    pressed && { opacity: 0.7 },
+                  ]}
+                  onPress={() => {
+                    setLanguage(item.code);
+                    setLanguageModalVisible(false);
+                  }}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.langLabel, item.code === language && styles.langLabelSelected]}>
+                      {item.label}
+                    </Text>
+                    <Text style={styles.langNative}>{item.native}</Text>
+                  </View>
+                  {item.code === language && (
+                    <Ionicons name="checkmark-circle" size={22} color={Colors.accent} />
+                  )}
+                </Pressable>
+              )}
+              ItemSeparatorComponent={() => <View style={styles.langDivider} />}
+              scrollEnabled={false}
+            />
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -111,12 +188,30 @@ const styles = StyleSheet.create({
   sectionCard: { backgroundColor: Colors.card, borderRadius: 16, borderWidth: 1, borderColor: Colors.border, overflow: "hidden" },
   settingRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 14 },
   settingRowBorder: { borderBottomWidth: 1, borderBottomColor: Colors.border },
-  settingLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
+  settingLeft: { flexDirection: "row", alignItems: "center", gap: 12, flex: 1 },
   settingIconWrap: { width: 32, height: 32, borderRadius: 8, backgroundColor: Colors.card2, alignItems: "center", justifyContent: "center" },
   settingLabel: { fontFamily: "Inter_500Medium", fontSize: 15, color: Colors.text },
+  settingSubLabel: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textTertiary, marginTop: 1 },
   settingRight: { flexDirection: "row", alignItems: "center", gap: 6 },
   settingValue: { fontFamily: "Inter_400Regular", fontSize: 14, color: Colors.textSecondary },
   adCard: { flexDirection: "row", alignItems: "flex-start", gap: 10, backgroundColor: Colors.card, borderRadius: 14, padding: 14, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
   adText: { flex: 1, fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary, lineHeight: 18 },
   footer: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textTertiary, textAlign: "center" },
+  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-end" },
+  modalSheet: {
+    backgroundColor: Colors.card,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 20,
+    paddingBottom: 40,
+  },
+  modalHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: "center", marginBottom: 16 },
+  modalTitle: { fontFamily: "Inter_700Bold", fontSize: 18, color: Colors.text, marginBottom: 4 },
+  modalSubtitle: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary, marginBottom: 20, lineHeight: 18 },
+  langRow: { flexDirection: "row", alignItems: "center", paddingVertical: 14, paddingHorizontal: 4 },
+  langRowSelected: { backgroundColor: Colors.accent + "10", borderRadius: 10, paddingHorizontal: 10 },
+  langLabel: { fontFamily: "Inter_500Medium", fontSize: 15, color: Colors.text },
+  langLabelSelected: { color: Colors.accent, fontFamily: "Inter_600SemiBold" },
+  langNative: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  langDivider: { height: 1, backgroundColor: Colors.border, marginVertical: 2 },
 });

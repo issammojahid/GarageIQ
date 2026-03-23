@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ import { useListVehicles, useCreateDiagnosis, getListDiagnosesQueryKey } from "@
 import { useQueryClient } from "@tanstack/react-query";
 import { showInterstitialAd } from "@/components/AdBanner";
 import type { MaterialCommunityIconsName } from "@/types/icons";
+import { useLanguagePref, LANGUAGES } from "@/hooks/useLanguagePref";
 
 const SYSTEMS: Array<{ id: string; label: string; icon: MaterialCommunityIconsName }> = [
   { id: "engine", label: "Engine", icon: "engine" },
@@ -46,22 +47,6 @@ const CURRENCIES = [
   { code: "TRY", symbol: "₺" },
 ];
 
-function detectLanguage(): string {
-  try {
-    const locale = Intl.DateTimeFormat().resolvedOptions().locale ?? "en";
-    const lang = locale.split("-")[0];
-    const langNames: Record<string, string> = {
-      en: "English", fr: "French", ar: "Arabic", es: "Spanish",
-      de: "German", it: "Italian", pt: "Portuguese", ru: "Russian",
-      zh: "Chinese", ja: "Japanese", ko: "Korean", tr: "Turkish",
-      nl: "Dutch", pl: "Polish", sv: "Swedish",
-    };
-    return langNames[lang] ?? "English";
-  } catch {
-    return "English";
-  }
-}
-
 export default function NewDiagnoseScreen() {
   const { vehicleId: paramVehicleId, system: paramSystem } = useLocalSearchParams<{
     vehicleId?: string;
@@ -71,8 +56,9 @@ export default function NewDiagnoseScreen() {
   const { data: vehicles } = useListVehicles();
   const queryClient = useQueryClient();
   const createDiagnosis = useCreateDiagnosis();
+  const { language: selectedLanguage } = useLanguagePref();
 
-  const detectedLanguage = useMemo(() => detectLanguage(), []);
+  const selectedLangInfo = LANGUAGES.find((l) => l.code === selectedLanguage) ?? LANGUAGES[0];
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(
     paramVehicleId ? parseInt(paramVehicleId) : null
@@ -174,7 +160,7 @@ export default function NewDiagnoseScreen() {
           errorCodes: errorCodes.trim() || undefined,
           imageBase64: photoBase64 ?? undefined,
           imageMimeType: photoBase64 ? photoMimeType : undefined,
-          language: detectedLanguage,
+          language: selectedLanguage,
           currency: selectedCurrency,
           drivingConditions: selectedCondition ?? undefined,
           previousIssues: previousIssues.trim() || undefined,
@@ -359,7 +345,12 @@ export default function NewDiagnoseScreen() {
         {/* Language indicator */}
         <View style={styles.languageRow}>
           <Ionicons name="language-outline" size={14} color={Colors.textTertiary} />
-          <Text style={styles.languageText}>AI will respond in: {detectedLanguage}</Text>
+          <Text style={styles.languageText}>
+            AI will respond in: <Text style={styles.languageHighlight}>{selectedLangInfo.native}</Text>
+          </Text>
+          <Pressable onPress={() => router.push("/screens/settings")}>
+            <Text style={styles.languageChange}>Change</Text>
+          </Pressable>
         </View>
 
         {/* Submit */}
@@ -513,8 +504,11 @@ const styles = StyleSheet.create({
     gap: 6,
     marginTop: 10,
     marginBottom: 4,
+    flexWrap: "wrap",
   },
   languageText: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textTertiary },
+  languageHighlight: { fontFamily: "Inter_600SemiBold", color: Colors.accent },
+  languageChange: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.accent, textDecorationLine: "underline" },
   input: {
     backgroundColor: Colors.card,
     borderRadius: 14,
