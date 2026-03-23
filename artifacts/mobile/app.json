@@ -25,11 +25,7 @@
       "package": "com.garageiq.app",
       "config": {
         "googleMobileAdsAppId": "ca-app-pub-8545693631358718~1318648888"
-      },
-      "permissions": [
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION"
-      ]
+      }
     },
     "web": {
       "favicon": "./assets/images/icon.png"
