@@ -50,6 +50,18 @@ Every package extends `tsconfig.base.json` which sets `composite: true`. The roo
 
 ## Packages
 
+### `artifacts/mobile` (`@workspace/mobile`)
+
+**GarageIQ** — AI-powered car diagnosis mobile app built with Expo + React Native.
+
+- **Theme**: Dark automotive theme, accent color #E85D04 (orange), background #0A0A0A
+- **Navigation**: 4-tab layout (Diagnose, History, My Garage, More) using `expo-router`
+- **AI Integration**: OpenAI via `@workspace/api-client-react` hooks → API server → OpenAI
+- **AdMob**: App ID `ca-app-pub-8545693631358718~5967737694` (requires EAS Build for native SDK)
+- **Screens**: `app/(tabs)/` (4 tabs), `app/diagnose/` (new, result), `app/vehicle/` (add, edit), `app/screens/` (fuel-log, maintenance, documents, identify-part, statistics, nearby-workshops, settings)
+- **Constants**: `constants/colors.ts` — all theme colors as `Colors` named export
+- **`EXPO_PUBLIC_DOMAIN`**: Must be set to the API server domain for API calls to work in production
+
 ### `artifacts/api-server` (`@workspace/api-server`)
 
 Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
