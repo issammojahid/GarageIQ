@@ -10,7 +10,8 @@ import {
 import { useLocalSearchParams, router } from "expo-router";
 import { MaterialCommunityIcons, Ionicons, Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-import { useGetDiagnosis, useListVehicles } from "@workspace/api-client-react";
+import { useGetDiagnosis } from "@workspace/api-client-react";
+import { useListVehicles } from "@/hooks/useLocalVehicles";
 import { showRewardedAd } from "@/components/AdBanner";
 import type { MaterialCommunityIconsName } from "@/types/icons";
 import { useI18n } from "@/i18n/TranslationContext";

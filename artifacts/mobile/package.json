@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^7.15.6",
+    "expo-sqlite": "^16.0.10",
     "react-native-google-mobile-ads": "^16.3.0",
     "react-native-webview": "^13.16.1"
   }

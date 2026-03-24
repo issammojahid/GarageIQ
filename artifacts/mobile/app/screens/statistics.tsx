@@ -9,11 +9,11 @@ import {
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import {
-  useListVehicles,
   useListFuelLogs,
   useListDiagnoses,
   useListMaintenance,
 } from "@workspace/api-client-react";
+import { useListVehicles } from "@/hooks/useLocalVehicles";
 
 export default function StatisticsScreen() {
   const { data: vehicles } = useListVehicles();

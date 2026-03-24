@@ -13,7 +13,8 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-import { useListDocuments, useCreateDocument, useUpdateDocument, useDeleteDocument, useListVehicles, getListDocumentsQueryKey, type Document } from "@workspace/api-client-react";
+import { useListDocuments, useCreateDocument, useUpdateDocument, useDeleteDocument, getListDocumentsQueryKey, type Document } from "@workspace/api-client-react";
+import { useListVehicles } from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
 import type { MaterialCommunityIconsName } from "@/types/icons";
 

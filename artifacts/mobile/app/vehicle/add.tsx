@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { router } from "expo-router";
-import { useCreateVehicle, getListVehiclesQueryKey, ApiError } from "@workspace/api-client-react";
+import { useCreateVehicle, getListVehiclesQueryKey } from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -62,26 +62,10 @@ export default function AddVehicleScreen() {
       ]);
     } catch (err: unknown) {
       console.log("[AddVehicle] Error:", err);
-      let message = "Failed to add vehicle. Please try again.";
-      if (err instanceof TypeError) {
-        message = "No internet connection. Check your network and try again.";
-      } else if (err instanceof ApiError) {
-        if (err.status === 400) {
-          const errData = err.data as { details?: Record<string, string[]>; error?: string } | null;
-          if (errData?.details) {
-            const fields = Object.entries(errData.details)
-              .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
-              .join("\n");
-            message = `Invalid input:\n${fields}`;
-          } else {
-            message = `Invalid input: ${errData?.error ?? "Please check your inputs."}`;
-          }
-        } else if (err.status >= 500) {
-          message = "Server error. Please try again later.";
-        } else {
-          message = `Server returned error ${err.status}.`;
-        }
-      }
+      const message =
+        err instanceof Error
+          ? `Failed to save vehicle: ${err.message}`
+          : "Failed to add vehicle. Please try again.";
       Alert.alert("Error", message);
     } finally {
       setLoading(false);

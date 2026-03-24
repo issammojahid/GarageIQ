@@ -15,13 +15,13 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { router } from "expo-router";
 import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
+import { useListDiagnoses } from "@workspace/api-client-react";
 import {
   useListVehicles,
   useDeleteVehicle,
-  useListDiagnoses,
   getListVehiclesQueryKey,
   type Vehicle,
-} from "@workspace/api-client-react";
+} from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/i18n/TranslationContext";
 

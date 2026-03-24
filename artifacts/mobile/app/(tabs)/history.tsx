@@ -13,7 +13,8 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { router } from "expo-router";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-import { useListDiagnoses, useListVehicles, type Diagnosis } from "@workspace/api-client-react";
+import { useListDiagnoses, type Diagnosis } from "@workspace/api-client-react";
+import { useListVehicles } from "@/hooks/useLocalVehicles";
 import { BannerAd } from "@/components/AdBanner";
 import { useI18n } from "@/i18n/TranslationContext";
 

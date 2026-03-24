@@ -12,7 +12,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { router } from "expo-router";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-import { useListVehicles } from "@workspace/api-client-react";
+import { useListVehicles } from "@/hooks/useLocalVehicles";
 import type { MaterialCommunityIconsName } from "@/types/icons";
 import { BannerAd } from "@/components/AdBanner";
 import { useI18n } from "@/i18n/TranslationContext";

@@ -18,10 +18,10 @@ import {
   useCreateMaintenance,
   useUpdateMaintenanceRecord,
   useDeleteMaintenance,
-  useListVehicles,
   getListMaintenanceQueryKey,
   type MaintenanceRecord,
 } from "@workspace/api-client-react";
+import { useListVehicles } from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
 
 const MAINTENANCE_TYPES = [
