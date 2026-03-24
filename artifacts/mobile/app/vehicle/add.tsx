@@ -61,7 +61,7 @@ export default function AddVehicleScreen() {
         { text: "OK", onPress: () => router.back() },
       ]);
     } catch (err: unknown) {
-      console.error("[AddVehicle] Error:", err);
+      console.log("[AddVehicle] Error:", err);
       let message = "Failed to add vehicle. Please try again.";
       if (err instanceof TypeError) {
         message = "No internet connection. Check your network and try again.";
