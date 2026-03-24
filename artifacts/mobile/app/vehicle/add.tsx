@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { router } from "expo-router";
-import { useCreateVehicle, getListVehiclesQueryKey } from "@workspace/api-client-react";
+import { useCreateVehicle, getListVehiclesQueryKey, ApiError } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
@@ -43,6 +43,7 @@ export default function AddVehicleScreen() {
     const mileageNum = parseInt(mileage || "0");
 
     setLoading(true);
+    console.log("[AddVehicle] Submitting:", { make: make.trim(), model: model.trim(), year: yearNum, mileage: mileageNum });
     try {
       await createVehicle.mutateAsync({
         data: {
@@ -56,9 +57,32 @@ export default function AddVehicleScreen() {
         },
       });
       queryClient.invalidateQueries({ queryKey: getListVehiclesQueryKey() });
-      router.back();
-    } catch (e) {
-      Alert.alert("Error", "Failed to add vehicle. Please try again.");
+      Alert.alert("Success", "Vehicle added successfully", [
+        { text: "OK", onPress: () => router.back() },
+      ]);
+    } catch (err: unknown) {
+      console.error("[AddVehicle] Error:", err);
+      let message = "Failed to add vehicle. Please try again.";
+      if (err instanceof TypeError) {
+        message = "No internet connection. Check your network and try again.";
+      } else if (err instanceof ApiError) {
+        if (err.status === 400) {
+          const errData = err.data as { details?: Record<string, string[]>; error?: string } | null;
+          if (errData?.details) {
+            const fields = Object.entries(errData.details)
+              .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+              .join("\n");
+            message = `Invalid input:\n${fields}`;
+          } else {
+            message = `Invalid input: ${errData?.error ?? "Please check your inputs."}`;
+          }
+        } else if (err.status >= 500) {
+          message = "Server error. Please try again later.";
+        } else {
+          message = `Server returned error ${err.status}.`;
+        }
+      }
+      Alert.alert("Error", message);
     } finally {
       setLoading(false);
     }
