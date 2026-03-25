@@ -15,7 +15,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import Colors from "@/constants/colors";
-import { useCreateDiagnosis, getListDiagnosesQueryKey } from "@workspace/api-client-react";
+import { useCreateDiagnosis, getListDiagnosesQueryKey, ApiError } from "@workspace/api-client-react";
 import { useListVehicles } from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
 import { showInterstitialAd } from "@/components/AdBanner";
@@ -150,8 +150,8 @@ export default function NewDiagnoseScreen() {
       Alert.alert("Select Vehicle", "Please select a vehicle to diagnose");
       return;
     }
-    if (!symptoms.trim()) {
-      Alert.alert("Describe Symptoms", "Please describe the symptoms you are experiencing");
+    if (!symptoms.trim() && !photoBase64) {
+      Alert.alert("Add Input", "Please add a photo or describe the symptoms");
       return;
     }
     if (selectedSystems.length === 0) {
@@ -159,27 +159,74 @@ export default function NewDiagnoseScreen() {
       return;
     }
 
+    const requestData = {
+      vehicleId: selectedVehicleId,
+      symptoms: symptoms.trim() || "Photo provided",
+      systems: selectedSystems,
+      errorCodes: errorCodes.trim() || undefined,
+      imageBase64: photoBase64 ?? undefined,
+      imageMimeType: photoBase64 ? photoMimeType : undefined,
+      language: selectedLanguage,
+      currency: selectedCurrency,
+      drivingConditions: selectedCondition ?? undefined,
+      previousIssues: previousIssues.trim() || undefined,
+    };
+
+    console.log("[Diagnose] Submitting:", {
+      vehicleId: requestData.vehicleId,
+      symptomsLength: requestData.symptoms.length,
+      systems: requestData.systems,
+      hasImage: !!requestData.imageBase64,
+      language: requestData.language,
+    });
+
     setLoading(true);
+    const TIMEOUT_MS = 20000;
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("TIMEOUT")), TIMEOUT_MS)
+    );
+
     try {
-      const result = await createDiagnosis.mutateAsync({
-        data: {
-          vehicleId: selectedVehicleId,
-          symptoms: symptoms.trim(),
-          systems: selectedSystems,
-          errorCodes: errorCodes.trim() || undefined,
-          imageBase64: photoBase64 ?? undefined,
-          imageMimeType: photoBase64 ? photoMimeType : undefined,
-          language: selectedLanguage,
-          currency: selectedCurrency,
-          drivingConditions: selectedCondition ?? undefined,
-          previousIssues: previousIssues.trim() || undefined,
-        },
-      });
+      const result = await Promise.race([
+        createDiagnosis.mutateAsync({ data: requestData }),
+        timeoutPromise,
+      ]);
+      console.log("[Diagnose] Success, id:", result.id);
       queryClient.invalidateQueries({ queryKey: getListDiagnosesQueryKey() });
       showInterstitialAd().catch(() => {});
       router.replace({ pathname: "/diagnose/result", params: { id: result.id } });
-    } catch (e) {
-      Alert.alert("Error", "Failed to create diagnosis. Please try again.");
+    } catch (err: unknown) {
+      console.log("[Diagnose] Error:", err);
+      let title = "Error";
+      let message = "Unable to analyze now. Please try again later.";
+      if (err instanceof Error && err.message === "TIMEOUT") {
+        title = "Timeout";
+        message = "Request took too long (20s). Check your connection and try again.";
+      } else if (err instanceof TypeError) {
+        title = "No Internet";
+        message = "No internet connection. Check your network and try again.";
+      } else if (err instanceof ApiError) {
+        if (err.status === 400) {
+          const errData = err.data as { details?: Record<string, string[]>; error?: string } | null;
+          const fields = errData?.details
+            ? Object.entries(errData.details).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join("\n")
+            : null;
+          title = "Invalid Input";
+          message = fields ?? errData?.error ?? "Please check your input and try again.";
+        } else if (err.status === 401 || err.status === 403) {
+          title = "Auth Error";
+          message = "Invalid API key or unauthorized. Please contact support.";
+        } else if (err.status === 503) {
+          title = "AI Unavailable";
+          message = "AI service is temporarily unavailable. Please try again later.";
+        } else if (err.status >= 500) {
+          title = "Server Error";
+          message = `Server error (${err.status}). Please try again later.`;
+        } else {
+          message = `Request failed with status ${err.status}. Please try again.`;
+        }
+      }
+      Alert.alert(title, message);
     } finally {
       setLoading(false);
     }
