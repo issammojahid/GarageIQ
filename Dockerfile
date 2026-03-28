@@ -3,7 +3,7 @@ WORKDIR /app
 RUN npm install -g pnpm@10
 COPY . .
 RUN pnpm install --no-frozen-lockfile
-RUN pnpm --filter @workspace/api-server run build
+RUN cd /app/artifacts/api-server && node build.mjs
 
 FROM node:22-slim AS runtime
 WORKDIR /app

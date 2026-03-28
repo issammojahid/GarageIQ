@@ -1,9 +1,8 @@
 #!/bin/sh
-set -ex
+set -x
 
 echo "=== Running DB migration ==="
-cd /app
-pnpm --filter @workspace/db run push-force
+cd /app/lib/db && pnpm run push-force || echo "Warning: migration skipped or failed, continuing"
 
 echo "=== Starting API server ==="
 exec node --enable-source-maps /app/artifacts/api-server/dist/index.mjs
