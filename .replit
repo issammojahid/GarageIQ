@@ -76,3 +76,8 @@ expertMode = true
 [postMerge]
 path = "scripts/post-merge.sh"
 timeoutMs = 20000
+
+[userenv]
+
+[userenv.shared]
+RAILWAY_TOKEN = "c77004e4-bca1-40c1-819a-f3f7b66526b7"
