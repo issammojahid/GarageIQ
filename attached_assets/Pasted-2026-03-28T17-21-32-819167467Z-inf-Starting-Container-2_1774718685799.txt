@@ -1,0 +1,105 @@
+2026-03-28T17:21:32.819167467Z [inf]  Starting Container
+2026-03-28T17:21:33.149594893Z [err]    requireStack: []
+2026-03-28T17:21:33.149597185Z [err]  
+2026-03-28T17:21:33.149604470Z [err]  + exec node --enable-source-maps /app/artifacts/api-server/dist/index.mjs
+2026-03-28T17:21:33.149606160Z [err]  }
+2026-03-28T17:21:33.149607885Z [err]  Error: Cannot find module '/app/artifacts/api-server/dist/index.mjs'
+2026-03-28T17:21:33.149612938Z [err]  node:internal/modules/cjs/loader:1386
+2026-03-28T17:21:33.149622557Z [err]      at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+2026-03-28T17:21:33.149623488Z [err]    throw err;
+2026-03-28T17:21:33.149626019Z [err]      at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2026-03-28T17:21:33.149631240Z [err]      at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+2026-03-28T17:21:33.149633131Z [err]    ^
+2026-03-28T17:21:33.149633979Z [err]      at node:internal/main/run_main_module:36:49 {
+2026-03-28T17:21:33.149637025Z [inf]  === Running DB migration ===
+2026-03-28T17:21:33.149639362Z [err]      at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+2026-03-28T17:21:33.149642461Z [err]      at Function._load (node:internal/modules/cjs/loader:1192:37)
+2026-03-28T17:21:33.149643522Z [err]    code: 'MODULE_NOT_FOUND',
+2026-03-28T17:21:33.149648172Z [err]  + echo === Running DB migration ===
+2026-03-28T17:21:33.149648359Z [err]      at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+2026-03-28T17:21:33.149653777Z [err]      at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+2026-03-28T17:21:33.149653984Z [err]  + cd /app
+2026-03-28T17:21:33.149658535Z [err]  + pnpm --filter @workspace/db run push-force
+2026-03-28T17:21:33.149661529Z [inf]  No projects matched the filters in "/app"
+2026-03-28T17:21:33.149665777Z [inf]  === Starting API server ===
+2026-03-28T17:21:33.149669101Z [err]  + echo === Starting API server ===
+2026-03-28T17:21:33.150679492Z [err]  
+2026-03-28T17:21:33.150684193Z [err]  Node.js v22.22.2
+2026-03-28T17:21:33.494623613Z [inf]  === Running DB migration ===
+2026-03-28T17:21:33.494626276Z [err]  + echo === Running DB migration ===
+2026-03-28T17:21:33.494629199Z [err]  + cd /app
+2026-03-28T17:21:33.494634626Z [err]  + pnpm --filter @workspace/db run push-force
+2026-03-28T17:21:33.695994104Z [inf]  No projects matched the filters in "/app"
+2026-03-28T17:21:33.701699365Z [inf]  === Starting API server ===
+2026-03-28T17:21:33.701702621Z [err]  + echo === Starting API server ===
+2026-03-28T17:21:33.701705473Z [err]  + exec node --enable-source-maps /app/artifacts/api-server/dist/index.mjs
+2026-03-28T17:21:33.719428954Z [err]    code: 'MODULE_NOT_FOUND',
+2026-03-28T17:21:33.719435102Z [err]  node:internal/modules/cjs/loader:1386
+2026-03-28T17:21:33.719437883Z [err]    requireStack: []
+2026-03-28T17:21:33.719442279Z [err]    throw err;
+2026-03-28T17:21:33.719443761Z [err]  }
+2026-03-28T17:21:33.719447197Z [err]    ^
+2026-03-28T17:21:33.719449059Z [err]  
+2026-03-28T17:21:33.719451368Z [err]  
+2026-03-28T17:21:33.719453679Z [err]  Node.js v22.22.2
+2026-03-28T17:21:33.719455834Z [err]  Error: Cannot find module '/app/artifacts/api-server/dist/index.mjs'
+2026-03-28T17:21:33.719459674Z [err]      at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+2026-03-28T17:21:33.719462585Z [err]      at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+2026-03-28T17:21:33.719465653Z [err]      at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+2026-03-28T17:21:33.719468516Z [err]      at Function._load (node:internal/modules/cjs/loader:1192:37)
+2026-03-28T17:21:33.719473014Z [err]      at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+2026-03-28T17:21:33.719476006Z [err]      at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+2026-03-28T17:21:33.719478805Z [err]      at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2026-03-28T17:21:33.719481626Z [err]      at node:internal/main/run_main_module:36:49 {
+2026-03-28T17:21:34.363039547Z [inf]  === Running DB migration ===
+2026-03-28T17:21:34.363042888Z [err]  + echo === Running DB migration ===
+2026-03-28T17:21:34.363046274Z [err]  + cd /app
+2026-03-28T17:21:34.363049758Z [err]  + pnpm --filter @workspace/db run push-force
+2026-03-28T17:21:34.567296544Z [inf]  No projects matched the filters in "/app"
+2026-03-28T17:21:34.572671701Z [err]  + echo === Starting API server ===
+2026-03-28T17:21:34.572676169Z [err]  + exec node --enable-source-maps /app/artifacts/api-server/dist/index.mjs
+2026-03-28T17:21:34.572679201Z [inf]  === Starting API server ===
+2026-03-28T17:21:34.592575097Z [err]  }
+2026-03-28T17:21:34.592581890Z [err]  Error: Cannot find module '/app/artifacts/api-server/dist/index.mjs'
+2026-03-28T17:21:34.592585657Z [err]  
+2026-03-28T17:21:34.592587852Z [err]      at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+2026-03-28T17:21:34.592591023Z [err]      at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+2026-03-28T17:21:34.592592550Z [err]  node:internal/modules/cjs/loader:1386
+2026-03-28T17:21:34.592595692Z [err]  Node.js v22.22.2
+2026-03-28T17:21:34.592599802Z [err]    throw err;
+2026-03-28T17:21:34.592600119Z [err]      at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+2026-03-28T17:21:34.592601246Z [err]      at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2026-03-28T17:21:34.592606538Z [err]    ^
+2026-03-28T17:21:34.592606866Z [err]      at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+2026-03-28T17:21:34.592610965Z [err]      at node:internal/main/run_main_module:36:49 {
+2026-03-28T17:21:34.592612853Z [err]  
+2026-03-28T17:21:34.592614965Z [err]      at Function._load (node:internal/modules/cjs/loader:1192:37)
+2026-03-28T17:21:34.592619124Z [err]    code: 'MODULE_NOT_FOUND',
+2026-03-28T17:21:34.592621560Z [err]      at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+2026-03-28T17:21:34.592624835Z [err]    requireStack: []
+2026-03-28T17:21:35.248790170Z [inf]  === Running DB migration ===
+2026-03-28T17:21:35.248793031Z [err]  + echo === Running DB migration ===
+2026-03-28T17:21:35.248795910Z [err]  + cd /app
+2026-03-28T17:21:35.248798887Z [err]  + pnpm --filter @workspace/db run push-force
+2026-03-28T17:21:35.445576820Z [inf]  No projects matched the filters in "/app"
+2026-03-28T17:21:35.450835836Z [inf]  === Starting API server ===
+2026-03-28T17:21:35.450838739Z [err]  + echo === Starting API server ===
+2026-03-28T17:21:35.450841279Z [err]  + exec node --enable-source-maps /app/artifacts/api-server/dist/index.mjs
+2026-03-28T17:21:35.474034340Z [err]    requireStack: []
+2026-03-28T17:21:35.474042211Z [err]  }
+2026-03-28T17:21:35.474046228Z [err]  
+2026-03-28T17:21:35.474050190Z [err]  Node.js v22.22.2
+2026-03-28T17:21:35.474076312Z [err]  node:internal/modules/cjs/loader:1386
+2026-03-28T17:21:35.474079038Z [err]    throw err;
+2026-03-28T17:21:35.474081959Z [err]    ^
+2026-03-28T17:21:35.474085200Z [err]  
+2026-03-28T17:21:35.474088108Z [err]  Error: Cannot find module '/app/artifacts/api-server/dist/index.mjs'
+2026-03-28T17:21:35.474090949Z [err]      at Function._resolveFilename (node:internal/modules/cjs/loader:1383:15)
+2026-03-28T17:21:35.474093583Z [err]      at defaultResolveImpl (node:internal/modules/cjs/loader:1025:19)
+2026-03-28T17:21:35.474096231Z [err]      at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1030:22)
+2026-03-28T17:21:35.474099127Z [err]      at Function._load (node:internal/modules/cjs/loader:1192:37)
+2026-03-28T17:21:35.474102033Z [err]      at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+2026-03-28T17:21:35.474106118Z [err]      at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)
+2026-03-28T17:21:35.474109783Z [err]      at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+2026-03-28T17:21:35.474112487Z [err]      at node:internal/main/run_main_module:36:49 {
+2026-03-28T17:21:35.474115255Z [err]    code: 'MODULE_NOT_FOUND',
