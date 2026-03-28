@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { eq } from "drizzle-orm";
 import { db, diagnosesTable } from "@workspace/db";
 import { CreateDiagnosisBody, ListDiagnosesQueryParams } from "@workspace/api-zod";
 
