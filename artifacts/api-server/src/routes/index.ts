@@ -6,9 +6,11 @@ import fuelLogsRouter from "./fuel-logs";
 import maintenanceRouter from "./maintenance";
 import documentsRouter from "./documents";
 import identifyPartRouter from "./identify-part";
+import aiProxyRouter from "./ai-proxy";
 
 const router: IRouter = Router();
 
+router.use("/ai-proxy", aiProxyRouter);
 router.use(healthRouter);
 router.use("/vehicles", vehiclesRouter);
 router.use("/diagnoses", diagnosesRouter);
