@@ -1,0 +1,12 @@
+.git
+.gitignore
+.local
+node_modules
+artifacts/mobile
+artifacts/mockup-sandbox
+**/.expo
+**/__tests__
+**/*.test.ts
+**/*.spec.ts
+.env*
+*.md
