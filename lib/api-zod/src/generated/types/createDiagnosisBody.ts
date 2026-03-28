@@ -15,4 +15,12 @@ export interface CreateDiagnosisBody {
   imageBase64?: string;
   /** MIME type of the image (e.g. image/jpeg, image/png). Defaults to image/jpeg if not provided. */
   imageMimeType?: string;
+  language?: string;
+  currency?: string;
+  drivingConditions?: string;
+  previousIssues?: string;
+  vehicleMake?: string;
+  vehicleModel?: string;
+  vehicleYear?: number;
+  vehicleMileage?: number;
 }

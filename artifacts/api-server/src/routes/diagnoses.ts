@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { db, diagnosesTable, vehiclesTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { db, diagnosesTable } from "@workspace/db";
 import { CreateDiagnosisBody, ListDiagnosesQueryParams } from "@workspace/api-zod";
 
 type OpenAIClient = Awaited<typeof import("@workspace/integrations-openai-ai-server")>["openai"];
@@ -56,6 +55,10 @@ router.post("/", async (req, res) => {
       currency,
       drivingConditions,
       previousIssues,
+      vehicleMake: bodyMake,
+      vehicleModel: bodyModel,
+      vehicleYear: bodyYear,
+      vehicleMileage: bodyMileage,
     } = parsed.data;
 
     const aiClient = await getOpenAI();
@@ -63,11 +66,10 @@ router.post("/", async (req, res) => {
       return res.status(503).json({ error: "AI service unavailable. Please configure OpenAI integration." });
     }
 
-    const [vehicle] = await db.select().from(vehiclesTable).where(eq(vehiclesTable.id, vehicleId));
-    const make = vehicle?.make ?? "Unknown";
-    const model = vehicle?.model ?? "Vehicle";
-    const year = vehicle?.year ?? "";
-    const mileage = vehicle?.mileage != null ? `${vehicle.mileage}` : "N/A";
+    const make = bodyMake ?? "Unknown";
+    const model = bodyModel ?? "Vehicle";
+    const year = bodyYear ?? "";
+    const mileage = bodyMileage != null ? `${bodyMileage}` : "N/A";
 
     const userLanguage = language ?? "English";
     const selectedCurrency = currency ?? "USD";
@@ -245,6 +247,9 @@ Rules:
 
     const [diagnosis] = await db.insert(diagnosesTable).values({
       vehicleId,
+      vehicleMake: make !== "Unknown" ? make : null,
+      vehicleModel: model !== "Vehicle" ? model : null,
+      vehicleYear: typeof year === "number" ? year : (year ? parseInt(String(year)) : null),
       symptoms,
       systems,
       errorCodes: errorCodes ?? null,

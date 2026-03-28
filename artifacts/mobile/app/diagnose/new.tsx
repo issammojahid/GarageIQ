@@ -159,6 +159,7 @@ export default function NewDiagnoseScreen() {
       return;
     }
 
+    const selectedVehicle = vehicles?.find((v) => v.id === selectedVehicleId);
     const requestData = {
       vehicleId: selectedVehicleId,
       symptoms: symptoms.trim() || "Photo provided",
@@ -170,6 +171,10 @@ export default function NewDiagnoseScreen() {
       currency: selectedCurrency,
       drivingConditions: selectedCondition ?? undefined,
       previousIssues: previousIssues.trim() || undefined,
+      vehicleMake: selectedVehicle?.make,
+      vehicleModel: selectedVehicle?.model,
+      vehicleYear: selectedVehicle?.year,
+      vehicleMileage: selectedVehicle?.mileage,
     };
 
     console.log("[Diagnose] Submitting:", {

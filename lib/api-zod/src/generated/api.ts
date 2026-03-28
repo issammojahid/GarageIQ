@@ -159,6 +159,10 @@ export const CreateDiagnosisBody = zod.object({
   currency: zod.string().optional().describe("Currency for cost estimates (e.g. USD, EUR, MAD, GBP)"),
   drivingConditions: zod.string().optional().describe("Driving conditions (City, Highway, Off-road, Mixed)"),
   previousIssues: zod.string().optional().describe("Any previous issues or repairs the user wants to mention"),
+  vehicleMake: zod.string().optional().describe("Vehicle make (e.g. Toyota, BMW). Sent from local vehicle storage."),
+  vehicleModel: zod.string().optional().describe("Vehicle model (e.g. Camry, 3 Series)."),
+  vehicleYear: zod.number().optional().describe("Vehicle year of manufacture."),
+  vehicleMileage: zod.number().optional().describe("Vehicle mileage."),
 });
 
 /**
