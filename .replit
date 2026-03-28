@@ -81,3 +81,4 @@ timeoutMs = 20000
 
 [userenv.shared]
 RAILWAY_TOKEN = "c77004e4-bca1-40c1-819a-f3f7b66526b7"
+AI_PROXY_SECRET = "9da2923a9adfe2f35282663d5eca843a8cbc9880bf803e4e0cd1a526910af866"
