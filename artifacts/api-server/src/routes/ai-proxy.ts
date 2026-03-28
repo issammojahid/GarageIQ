@@ -18,8 +18,8 @@ router.all("{*path}", async (req, res) => {
     }
   }
 
-  const path = req.path === "/" ? "" : req.path;
-  const targetUrl = `${aiBaseUrl}${path}`;
+  const subPath = req.url === "/" ? "" : req.url;
+  const targetUrl = `${aiBaseUrl}${subPath}`;
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
