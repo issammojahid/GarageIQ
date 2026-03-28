@@ -1,0 +1,954 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: GarageIQ API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: vehicles
+    description: Vehicle management
+  - name: diagnoses
+    description: AI car diagnoses
+  - name: fuel-logs
+    description: Fuel log tracking
+  - name: maintenance
+    description: Maintenance records
+  - name: documents
+    description: Vehicle documents
+  - name: ai
+    description: AI features
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /vehicles:
+    get:
+      operationId: listVehicles
+      tags: [vehicles]
+      summary: List all vehicles
+      responses:
+        "200":
+          description: List of vehicles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Vehicle"
+    post:
+      operationId: createVehicle
+      tags: [vehicles]
+      summary: Create a vehicle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVehicleBody"
+      responses:
+        "201":
+          description: Vehicle created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+
+  /vehicles/{id}:
+    get:
+      operationId: getVehicle
+      tags: [vehicles]
+      summary: Get a vehicle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Vehicle
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updateVehicle
+      tags: [vehicles]
+      summary: Update a vehicle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVehicleBody"
+      responses:
+        "200":
+          description: Vehicle updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteVehicle
+      tags: [vehicles]
+      summary: Delete a vehicle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Vehicle deleted
+
+  /diagnoses:
+    get:
+      operationId: listDiagnoses
+      tags: [diagnoses]
+      summary: List diagnoses
+      parameters:
+        - name: vehicleId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of diagnoses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Diagnosis"
+    post:
+      operationId: createDiagnosis
+      tags: [diagnoses]
+      summary: Create a diagnosis (AI-powered)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDiagnosisBody"
+      responses:
+        "201":
+          description: Diagnosis created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Diagnosis"
+
+  /diagnoses/{id}:
+    get:
+      operationId: getDiagnosis
+      tags: [diagnoses]
+      summary: Get a diagnosis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Diagnosis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Diagnosis"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteDiagnosis
+      tags: [diagnoses]
+      summary: Delete a diagnosis
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /fuel-logs:
+    get:
+      operationId: listFuelLogs
+      tags: [fuel-logs]
+      summary: List fuel logs
+      parameters:
+        - name: vehicleId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of fuel logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FuelLog"
+    post:
+      operationId: createFuelLog
+      tags: [fuel-logs]
+      summary: Create a fuel log entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFuelLogBody"
+      responses:
+        "201":
+          description: Fuel log created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FuelLog"
+
+  /fuel-logs/{id}:
+    get:
+      operationId: getFuelLog
+      tags: [fuel-logs]
+      summary: Get a fuel log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Fuel log
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FuelLog"
+        "404":
+          description: Not found
+    put:
+      operationId: updateFuelLog
+      tags: [fuel-logs]
+      summary: Update a fuel log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFuelLogBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FuelLog"
+    delete:
+      operationId: deleteFuelLog
+      tags: [fuel-logs]
+      summary: Delete a fuel log
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /maintenance:
+    get:
+      operationId: listMaintenance
+      tags: [maintenance]
+      summary: List maintenance records
+      parameters:
+        - name: vehicleId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of maintenance records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MaintenanceRecord"
+    post:
+      operationId: createMaintenance
+      tags: [maintenance]
+      summary: Create a maintenance record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMaintenanceBody"
+      responses:
+        "201":
+          description: Maintenance record created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MaintenanceRecord"
+
+  /maintenance/{id}:
+    get:
+      operationId: getMaintenanceRecord
+      tags: [maintenance]
+      summary: Get a maintenance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Maintenance record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MaintenanceRecord"
+        "404":
+          description: Not found
+    put:
+      operationId: updateMaintenanceRecord
+      tags: [maintenance]
+      summary: Update a maintenance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMaintenanceBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MaintenanceRecord"
+    delete:
+      operationId: deleteMaintenance
+      tags: [maintenance]
+      summary: Delete a maintenance record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /documents:
+    get:
+      operationId: listDocuments
+      tags: [documents]
+      summary: List documents
+      parameters:
+        - name: vehicleId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Document"
+    post:
+      operationId: createDocument
+      tags: [documents]
+      summary: Create a document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDocumentBody"
+      responses:
+        "201":
+          description: Document created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+
+  /documents/{id}:
+    get:
+      operationId: getDocument
+      tags: [documents]
+      summary: Get a document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "404":
+          description: Not found
+    put:
+      operationId: updateDocument
+      tags: [documents]
+      summary: Update a document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDocumentBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+    delete:
+      operationId: deleteDocument
+      tags: [documents]
+      summary: Delete a document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /identify-part:
+    post:
+      operationId: identifyPart
+      tags: [ai]
+      summary: AI identify car part
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IdentifyPartBody"
+      responses:
+        "200":
+          description: Part identification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdentifyPartResult"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: integer
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        mileage:
+          type: integer
+        licensePlate:
+          type: string
+        color:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - make
+        - model
+        - year
+        - mileage
+        - createdAt
+        - updatedAt
+
+    CreateVehicleBody:
+      type: object
+      properties:
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        mileage:
+          type: integer
+        licensePlate:
+          type: string
+        color:
+          type: string
+        notes:
+          type: string
+      required:
+        - make
+        - model
+        - year
+        - mileage
+
+    DiagnosisResult:
+      type: object
+      properties:
+        summary:
+          type: string
+        issues:
+          type: array
+          items:
+            type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical, dangerous]
+        repairSteps:
+          type: array
+          items:
+            type: string
+        estimatedCostMin:
+          type: integer
+        estimatedCostMax:
+          type: integer
+        estimatedCost:
+          type: string
+          description: Cost estimate as a string with currency symbol (e.g. "$200–$500")
+        diyFriendly:
+          type: boolean
+        urgency:
+          type: string
+        safeToDrive:
+          type: object
+          properties:
+            answer:
+              type: string
+              enum: [Yes, No]
+            explanation:
+              type: string
+          required:
+            - answer
+            - explanation
+        confidence:
+          type: string
+          enum: [High, Medium, Low]
+        maintenanceTips:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+      required:
+        - summary
+        - issues
+        - severity
+        - repairSteps
+        - estimatedCostMin
+        - estimatedCostMax
+        - diyFriendly
+        - urgency
+
+    Diagnosis:
+      type: object
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+        symptoms:
+          type: string
+        systems:
+          type: array
+          items:
+            type: string
+        errorCodes:
+          type: string
+        result:
+          $ref: "#/components/schemas/DiagnosisResult"
+        createdAt:
+          type: string
+      required:
+        - id
+        - vehicleId
+        - symptoms
+        - systems
+        - result
+        - createdAt
+
+    CreateDiagnosisBody:
+      type: object
+      properties:
+        vehicleId:
+          type: integer
+        symptoms:
+          type: string
+        systems:
+          type: array
+          items:
+            type: string
+        errorCodes:
+          type: string
+        imageBase64:
+          type: string
+          description: Base64-encoded image of the car issue (optional, used for AI visual analysis)
+        imageMimeType:
+          type: string
+          description: MIME type of the image (e.g. image/jpeg, image/png). Defaults to image/jpeg if not provided.
+        language:
+          type: string
+          description: User's language/locale for AI response (e.g. en, fr, ar). Auto-detected from device.
+        currency:
+          type: string
+          description: Currency for cost estimates (e.g. USD, EUR, MAD, GBP)
+        drivingConditions:
+          type: string
+          description: Driving conditions (City, Highway, Off-road, Mixed)
+        previousIssues:
+          type: string
+          description: Any previous issues or repairs the user wants to mention
+      required:
+        - vehicleId
+        - symptoms
+        - systems
+
+    FuelLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+        liters:
+          type: number
+        pricePerLiter:
+          type: number
+        totalCost:
+          type: number
+        odometer:
+          type: integer
+        fuelType:
+          type: string
+        date:
+          type: string
+        notes:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - vehicleId
+        - liters
+        - pricePerLiter
+        - totalCost
+        - odometer
+        - date
+        - createdAt
+
+    CreateFuelLogBody:
+      type: object
+      properties:
+        vehicleId:
+          type: integer
+        liters:
+          type: number
+        pricePerLiter:
+          type: number
+        totalCost:
+          type: number
+        odometer:
+          type: integer
+        fuelType:
+          type: string
+        date:
+          type: string
+        notes:
+          type: string
+      required:
+        - vehicleId
+        - liters
+        - pricePerLiter
+        - totalCost
+        - odometer
+        - date
+
+    MaintenanceRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+        type:
+          type: string
+        date:
+          type: string
+        mileage:
+          type: integer
+        notes:
+          type: string
+        nextDueDate:
+          type: string
+        nextDueMileage:
+          type: integer
+        cost:
+          type: number
+        createdAt:
+          type: string
+      required:
+        - id
+        - vehicleId
+        - type
+        - date
+        - mileage
+        - createdAt
+
+    CreateMaintenanceBody:
+      type: object
+      properties:
+        vehicleId:
+          type: integer
+        type:
+          type: string
+        date:
+          type: string
+        mileage:
+          type: integer
+        notes:
+          type: string
+        nextDueDate:
+          type: string
+        nextDueMileage:
+          type: integer
+        cost:
+          type: number
+      required:
+        - vehicleId
+        - type
+        - date
+        - mileage
+
+    Document:
+      type: object
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        notes:
+          type: string
+        expiryDate:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - vehicleId
+        - type
+        - title
+        - createdAt
+
+    CreateDocumentBody:
+      type: object
+      properties:
+        vehicleId:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        notes:
+          type: string
+        expiryDate:
+          type: string
+      required:
+        - vehicleId
+        - type
+        - title
+
+    UpdateFuelLogBody:
+      type: object
+      properties:
+        liters:
+          type: number
+        pricePerLiter:
+          type: number
+        totalCost:
+          type: number
+        odometer:
+          type: integer
+        fuelType:
+          type: string
+        date:
+          type: string
+        notes:
+          type: string
+
+    UpdateMaintenanceBody:
+      type: object
+      properties:
+        type:
+          type: string
+        date:
+          type: string
+        mileage:
+          type: integer
+        notes:
+          type: string
+        nextDueDate:
+          type: string
+        nextDueMileage:
+          type: integer
+        cost:
+          type: number
+
+    UpdateDocumentBody:
+      type: object
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        notes:
+          type: string
+        expiryDate:
+          type: string
+
+    IdentifyPartBody:
+      type: object
+      properties:
+        description:
+          type: string
+        vehicleMake:
+          type: string
+        vehicleModel:
+          type: string
+        vehicleYear:
+          type: integer
+      required:
+        - description
+
+    IdentifyPartResult:
+      type: object
+      properties:
+        partName:
+          type: string
+        partDescription:
+          type: string
+        partNumber:
+          type: string
+        function:
+          type: string
+        location:
+          type: string
+        commonIssues:
+          type: array
+          items:
+            type: string
+        estimatedCost:
+          type: string
+        replacementDifficulty:
+          type: string
+      required:
+        - partName
+        - partDescription
+        - function
+        - location
+        - commonIssues
+        - estimatedCost
+        - replacementDifficulty
