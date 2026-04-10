@@ -48,6 +48,7 @@ export default function VehicleSelector({
   const [searchModel, setSearchModel] = useState("");
   const [selectedMake, setSelectedMake] = useState(initialMake);
   const [selectedYear, setSelectedYear] = useState(initialYear ?? CURRENT_YEAR);
+  const [selectedModel, setSelectedModel] = useState(initialModel);
   const [customMake, setCustomMake] = useState("");
   const [customModel, setCustomModel] = useState("");
   const [useCustomMake, setUseCustomMake] = useState(false);
@@ -60,6 +61,7 @@ export default function VehicleSelector({
       setSearchModel("");
       setSelectedMake(initialMake);
       setSelectedYear(initialYear ?? CURRENT_YEAR);
+      setSelectedModel(initialModel);
       setCustomMake("");
       setCustomModel("");
       setUseCustomMake(false);
@@ -89,6 +91,7 @@ export default function VehicleSelector({
   };
 
   const handlePickModel = (model: string) => {
+    setSelectedModel(model);
     const make = useCustomMake ? customMake.trim() : selectedMake;
     onConfirm({ make, year: selectedYear, model });
   };
@@ -205,16 +208,29 @@ export default function VehicleSelector({
                 keyExtractor={(item) => item.name}
                 keyboardShouldPersistTaps="handled"
                 contentContainerStyle={styles.listContent}
-                renderItem={({ item }) => (
-                  <Pressable
-                    style={({ pressed }) => [styles.listItem, pressed && styles.listItemPressed]}
-                    onPress={() => handlePickMake(item)}
-                  >
-                    <Text style={styles.listItemText}>{item.name}</Text>
-                    <Text style={styles.listItemMeta}>{item.models.length} models</Text>
-                    <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
-                  </Pressable>
-                )}
+                renderItem={({ item }) => {
+                  const isSelected = item.name === selectedMake && !useCustomMake;
+                  return (
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.listItem,
+                        pressed && styles.listItemPressed,
+                        isSelected && styles.listItemSelected,
+                      ]}
+                      onPress={() => handlePickMake(item)}
+                    >
+                      <Text style={[styles.listItemText, isSelected && styles.listItemTextSelected]}>
+                        {item.name}
+                      </Text>
+                      <Text style={styles.listItemMeta}>{item.models.length} models</Text>
+                      {isSelected ? (
+                        <Ionicons name="checkmark" size={18} color={Colors.accent} />
+                      ) : (
+                        <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
+                      )}
+                    </Pressable>
+                  );
+                }}
                 ListEmptyComponent={
                   <Text style={styles.emptyText}>No brands found. Use "Enter brand manually" above.</Text>
                 }
@@ -309,15 +325,28 @@ export default function VehicleSelector({
                 keyExtractor={(m) => m}
                 keyboardShouldPersistTaps="handled"
                 contentContainerStyle={styles.listContent}
-                renderItem={({ item: model }) => (
-                  <Pressable
-                    style={({ pressed }) => [styles.listItem, pressed && styles.listItemPressed]}
-                    onPress={() => handlePickModel(model)}
-                  >
-                    <Text style={styles.listItemText}>{model}</Text>
-                    <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
-                  </Pressable>
-                )}
+                renderItem={({ item: model }) => {
+                  const isSelected = model === selectedModel;
+                  return (
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.listItem,
+                        pressed && styles.listItemPressed,
+                        isSelected && styles.listItemSelected,
+                      ]}
+                      onPress={() => handlePickModel(model)}
+                    >
+                      <Text style={[styles.listItemText, isSelected && styles.listItemTextSelected]}>
+                        {model}
+                      </Text>
+                      {isSelected ? (
+                        <Ionicons name="checkmark" size={18} color={Colors.accent} />
+                      ) : (
+                        <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
+                      )}
+                    </Pressable>
+                  );
+                }}
                 ListEmptyComponent={
                   !useCustomModel ? (
                     <Text style={styles.emptyText}>No models found. Use "Enter model manually" above.</Text>
