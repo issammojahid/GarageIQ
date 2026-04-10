@@ -62,9 +62,13 @@ export default function IdentifyPartScreen() {
     });
     if (!result.canceled && result.assets[0]) {
       const asset = result.assets[0];
+      if (!asset.base64) {
+        Alert.alert("Error", "Could not load image data. Please try again.");
+        return;
+      }
       setPickedImage({
         uri: asset.uri,
-        base64: asset.base64 ?? "",
+        base64: asset.base64,
         mimeType: asset.mimeType ?? "image/jpeg",
       });
     }
@@ -82,9 +86,13 @@ export default function IdentifyPartScreen() {
     });
     if (!result.canceled && result.assets[0]) {
       const asset = result.assets[0];
+      if (!asset.base64) {
+        Alert.alert("Error", "Could not load image data. Please try again.");
+        return;
+      }
       setPickedImage({
         uri: asset.uri,
-        base64: asset.base64 ?? "",
+        base64: asset.base64,
         mimeType: asset.mimeType ?? "image/jpeg",
       });
     }
