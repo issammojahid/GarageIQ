@@ -14,42 +14,49 @@ import { useCreateVehicle, getListVehiclesQueryKey } from "@/hooks/useLocalVehic
 import { useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
+import VehicleSelector, { VehicleSelection } from "@/components/VehicleSelector";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
 export default function AddVehicleScreen() {
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
-  const [year, setYear] = useState(String(CURRENT_YEAR));
+  const [year, setYear] = useState(CURRENT_YEAR);
   const [mileage, setMileage] = useState("");
   const [licensePlate, setLicensePlate] = useState("");
   const [color, setColor] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
+  const [selectorVisible, setSelectorVisible] = useState(false);
 
   const createVehicle = useCreateVehicle();
   const queryClient = useQueryClient();
+
+  const handleSelectorConfirm = (selection: VehicleSelection) => {
+    setMake(selection.make);
+    setModel(selection.model);
+    setYear(selection.year);
+    setSelectorVisible(false);
+  };
 
   const handleSave = async () => {
     if (!make.trim() || !model.trim()) {
       Alert.alert("Missing Info", "Make and model are required");
       return;
     }
-    const yearNum = parseInt(year);
-    if (isNaN(yearNum) || yearNum < 1900 || yearNum > CURRENT_YEAR + 1) {
+    if (isNaN(year) || year < 1900 || year > CURRENT_YEAR + 1) {
       Alert.alert("Invalid Year", `Year must be between 1900 and ${CURRENT_YEAR + 1}`);
       return;
     }
     const mileageNum = parseInt(mileage || "0");
 
     setLoading(true);
-    console.log("[AddVehicle] Submitting:", { make: make.trim(), model: model.trim(), year: yearNum, mileage: mileageNum });
     try {
       await createVehicle.mutateAsync({
         data: {
           make: make.trim(),
           model: model.trim(),
-          year: yearNum,
+          year,
           mileage: mileageNum,
           licensePlate: licensePlate.trim() || undefined,
           color: color.trim() || undefined,
@@ -61,7 +68,6 @@ export default function AddVehicleScreen() {
         { text: "OK", onPress: () => router.back() },
       ]);
     } catch (err: unknown) {
-      console.log("[AddVehicle] Error:", err);
       const message =
         err instanceof Error
           ? `Failed to save vehicle: ${err.message}`
@@ -72,48 +78,81 @@ export default function AddVehicleScreen() {
     }
   };
 
+  const vehicleLabel = make && model ? `${make} ${model} · ${year}` : null;
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.subtitle}>Enter your vehicle details below</Text>
 
-        <View style={styles.row}>
-          <View style={[styles.field, { flex: 1 }]}>
-            <Text style={styles.label}>Make *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Toyota, BMW..."
-              placeholderTextColor={Colors.textTertiary}
-              value={make}
-              onChangeText={setMake}
-            />
-          </View>
-          <View style={[styles.field, { flex: 1 }]}>
-            <Text style={styles.label}>Model *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Corolla, X5..."
-              placeholderTextColor={Colors.textTertiary}
-              value={model}
-              onChangeText={setModel}
-            />
-          </View>
+        <View style={styles.field}>
+          <Text style={styles.label}>Vehicle *</Text>
+          <Pressable
+            style={({ pressed }) => [styles.selectorBtn, pressed && styles.selectorBtnPressed]}
+            onPress={() => setSelectorVisible(true)}
+          >
+            {vehicleLabel ? (
+              <Text style={styles.selectorBtnValue} numberOfLines={1}>{vehicleLabel}</Text>
+            ) : (
+              <Text style={styles.selectorBtnPlaceholder}>Select make, year & model...</Text>
+            )}
+            <Ionicons name="chevron-forward" size={18} color={Colors.textTertiary} />
+          </Pressable>
         </View>
 
-        <View style={styles.row}>
-          <View style={[styles.field, { flex: 1 }]}>
-            <Text style={styles.label}>Year *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="2020"
-              placeholderTextColor={Colors.textTertiary}
-              value={year}
-              onChangeText={setYear}
-              keyboardType="number-pad"
-              maxLength={4}
-            />
+        {(make || model) ? (
+          <View style={styles.row}>
+            <View style={[styles.field, { flex: 1 }]}>
+              <Text style={styles.label}>Make *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Toyota, BMW..."
+                placeholderTextColor={Colors.textTertiary}
+                value={make}
+                onChangeText={setMake}
+              />
+            </View>
+            <View style={[styles.field, { flex: 1 }]}>
+              <Text style={styles.label}>Model *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Corolla, X5..."
+                placeholderTextColor={Colors.textTertiary}
+                value={model}
+                onChangeText={setModel}
+              />
+            </View>
           </View>
-          <View style={[styles.field, { flex: 1 }]}>
+        ) : null}
+
+        {(make || model) ? (
+          <View style={styles.row}>
+            <View style={[styles.field, { flex: 1 }]}>
+              <Text style={styles.label}>Year *</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="2020"
+                placeholderTextColor={Colors.textTertiary}
+                value={String(year)}
+                onChangeText={(v) => setYear(parseInt(v) || CURRENT_YEAR)}
+                keyboardType="number-pad"
+                maxLength={4}
+              />
+            </View>
+            <View style={[styles.field, { flex: 1 }]}>
+              <Text style={styles.label}>Mileage (km)</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="45000"
+                placeholderTextColor={Colors.textTertiary}
+                value={mileage}
+                onChangeText={setMileage}
+                keyboardType="number-pad"
+              />
+            </View>
+          </View>
+        ) : (
+          <View style={styles.field}>
             <Text style={styles.label}>Mileage (km)</Text>
             <TextInput
               style={styles.input}
@@ -124,7 +163,7 @@ export default function AddVehicleScreen() {
               keyboardType="number-pad"
             />
           </View>
-        </View>
+        )}
 
         <View style={styles.field}>
           <Text style={styles.label}>License Plate</Text>
@@ -178,6 +217,15 @@ export default function AddVehicleScreen() {
           )}
         </Pressable>
       </ScrollView>
+
+      <VehicleSelector
+        visible={selectorVisible}
+        initialMake={make}
+        initialYear={year}
+        initialModel={model}
+        onConfirm={handleSelectorConfirm}
+        onClose={() => setSelectorVisible(false)}
+      />
     </View>
   );
 }
@@ -200,6 +248,30 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   textArea: { minHeight: 80 },
+  selectorBtn: {
+    backgroundColor: Colors.card,
+    borderRadius: 12,
+    padding: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  selectorBtnPressed: { opacity: 0.75 },
+  selectorBtnValue: {
+    flex: 1,
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 14,
+    color: Colors.text,
+    marginRight: 8,
+  },
+  selectorBtnPlaceholder: {
+    flex: 1,
+    fontFamily: "Inter_400Regular",
+    fontSize: 14,
+    color: Colors.textTertiary,
+  },
   saveBtn: {
     backgroundColor: Colors.accent,
     borderRadius: 14,
