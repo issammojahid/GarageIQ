@@ -53,8 +53,13 @@ export default function EditVehicleScreen() {
   };
 
   const handleSave = async () => {
+    const CURRENT_YEAR = new Date().getFullYear();
     if (!make.trim() || !model.trim()) {
       Alert.alert("Missing Info", "Please select your vehicle make and model first.");
+      return;
+    }
+    if (isNaN(year) || year < 1980 || year > CURRENT_YEAR + 1) {
+      Alert.alert("Invalid Year", `Year must be between 1980 and ${CURRENT_YEAR + 1}`);
       return;
     }
     setLoading(true);
