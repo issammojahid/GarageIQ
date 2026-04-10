@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   Modal,
   View,
@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
-import { CAR_MAKES, filterMakes, getModelsForMake, getYears, CarMake } from "@/data/carData";
+import { filterMakes, getModelsForMake, getYears, CarMake } from "@/data/carData";
 
 type Step = "make" | "year" | "model";
 
@@ -33,6 +33,7 @@ type Props = {
 };
 
 const YEARS = getYears();
+const CURRENT_YEAR = new Date().getFullYear();
 
 export default function VehicleSelector({
   visible,
@@ -42,34 +43,33 @@ export default function VehicleSelector({
   onConfirm,
   onClose,
 }: Props) {
-  const currentYear = new Date().getFullYear();
-
   const [step, setStep] = useState<Step>("make");
   const [searchMake, setSearchMake] = useState("");
   const [searchModel, setSearchModel] = useState("");
   const [selectedMake, setSelectedMake] = useState(initialMake);
-  const [selectedYear, setSelectedYear] = useState(initialYear ?? currentYear);
+  const [selectedYear, setSelectedYear] = useState(initialYear ?? CURRENT_YEAR);
   const [selectedModel, setSelectedModel] = useState(initialModel);
   const [customMake, setCustomMake] = useState("");
   const [customModel, setCustomModel] = useState("");
   const [useCustomMake, setUseCustomMake] = useState(false);
   const [useCustomModel, setUseCustomModel] = useState(false);
 
-  const resetState = useCallback(() => {
-    setStep("make");
-    setSearchMake("");
-    setSearchModel("");
-    setSelectedMake(initialMake);
-    setSelectedYear(initialYear ?? currentYear);
-    setSelectedModel(initialModel);
-    setCustomMake("");
-    setCustomModel("");
-    setUseCustomMake(false);
-    setUseCustomModel(false);
-  }, [initialMake, initialYear, initialModel, currentYear]);
+  useEffect(() => {
+    if (visible) {
+      setStep("make");
+      setSearchMake("");
+      setSearchModel("");
+      setSelectedMake(initialMake);
+      setSelectedYear(initialYear ?? CURRENT_YEAR);
+      setSelectedModel(initialModel);
+      setCustomMake("");
+      setCustomModel("");
+      setUseCustomMake(false);
+      setUseCustomModel(false);
+    }
+  }, [visible, initialMake, initialYear, initialModel]);
 
   const handleClose = () => {
-    resetState();
     onClose();
   };
 
@@ -96,12 +96,8 @@ export default function VehicleSelector({
   };
 
   const handlePickModel = (model: string) => {
-    setSelectedModel(model);
-    setUseCustomModel(false);
-    setCustomModel("");
     const make = useCustomMake ? customMake.trim() : selectedMake;
     onConfirm({ make, year: selectedYear, model });
-    resetState();
   };
 
   const handleConfirmCustomMake = () => {
@@ -118,7 +114,6 @@ export default function VehicleSelector({
     if (!customModel.trim()) return;
     const make = useCustomMake ? customMake.trim() : selectedMake;
     onConfirm({ make, year: selectedYear, model: customModel.trim() });
-    resetState();
   };
 
   const handleBack = () => {
@@ -126,13 +121,15 @@ export default function VehicleSelector({
     else if (step === "model") setStep("year");
   };
 
+  const activeMake = useCustomMake ? customMake.trim() : selectedMake;
+
   const stepTitle = step === "make" ? "Select Make" : step === "year" ? "Select Year" : "Select Model";
   const stepSubtitle =
     step === "make"
-      ? "Search or type your car brand"
+      ? "Search or enter your car brand"
       : step === "year"
-      ? `${useCustomMake ? customMake.trim() : selectedMake}`
-      : `${useCustomMake ? customMake.trim() : selectedMake} · ${selectedYear}`;
+      ? activeMake
+      : `${activeMake} · ${selectedYear}`;
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={handleClose}>
@@ -145,7 +142,7 @@ export default function VehicleSelector({
                   <Ionicons name="chevron-back" size={22} color={Colors.text} />
                 </Pressable>
               ) : null}
-              <View>
+              <View style={{ flex: 1 }}>
                 <Text style={styles.headerTitle}>{stepTitle}</Text>
                 <Text style={styles.headerSubtitle} numberOfLines={1}>{stepSubtitle}</Text>
               </View>

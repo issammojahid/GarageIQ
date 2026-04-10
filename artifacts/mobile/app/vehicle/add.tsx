@@ -41,7 +41,7 @@ export default function AddVehicleScreen() {
 
   const handleSave = async () => {
     if (!make.trim() || !model.trim()) {
-      Alert.alert("Missing Info", "Make and model are required");
+      Alert.alert("Missing Info", "Please select your vehicle make and model first.");
       return;
     }
     if (isNaN(year) || year < 1900 || year > CURRENT_YEAR + 1) {
@@ -82,7 +82,7 @@ export default function AddVehicleScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <Text style={styles.subtitle}>Enter your vehicle details below</Text>
 
         <View style={styles.field}>
@@ -91,79 +91,28 @@ export default function AddVehicleScreen() {
             style={({ pressed }) => [styles.selectorBtn, pressed && styles.selectorBtnPressed]}
             onPress={() => setSelectorVisible(true)}
           >
-            {vehicleLabel ? (
-              <Text style={styles.selectorBtnValue} numberOfLines={1}>{vehicleLabel}</Text>
-            ) : (
-              <Text style={styles.selectorBtnPlaceholder}>Select make, year & model...</Text>
-            )}
+            <View style={{ flex: 1 }}>
+              {vehicleLabel ? (
+                <Text style={styles.selectorBtnValue} numberOfLines={1}>{vehicleLabel}</Text>
+              ) : (
+                <Text style={styles.selectorBtnPlaceholder}>Select make, year & model...</Text>
+              )}
+            </View>
             <Ionicons name="chevron-forward" size={18} color={Colors.textTertiary} />
           </Pressable>
         </View>
 
-        {(make || model) ? (
-          <View style={styles.row}>
-            <View style={[styles.field, { flex: 1 }]}>
-              <Text style={styles.label}>Make *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Toyota, BMW..."
-                placeholderTextColor={Colors.textTertiary}
-                value={make}
-                onChangeText={setMake}
-              />
-            </View>
-            <View style={[styles.field, { flex: 1 }]}>
-              <Text style={styles.label}>Model *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Corolla, X5..."
-                placeholderTextColor={Colors.textTertiary}
-                value={model}
-                onChangeText={setModel}
-              />
-            </View>
-          </View>
-        ) : null}
-
-        {(make || model) ? (
-          <View style={styles.row}>
-            <View style={[styles.field, { flex: 1 }]}>
-              <Text style={styles.label}>Year *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="2020"
-                placeholderTextColor={Colors.textTertiary}
-                value={String(year)}
-                onChangeText={(v) => setYear(parseInt(v) || CURRENT_YEAR)}
-                keyboardType="number-pad"
-                maxLength={4}
-              />
-            </View>
-            <View style={[styles.field, { flex: 1 }]}>
-              <Text style={styles.label}>Mileage (km)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="45000"
-                placeholderTextColor={Colors.textTertiary}
-                value={mileage}
-                onChangeText={setMileage}
-                keyboardType="number-pad"
-              />
-            </View>
-          </View>
-        ) : (
-          <View style={styles.field}>
-            <Text style={styles.label}>Mileage (km)</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="45000"
-              placeholderTextColor={Colors.textTertiary}
-              value={mileage}
-              onChangeText={setMileage}
-              keyboardType="number-pad"
-            />
-          </View>
-        )}
+        <View style={styles.field}>
+          <Text style={styles.label}>Mileage (km)</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="45000"
+            placeholderTextColor={Colors.textTertiary}
+            value={mileage}
+            onChangeText={setMileage}
+            keyboardType="number-pad"
+          />
+        </View>
 
         <View style={styles.field}>
           <Text style={styles.label}>License Plate</Text>
@@ -234,7 +183,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   content: { padding: 20, paddingBottom: 40 },
   subtitle: { fontFamily: "Inter_400Regular", fontSize: 14, color: Colors.textSecondary, marginBottom: 24 },
-  row: { flexDirection: "row", gap: 12 },
   field: { marginBottom: 16 },
   label: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: Colors.text, marginBottom: 8 },
   input: {
@@ -257,17 +205,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderWidth: 1,
     borderColor: Colors.border,
+    minHeight: 50,
   },
   selectorBtnPressed: { opacity: 0.75 },
   selectorBtnValue: {
-    flex: 1,
     fontFamily: "Inter_600SemiBold",
     fontSize: 14,
     color: Colors.text,
-    marginRight: 8,
   },
   selectorBtnPlaceholder: {
-    flex: 1,
     fontFamily: "Inter_400Regular",
     fontSize: 14,
     color: Colors.textTertiary,
