@@ -10,5 +10,4 @@ WORKDIR /app
 RUN npm install -g pnpm@10
 COPY --from=builder /app .
 RUN chmod +x /app/start.sh
-EXPOSE 8080
 CMD ["/app/start.sh"]

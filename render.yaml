@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: garageiq-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/healthz
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o
+      - key: NODE_ENV
+        value: production
