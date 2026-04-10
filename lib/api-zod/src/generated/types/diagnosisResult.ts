@@ -5,6 +5,8 @@
  * GarageIQ API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { DiagnosisResultConfidence } from "./diagnosisResultConfidence";
+import type { DiagnosisResultSafeToDrive } from "./diagnosisResultSafeToDrive";
 import type { DiagnosisResultSeverity } from "./diagnosisResultSeverity";
 
 export interface DiagnosisResult {
@@ -14,6 +16,12 @@ export interface DiagnosisResult {
   repairSteps: string[];
   estimatedCostMin: number;
   estimatedCostMax: number;
+  /** Cost estimate as a string with currency symbol (e.g. "$200–$500") */
+  estimatedCost?: string;
   diyFriendly: boolean;
   urgency: string;
+  safeToDrive?: DiagnosisResultSafeToDrive;
+  confidence?: DiagnosisResultConfidence;
+  maintenanceTips?: string[];
+  notes?: string;
 }

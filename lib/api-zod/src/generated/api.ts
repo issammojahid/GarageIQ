@@ -108,29 +108,37 @@ export const ListDiagnosesQueryParams = zod.object({
   vehicleId: zod.coerce.number().optional(),
 });
 
-const DiagnosisResultSchema = zod.object({
-  summary: zod.string(),
-  issues: zod.array(zod.string()),
-  severity: zod.enum(["low", "medium", "high", "critical", "dangerous"]),
-  repairSteps: zod.array(zod.string()),
-  estimatedCostMin: zod.number(),
-  estimatedCostMax: zod.number(),
-  estimatedCost: zod.string().optional(),
-  diyFriendly: zod.boolean(),
-  urgency: zod.string(),
-  safeToDrive: zod.object({ answer: zod.enum(["Yes", "No"]), explanation: zod.string() }).optional(),
-  confidence: zod.enum(["High", "Medium", "Low"]).optional(),
-  maintenanceTips: zod.array(zod.string()).optional(),
-  notes: zod.string().optional(),
-});
-
 export const ListDiagnosesResponseItem = zod.object({
   id: zod.number(),
   vehicleId: zod.number(),
   symptoms: zod.string(),
   systems: zod.array(zod.string()),
   errorCodes: zod.string().optional(),
-  result: DiagnosisResultSchema,
+  result: zod.object({
+    summary: zod.string(),
+    issues: zod.array(zod.string()),
+    severity: zod.enum(["low", "medium", "high", "critical", "dangerous"]),
+    repairSteps: zod.array(zod.string()),
+    estimatedCostMin: zod.number(),
+    estimatedCostMax: zod.number(),
+    estimatedCost: zod
+      .string()
+      .optional()
+      .describe(
+        'Cost estimate as a string with currency symbol (e.g. \"$200–$500\")',
+      ),
+    diyFriendly: zod.boolean(),
+    urgency: zod.string(),
+    safeToDrive: zod
+      .object({
+        answer: zod.enum(["Yes", "No"]),
+        explanation: zod.string(),
+      })
+      .optional(),
+    confidence: zod.enum(["High", "Medium", "Low"]).optional(),
+    maintenanceTips: zod.array(zod.string()).optional(),
+    notes: zod.string().optional(),
+  }),
   createdAt: zod.string(),
 });
 export const ListDiagnosesResponse = zod.array(ListDiagnosesResponseItem);
@@ -155,14 +163,24 @@ export const CreateDiagnosisBody = zod.object({
     .describe(
       "MIME type of the image (e.g. image\/jpeg, image\/png). Defaults to image\/jpeg if not provided.",
     ),
-  language: zod.string().optional().describe("User's language/locale for AI response (e.g. en, fr, ar). Auto-detected from device."),
-  currency: zod.string().optional().describe("Currency for cost estimates (e.g. USD, EUR, MAD, GBP)"),
-  drivingConditions: zod.string().optional().describe("Driving conditions (City, Highway, Off-road, Mixed)"),
-  previousIssues: zod.string().optional().describe("Any previous issues or repairs the user wants to mention"),
-  vehicleMake: zod.string().optional().describe("Vehicle make (e.g. Toyota, BMW). Sent from local vehicle storage."),
-  vehicleModel: zod.string().optional().describe("Vehicle model (e.g. Camry, 3 Series)."),
-  vehicleYear: zod.number().optional().describe("Vehicle year of manufacture."),
-  vehicleMileage: zod.number().optional().describe("Vehicle mileage."),
+  language: zod
+    .string()
+    .optional()
+    .describe(
+      "User's language\/locale for AI response (e.g. en, fr, ar). Auto-detected from device.",
+    ),
+  currency: zod
+    .string()
+    .optional()
+    .describe("Currency for cost estimates (e.g. USD, EUR, MAD, GBP)"),
+  drivingConditions: zod
+    .string()
+    .optional()
+    .describe("Driving conditions (City, Highway, Off-road, Mixed)"),
+  previousIssues: zod
+    .string()
+    .optional()
+    .describe("Any previous issues or repairs the user wants to mention"),
 });
 
 /**
@@ -178,7 +196,31 @@ export const GetDiagnosisResponse = zod.object({
   symptoms: zod.string(),
   systems: zod.array(zod.string()),
   errorCodes: zod.string().optional(),
-  result: DiagnosisResultSchema,
+  result: zod.object({
+    summary: zod.string(),
+    issues: zod.array(zod.string()),
+    severity: zod.enum(["low", "medium", "high", "critical", "dangerous"]),
+    repairSteps: zod.array(zod.string()),
+    estimatedCostMin: zod.number(),
+    estimatedCostMax: zod.number(),
+    estimatedCost: zod
+      .string()
+      .optional()
+      .describe(
+        'Cost estimate as a string with currency symbol (e.g. \"$200–$500\")',
+      ),
+    diyFriendly: zod.boolean(),
+    urgency: zod.string(),
+    safeToDrive: zod
+      .object({
+        answer: zod.enum(["Yes", "No"]),
+        explanation: zod.string(),
+      })
+      .optional(),
+    confidence: zod.enum(["High", "Medium", "Low"]).optional(),
+    maintenanceTips: zod.array(zod.string()).optional(),
+    notes: zod.string().optional(),
+  }),
   createdAt: zod.string(),
 });
 
@@ -458,6 +500,18 @@ export const IdentifyPartBody = zod.object({
   vehicleMake: zod.string().optional(),
   vehicleModel: zod.string().optional(),
   vehicleYear: zod.number().optional(),
+  imageBase64: zod
+    .string()
+    .optional()
+    .describe(
+      "Base64-encoded image of the part (optional, enables AI visual identification)",
+    ),
+  imageMimeType: zod
+    .string()
+    .optional()
+    .describe(
+      "MIME type of the image (e.g. image\/jpeg, image\/png). Defaults to image\/jpeg if not provided.",
+    ),
 });
 
 export const IdentifyPartResponse = zod.object({

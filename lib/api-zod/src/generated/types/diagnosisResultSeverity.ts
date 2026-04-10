@@ -14,4 +14,5 @@ export const DiagnosisResultSeverity = {
   medium: "medium",
   high: "high",
   critical: "critical",
+  dangerous: "dangerous",
 } as const;

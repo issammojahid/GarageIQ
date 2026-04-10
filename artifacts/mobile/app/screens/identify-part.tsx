@@ -8,10 +8,18 @@ import {
   Pressable,
   ActivityIndicator,
   Alert,
+  Image,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/colors";
 import { useListVehicles, useIdentifyPart, type IdentifyPartResult } from "@workspace/api-client-react";
+
+type PickedImage = {
+  uri: string;
+  base64: string;
+  mimeType: string;
+};
 
 export default function IdentifyPartScreen() {
   const { data: vehicles } = useListVehicles();
@@ -19,13 +27,80 @@ export default function IdentifyPartScreen() {
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<IdentifyPartResult | null>(null);
+  const [pickedImage, setPickedImage] = useState<PickedImage | null>(null);
 
   const identifyPart = useIdentifyPart();
   const selectedVehicle = vehicles?.find((v) => v.id === selectedVehicleId);
 
+  const requestCameraPermission = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission required", "Camera access is needed to take a photo.");
+      return false;
+    }
+    return true;
+  };
+
+  const requestMediaPermission = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission required", "Photo library access is needed to pick an image.");
+      return false;
+    }
+    return true;
+  };
+
+  const handleTakePhoto = async () => {
+    const granted = await requestCameraPermission();
+    if (!granted) return;
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: "images",
+      quality: 0.7,
+      base64: true,
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+    if (!result.canceled && result.assets[0]) {
+      const asset = result.assets[0];
+      setPickedImage({
+        uri: asset.uri,
+        base64: asset.base64 ?? "",
+        mimeType: asset.mimeType ?? "image/jpeg",
+      });
+    }
+  };
+
+  const handlePickImage = async () => {
+    const granted = await requestMediaPermission();
+    if (!granted) return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      quality: 0.7,
+      base64: true,
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+    if (!result.canceled && result.assets[0]) {
+      const asset = result.assets[0];
+      setPickedImage({
+        uri: asset.uri,
+        base64: asset.base64 ?? "",
+        mimeType: asset.mimeType ?? "image/jpeg",
+      });
+    }
+  };
+
+  const showImageOptions = () => {
+    Alert.alert("Add Image", "Choose an option", [
+      { text: "Take Photo", onPress: handleTakePhoto },
+      { text: "Choose from Library", onPress: handlePickImage },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
+
   const handleIdentify = async () => {
-    if (!description.trim()) {
-      Alert.alert("Describe the part", "Please describe what you see");
+    if (!description.trim() && !pickedImage) {
+      Alert.alert("Describe or photograph the part", "Please describe the part or add an image");
       return;
     }
     setLoading(true);
@@ -33,10 +108,12 @@ export default function IdentifyPartScreen() {
     try {
       const data = await identifyPart.mutateAsync({
         data: {
-          description: description.trim(),
+          description: description.trim() || "See attached image",
           vehicleMake: selectedVehicle?.make,
           vehicleModel: selectedVehicle?.model,
           vehicleYear: selectedVehicle?.year,
+          imageBase64: pickedImage?.base64,
+          imageMimeType: pickedImage?.mimeType,
         },
       });
       setResult(data);
@@ -47,6 +124,8 @@ export default function IdentifyPartScreen() {
     }
   };
 
+  const canIdentify = !!(description.trim() || pickedImage);
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -55,7 +134,7 @@ export default function IdentifyPartScreen() {
           <MaterialCommunityIcons name="magnify-scan" size={40} color="#7C3AED" />
           <View style={{ flex: 1 }}>
             <Text style={styles.headerTitle}>AI Part Identifier</Text>
-            <Text style={styles.headerDesc}>Describe a car part and AI will identify it for you</Text>
+            <Text style={styles.headerDesc}>Photograph or describe a part and AI will identify it</Text>
           </View>
         </View>
 
@@ -79,8 +158,34 @@ export default function IdentifyPartScreen() {
           </>
         )}
 
+        {/* Image section */}
+        <Text style={styles.sectionLabel}>Photo <Text style={styles.optional}>(optional, improves accuracy)</Text></Text>
+        {pickedImage ? (
+          <View style={styles.imagePreviewWrap}>
+            <Image source={{ uri: pickedImage.uri }} style={styles.imagePreview} resizeMode="cover" />
+            <Pressable style={styles.imageRemoveBtn} onPress={() => setPickedImage(null)}>
+              <MaterialCommunityIcons name="close-circle" size={26} color="#fff" />
+            </Pressable>
+            <Pressable style={styles.imageChangeBtn} onPress={showImageOptions}>
+              <MaterialCommunityIcons name="camera-retake" size={16} color="#fff" />
+              <Text style={styles.imageChangeBtnText}>Change</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={styles.imagePickerRow}>
+            <Pressable style={styles.imagePickerBtn} onPress={handleTakePhoto}>
+              <MaterialCommunityIcons name="camera" size={24} color="#7C3AED" />
+              <Text style={styles.imagePickerBtnText}>Take Photo</Text>
+            </Pressable>
+            <Pressable style={styles.imagePickerBtn} onPress={handlePickImage}>
+              <MaterialCommunityIcons name="image-multiple" size={24} color="#7C3AED" />
+              <Text style={styles.imagePickerBtnText}>From Library</Text>
+            </Pressable>
+          </View>
+        )}
+
         {/* Description */}
-        <Text style={styles.sectionLabel}>Describe the Part</Text>
+        <Text style={styles.sectionLabel}>Describe the Part <Text style={styles.optional}>{pickedImage ? "(optional if photo added)" : ""}</Text></Text>
         <TextInput
           style={styles.textArea}
           multiline
@@ -93,9 +198,9 @@ export default function IdentifyPartScreen() {
         />
 
         <Pressable
-          style={[styles.identifyBtn, (!description.trim() || loading) && { opacity: 0.6 }]}
+          style={[styles.identifyBtn, (!canIdentify || loading) && { opacity: 0.6 }]}
           onPress={handleIdentify}
-          disabled={loading || !description.trim()}
+          disabled={loading || !canIdentify}
         >
           {loading ? (
             <ActivityIndicator color="#fff" />
@@ -172,6 +277,14 @@ const styles = StyleSheet.create({
   vehicleChipActive: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
   vehicleChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.textSecondary },
   vehicleChipTextActive: { color: Colors.accent },
+  imagePickerRow: { flexDirection: "row", gap: 12, marginBottom: 16 },
+  imagePickerBtn: { flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: "#7C3AED15", borderRadius: 14, padding: 16, borderWidth: 1, borderColor: "#7C3AED30" },
+  imagePickerBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: "#7C3AED" },
+  imagePreviewWrap: { borderRadius: 16, overflow: "hidden", marginBottom: 16, position: "relative", height: 200, backgroundColor: Colors.card },
+  imagePreview: { width: "100%", height: "100%" },
+  imageRemoveBtn: { position: "absolute", top: 8, right: 8, backgroundColor: "rgba(0,0,0,0.6)", borderRadius: 14 },
+  imageChangeBtn: { position: "absolute", bottom: 8, right: 8, flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "rgba(0,0,0,0.6)", borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6 },
+  imageChangeBtnText: { fontFamily: "Inter_500Medium", fontSize: 12, color: "#fff" },
   textArea: { backgroundColor: Colors.card, borderRadius: 14, padding: 14, color: Colors.text, fontFamily: "Inter_400Regular", fontSize: 14, minHeight: 110, borderWidth: 1, borderColor: Colors.border, lineHeight: 20, marginBottom: 16 },
   identifyBtn: { backgroundColor: "#7C3AED", borderRadius: 14, padding: 16, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 10 },
   identifyBtnText: { fontFamily: "Inter_700Bold", fontSize: 17, color: "#fff" },

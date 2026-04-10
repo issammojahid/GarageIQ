@@ -47,6 +47,28 @@ export const DiagnosisResultSeverity = {
   dangerous: "dangerous",
 } as const;
 
+export type DiagnosisResultSafeToDriveAnswer =
+  (typeof DiagnosisResultSafeToDriveAnswer)[keyof typeof DiagnosisResultSafeToDriveAnswer];
+
+export const DiagnosisResultSafeToDriveAnswer = {
+  Yes: "Yes",
+  No: "No",
+} as const;
+
+export type DiagnosisResultSafeToDrive = {
+  answer: DiagnosisResultSafeToDriveAnswer;
+  explanation: string;
+};
+
+export type DiagnosisResultConfidence =
+  (typeof DiagnosisResultConfidence)[keyof typeof DiagnosisResultConfidence];
+
+export const DiagnosisResultConfidence = {
+  High: "High",
+  Medium: "Medium",
+  Low: "Low",
+} as const;
+
 export interface DiagnosisResult {
   summary: string;
   issues: string[];
@@ -54,11 +76,12 @@ export interface DiagnosisResult {
   repairSteps: string[];
   estimatedCostMin: number;
   estimatedCostMax: number;
+  /** Cost estimate as a string with currency symbol (e.g. "$200–$500") */
   estimatedCost?: string;
   diyFriendly: boolean;
   urgency: string;
-  safeToDrive?: { answer: "Yes" | "No"; explanation: string };
-  confidence?: "High" | "Medium" | "Low";
+  safeToDrive?: DiagnosisResultSafeToDrive;
+  confidence?: DiagnosisResultConfidence;
   maintenanceTips?: string[];
   notes?: string;
 }
@@ -190,6 +213,10 @@ export interface IdentifyPartBody {
   vehicleMake?: string;
   vehicleModel?: string;
   vehicleYear?: number;
+  /** Base64-encoded image of the part (optional, enables AI visual identification) */
+  imageBase64?: string;
+  /** MIME type of the image (e.g. image/jpeg, image/png). Defaults to image/jpeg if not provided. */
+  imageMimeType?: string;
 }
 
 export interface IdentifyPartResult {

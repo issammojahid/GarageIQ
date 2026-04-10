@@ -11,4 +11,8 @@ export interface IdentifyPartBody {
   vehicleMake?: string;
   vehicleModel?: string;
   vehicleYear?: number;
+  /** Base64-encoded image of the part (optional, enables AI visual identification) */
+  imageBase64?: string;
+  /** MIME type of the image (e.g. image/jpeg, image/png). Defaults to image/jpeg if not provided. */
+  imageMimeType?: string;
 }

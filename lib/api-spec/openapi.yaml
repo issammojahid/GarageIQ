@@ -920,6 +920,12 @@ components:
           type: string
         vehicleYear:
           type: integer
+        imageBase64:
+          type: string
+          description: Base64-encoded image of the part (optional, enables AI visual identification)
+        imageMimeType:
+          type: string
+          description: MIME type of the image (e.g. image/jpeg, image/png). Defaults to image/jpeg if not provided.
       required:
         - description
 
