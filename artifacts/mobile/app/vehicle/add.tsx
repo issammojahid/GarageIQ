@@ -44,8 +44,8 @@ export default function AddVehicleScreen() {
       Alert.alert("Missing Info", "Please select your vehicle make and model first.");
       return;
     }
-    if (isNaN(year) || year < 1900 || year > CURRENT_YEAR + 1) {
-      Alert.alert("Invalid Year", `Year must be between 1900 and ${CURRENT_YEAR + 1}`);
+    if (isNaN(year) || year < 1980 || year > CURRENT_YEAR + 1) {
+      Alert.alert("Invalid Year", `Year must be between 1980 and ${CURRENT_YEAR + 1}`);
       return;
     }
     const mileageNum = parseInt(mileage || "0");

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   Modal,
   View,
@@ -48,7 +48,6 @@ export default function VehicleSelector({
   const [searchModel, setSearchModel] = useState("");
   const [selectedMake, setSelectedMake] = useState(initialMake);
   const [selectedYear, setSelectedYear] = useState(initialYear ?? CURRENT_YEAR);
-  const [selectedModel, setSelectedModel] = useState(initialModel);
   const [customMake, setCustomMake] = useState("");
   const [customModel, setCustomModel] = useState("");
   const [useCustomMake, setUseCustomMake] = useState(false);
@@ -61,17 +60,12 @@ export default function VehicleSelector({
       setSearchModel("");
       setSelectedMake(initialMake);
       setSelectedYear(initialYear ?? CURRENT_YEAR);
-      setSelectedModel(initialModel);
       setCustomMake("");
       setCustomModel("");
       setUseCustomMake(false);
       setUseCustomModel(false);
     }
   }, [visible, initialMake, initialYear, initialModel]);
-
-  const handleClose = () => {
-    onClose();
-  };
 
   const filteredMakes = useMemo(() => filterMakes(searchMake), [searchMake]);
 
@@ -85,7 +79,6 @@ export default function VehicleSelector({
     setUseCustomMake(false);
     setCustomMake("");
     setSearchModel("");
-    setSelectedModel("");
     setUseCustomModel(false);
     setStep("year");
   };
@@ -105,7 +98,6 @@ export default function VehicleSelector({
     setSelectedMake(customMake.trim());
     setUseCustomMake(true);
     setSearchModel("");
-    setSelectedModel("");
     setUseCustomModel(false);
     setStep("year");
   };
@@ -132,7 +124,7 @@ export default function VehicleSelector({
       : `${activeMake} · ${selectedYear}`;
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={handleClose}>
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
           <View style={styles.header}>
@@ -147,7 +139,7 @@ export default function VehicleSelector({
                 <Text style={styles.headerSubtitle} numberOfLines={1}>{stepSubtitle}</Text>
               </View>
             </View>
-            <Pressable onPress={handleClose} style={styles.closeBtn} hitSlop={12}>
+            <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={12}>
               <Ionicons name="close" size={22} color={Colors.textSecondary} />
             </Pressable>
           </View>
@@ -172,46 +164,47 @@ export default function VehicleSelector({
                 )}
               </View>
 
+              <Pressable
+                style={styles.customToggleRow}
+                onPress={() => setUseCustomMake(!useCustomMake)}
+              >
+                <Ionicons
+                  name={useCustomMake ? "checkbox" : "square-outline"}
+                  size={18}
+                  color={useCustomMake ? Colors.accent : Colors.textSecondary}
+                />
+                <Text style={[styles.customLabel, useCustomMake && { color: Colors.accent }]}>
+                  Enter brand manually
+                </Text>
+              </Pressable>
+
+              {useCustomMake ? (
+                <View style={styles.customInputRow}>
+                  <TextInput
+                    style={[styles.searchInput, { flex: 1 }]}
+                    placeholder="e.g. Haval, MG, Geely..."
+                    placeholderTextColor={Colors.textTertiary}
+                    value={customMake}
+                    onChangeText={setCustomMake}
+                    autoFocus
+                    returnKeyType="next"
+                    onSubmitEditing={handleConfirmCustomMake}
+                  />
+                  <Pressable
+                    style={[styles.confirmBtn, !customMake.trim() && { opacity: 0.4 }]}
+                    onPress={handleConfirmCustomMake}
+                    disabled={!customMake.trim()}
+                  >
+                    <Text style={styles.confirmBtnText}>Next</Text>
+                  </Pressable>
+                </View>
+              ) : null}
+
               <FlatList
                 data={filteredMakes}
                 keyExtractor={(item) => item.name}
                 keyboardShouldPersistTaps="handled"
                 contentContainerStyle={styles.listContent}
-                ListHeaderComponent={
-                  <Pressable style={styles.customRow} onPress={() => setUseCustomMake(!useCustomMake)}>
-                    <Ionicons
-                      name={useCustomMake ? "checkbox" : "square-outline"}
-                      size={18}
-                      color={useCustomMake ? Colors.accent : Colors.textSecondary}
-                    />
-                    <Text style={[styles.customLabel, useCustomMake && { color: Colors.accent }]}>
-                      Enter brand manually
-                    </Text>
-                  </Pressable>
-                }
-                ListFooterComponent={
-                  useCustomMake ? (
-                    <View style={styles.customInputRow}>
-                      <TextInput
-                        style={[styles.searchInput, { flex: 1 }]}
-                        placeholder="e.g. Haval, MG, Geely..."
-                        placeholderTextColor={Colors.textTertiary}
-                        value={customMake}
-                        onChangeText={setCustomMake}
-                        autoFocus
-                        returnKeyType="next"
-                        onSubmitEditing={handleConfirmCustomMake}
-                      />
-                      <Pressable
-                        style={[styles.confirmBtn, !customMake.trim() && { opacity: 0.4 }]}
-                        onPress={handleConfirmCustomMake}
-                        disabled={!customMake.trim()}
-                      >
-                        <Text style={styles.confirmBtnText}>Next</Text>
-                      </Pressable>
-                    </View>
-                  ) : null
-                }
                 renderItem={({ item }) => (
                   <Pressable
                     style={({ pressed }) => [styles.listItem, pressed && styles.listItemPressed]}
@@ -223,9 +216,7 @@ export default function VehicleSelector({
                   </Pressable>
                 )}
                 ListEmptyComponent={
-                  !useCustomMake ? (
-                    <Text style={styles.emptyText}>No brands found. Use "Enter brand manually" above.</Text>
-                  ) : null
+                  <Text style={styles.emptyText}>No brands found. Use "Enter brand manually" above.</Text>
                 }
               />
             </View>
@@ -260,22 +251,56 @@ export default function VehicleSelector({
 
           {step === "model" && (
             <View style={{ flex: 1 }}>
-              {filteredModels.length > 0 || !useCustomModel ? (
-                <View style={styles.searchRow}>
-                  <Ionicons name="search" size={16} color={Colors.textTertiary} style={styles.searchIcon} />
+              <View style={styles.searchRow}>
+                <Ionicons name="search" size={16} color={Colors.textTertiary} style={styles.searchIcon} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search model..."
+                  placeholderTextColor={Colors.textTertiary}
+                  value={searchModel}
+                  onChangeText={setSearchModel}
+                  returnKeyType="search"
+                />
+                {searchModel.length > 0 && (
+                  <Pressable onPress={() => setSearchModel("")} hitSlop={8}>
+                    <Ionicons name="close-circle" size={16} color={Colors.textTertiary} />
+                  </Pressable>
+                )}
+              </View>
+
+              <Pressable
+                style={styles.customToggleRow}
+                onPress={() => setUseCustomModel(!useCustomModel)}
+              >
+                <Ionicons
+                  name={useCustomModel ? "checkbox" : "square-outline"}
+                  size={18}
+                  color={useCustomModel ? Colors.accent : Colors.textSecondary}
+                />
+                <Text style={[styles.customLabel, useCustomModel && { color: Colors.accent }]}>
+                  Enter model manually
+                </Text>
+              </Pressable>
+
+              {useCustomModel ? (
+                <View style={styles.customInputRow}>
                   <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search model..."
+                    style={[styles.searchInput, { flex: 1 }]}
+                    placeholder="Model name..."
                     placeholderTextColor={Colors.textTertiary}
-                    value={searchModel}
-                    onChangeText={setSearchModel}
-                    returnKeyType="search"
+                    value={customModel}
+                    onChangeText={setCustomModel}
+                    autoFocus
+                    returnKeyType="done"
+                    onSubmitEditing={handleConfirmCustomModel}
                   />
-                  {searchModel.length > 0 && (
-                    <Pressable onPress={() => setSearchModel("")} hitSlop={8}>
-                      <Ionicons name="close-circle" size={16} color={Colors.textTertiary} />
-                    </Pressable>
-                  )}
+                  <Pressable
+                    style={[styles.confirmBtn, !customModel.trim() && { opacity: 0.4 }]}
+                    onPress={handleConfirmCustomModel}
+                    disabled={!customModel.trim()}
+                  >
+                    <Text style={styles.confirmBtnText}>Done</Text>
+                  </Pressable>
                 </View>
               ) : null}
 
@@ -284,41 +309,6 @@ export default function VehicleSelector({
                 keyExtractor={(m) => m}
                 keyboardShouldPersistTaps="handled"
                 contentContainerStyle={styles.listContent}
-                ListHeaderComponent={
-                  <Pressable style={styles.customRow} onPress={() => setUseCustomModel(!useCustomModel)}>
-                    <Ionicons
-                      name={useCustomModel ? "checkbox" : "square-outline"}
-                      size={18}
-                      color={useCustomModel ? Colors.accent : Colors.textSecondary}
-                    />
-                    <Text style={[styles.customLabel, useCustomModel && { color: Colors.accent }]}>
-                      Enter model manually
-                    </Text>
-                  </Pressable>
-                }
-                ListFooterComponent={
-                  useCustomModel ? (
-                    <View style={styles.customInputRow}>
-                      <TextInput
-                        style={[styles.searchInput, { flex: 1 }]}
-                        placeholder="Model name..."
-                        placeholderTextColor={Colors.textTertiary}
-                        value={customModel}
-                        onChangeText={setCustomModel}
-                        autoFocus
-                        returnKeyType="done"
-                        onSubmitEditing={handleConfirmCustomModel}
-                      />
-                      <Pressable
-                        style={[styles.confirmBtn, !customModel.trim() && { opacity: 0.4 }]}
-                        onPress={handleConfirmCustomModel}
-                        disabled={!customModel.trim()}
-                      >
-                        <Text style={styles.confirmBtnText}>Done</Text>
-                      </Pressable>
-                    </View>
-                  ) : null
-                }
                 renderItem={({ item: model }) => (
                   <Pressable
                     style={({ pressed }) => [styles.listItem, pressed && styles.listItemPressed]}
@@ -364,7 +354,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.card,
     borderRadius: 12,
     marginHorizontal: 16,
-    marginVertical: 12,
+    marginTop: 12,
+    marginBottom: 4,
     paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: Colors.border,
@@ -398,12 +389,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     padding: 24,
   },
-  customRow: {
+  customToggleRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
     paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
@@ -413,9 +404,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 8,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
+    backgroundColor: Colors.card2,
   },
   confirmBtn: {
     backgroundColor: Colors.accent,
