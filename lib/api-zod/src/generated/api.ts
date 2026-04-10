@@ -181,6 +181,22 @@ export const CreateDiagnosisBody = zod.object({
     .string()
     .optional()
     .describe("Any previous issues or repairs the user wants to mention"),
+  vehicleMake: zod
+    .string()
+    .optional()
+    .describe("Vehicle make (denormalized snapshot for diagnosis context)"),
+  vehicleModel: zod
+    .string()
+    .optional()
+    .describe("Vehicle model (denormalized snapshot for diagnosis context)"),
+  vehicleYear: zod
+    .number()
+    .optional()
+    .describe("Vehicle year (denormalized snapshot for diagnosis context)"),
+  vehicleMileage: zod
+    .number()
+    .optional()
+    .describe("Vehicle mileage (denormalized snapshot for diagnosis context)"),
 });
 
 /**

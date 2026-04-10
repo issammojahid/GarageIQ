@@ -113,6 +113,14 @@ export interface CreateDiagnosisBody {
   drivingConditions?: string;
   /** Any previous issues or repairs the user wants to mention */
   previousIssues?: string;
+  /** Vehicle make (denormalized snapshot for diagnosis context) */
+  vehicleMake?: string;
+  /** Vehicle model (denormalized snapshot for diagnosis context) */
+  vehicleModel?: string;
+  /** Vehicle year (denormalized snapshot for diagnosis context) */
+  vehicleYear?: number;
+  /** Vehicle mileage (denormalized snapshot for diagnosis context) */
+  vehicleMileage?: number;
 }
 
 export interface FuelLog {
