@@ -180,6 +180,12 @@ export type T = {
   result_share: string;
   result_symptoms: string;
   share_diagnosis_title: string;
+  vehicle_photo_add: string;
+  vehicle_photo_change: string;
+  vehicle_photo_remove: string;
+  vehicle_photo_pick_title: string;
+  vehicle_photo_camera: string;
+  vehicle_photo_gallery: string;
 };
 
 const en: T = {
@@ -362,6 +368,12 @@ const en: T = {
   result_share: "Share",
   result_symptoms: "Symptoms",
   share_diagnosis_title: "GarageIQ Diagnosis Report",
+  vehicle_photo_add: "Add Photo",
+  vehicle_photo_change: "Change Photo",
+  vehicle_photo_remove: "Remove Photo",
+  vehicle_photo_pick_title: "Vehicle Photo",
+  vehicle_photo_camera: "Take Photo",
+  vehicle_photo_gallery: "Choose from Gallery",
 };
 
 const ar: T = {
@@ -544,6 +556,12 @@ const ar: T = {
   result_share: "مشاركة",
   result_symptoms: "الأعراض",
   share_diagnosis_title: "تقرير تشخيص GarageIQ",
+  vehicle_photo_add: "إضافة صورة",
+  vehicle_photo_change: "تغيير الصورة",
+  vehicle_photo_remove: "إزالة الصورة",
+  vehicle_photo_pick_title: "صورة المركبة",
+  vehicle_photo_camera: "التقاط صورة",
+  vehicle_photo_gallery: "اختيار من المعرض",
 };
 
 const fr: T = {
@@ -726,6 +744,12 @@ const fr: T = {
   result_share: "Partager",
   result_symptoms: "Symptômes",
   share_diagnosis_title: "Rapport de diagnostic GarageIQ",
+  vehicle_photo_add: "Ajouter une photo",
+  vehicle_photo_change: "Changer la photo",
+  vehicle_photo_remove: "Supprimer la photo",
+  vehicle_photo_pick_title: "Photo du véhicule",
+  vehicle_photo_camera: "Prendre une photo",
+  vehicle_photo_gallery: "Choisir dans la galerie",
 };
 
 const es: T = { ...en,

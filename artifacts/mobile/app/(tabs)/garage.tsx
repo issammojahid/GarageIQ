@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
+  Image,
   type DimensionValue,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -24,6 +25,7 @@ import {
 } from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/i18n/TranslationContext";
+import { getVehiclePhoto } from "@/lib/vehiclePhotoStorage";
 
 export default function GarageTab() {
   const insets = useSafeAreaInsets();
@@ -36,6 +38,26 @@ export default function GarageTab() {
   const { data: vehicles, isLoading, refetch } = useListVehicles();
   const deleteVehicleMutation = useDeleteVehicle();
   const { data: allDiagnoses } = useListDiagnoses({});
+
+  const [photos, setPhotos] = useState<Record<number, string>>({});
+
+  useEffect(() => {
+    if (!vehicles) return;
+    const load = async () => {
+      const entries = await Promise.all(
+        vehicles.map(async (v) => {
+          const uri = await getVehiclePhoto(v.id);
+          return uri ? ([v.id, uri] as [number, string]) : null;
+        })
+      );
+      const map: Record<number, string> = {};
+      for (const e of entries) {
+        if (e) map[e[0]] = e[1];
+      }
+      setPhotos(map);
+    };
+    load();
+  }, [vehicles]);
 
   const handleDelete = (id: number, name: string) => {
     Alert.alert(
@@ -92,12 +114,17 @@ export default function GarageTab() {
     const healthScore = getHealthScore(diags);
     const healthColor = getHealthColor(healthScore);
     const healthLabel = getHealthLabel(healthScore);
+    const photoUri = photos[item.id];
 
     return (
       <View style={styles.card}>
         <View style={[styles.cardTop, isRTL && styles.rowReverse]}>
           <View style={styles.carIconWrap}>
-            <MaterialCommunityIcons name="car" size={28} color={Colors.accent} />
+            {photoUri ? (
+              <Image source={{ uri: photoUri }} style={styles.vehiclePhoto} resizeMode="cover" />
+            ) : (
+              <MaterialCommunityIcons name="car" size={28} color={Colors.accent} />
+            )}
           </View>
           <View style={styles.cardInfo}>
             <Text style={[styles.vehicleName, isRTL && styles.textRight]}>{vehicleName}</Text>
@@ -221,7 +248,8 @@ const styles = StyleSheet.create({
   list: { paddingHorizontal: 20, paddingTop: 4 },
   card: { backgroundColor: Colors.card, borderRadius: 18, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
   cardTop: { flexDirection: "row", alignItems: "center", marginBottom: 14 },
-  carIconWrap: { width: 56, height: 56, borderRadius: 16, backgroundColor: Colors.accent + "15", alignItems: "center", justifyContent: "center", marginRight: 12 },
+  carIconWrap: { width: 56, height: 56, borderRadius: 16, backgroundColor: Colors.accent + "15", alignItems: "center", justifyContent: "center", marginRight: 12, overflow: "hidden" },
+  vehiclePhoto: { width: 56, height: 56 },
   cardInfo: { flex: 1 },
   vehicleName: { fontFamily: "Inter_600SemiBold", fontSize: 16, color: Colors.text, marginBottom: 2 },
   licensePlate: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.accent, backgroundColor: Colors.accent + "15", alignSelf: "flex-start", paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6, marginBottom: 4 },

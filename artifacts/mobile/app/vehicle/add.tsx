@@ -8,17 +8,22 @@ import {
   Pressable,
   ActivityIndicator,
   Alert,
+  Image,
 } from "react-native";
 import { router } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 import { useCreateVehicle, getListVehiclesQueryKey } from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, Feather } from "@expo/vector-icons";
 import VehicleSelector, { VehicleSelection } from "@/components/VehicleSelector";
+import { setVehiclePhoto } from "@/lib/vehiclePhotoStorage";
+import { useI18n } from "@/i18n/TranslationContext";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
 export default function AddVehicleScreen() {
+  const { t } = useI18n();
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
   const [year, setYear] = useState(CURRENT_YEAR);
@@ -26,6 +31,7 @@ export default function AddVehicleScreen() {
   const [licensePlate, setLicensePlate] = useState("");
   const [color, setColor] = useState("");
   const [notes, setNotes] = useState("");
+  const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectorVisible, setSelectorVisible] = useState(false);
 
@@ -37,6 +43,51 @@ export default function AddVehicleScreen() {
     setModel(selection.model);
     setYear(selection.year);
     setSelectorVisible(false);
+  };
+
+  const handlePickPhoto = () => {
+    Alert.alert(t("vehicle_photo_pick_title"), undefined, [
+      {
+        text: t("vehicle_photo_camera"),
+        onPress: () => launchPicker("camera"),
+      },
+      {
+        text: t("vehicle_photo_gallery"),
+        onPress: () => launchPicker("gallery"),
+      },
+      { text: t("cancel"), style: "cancel" },
+    ]);
+  };
+
+  const launchPicker = async (source: "camera" | "gallery") => {
+    let result: ImagePicker.ImagePickerResult;
+    if (source === "camera") {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission needed", "Camera access is required to take a photo.");
+        return;
+      }
+      result = await ImagePicker.launchCameraAsync({
+        mediaTypes: "images",
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.4,
+        base64: true,
+      });
+    } else {
+      result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: "images",
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.4,
+        base64: true,
+      });
+    }
+    if (!result.canceled && result.assets[0]) {
+      const asset = result.assets[0];
+      const dataUri = `data:image/jpeg;base64,${asset.base64}`;
+      setPhotoUri(dataUri);
+    }
   };
 
   const handleSave = async () => {
@@ -52,7 +103,7 @@ export default function AddVehicleScreen() {
 
     setLoading(true);
     try {
-      await createVehicle.mutateAsync({
+      const newVehicle = await createVehicle.mutateAsync({
         data: {
           make: make.trim(),
           model: model.trim(),
@@ -63,6 +114,9 @@ export default function AddVehicleScreen() {
           notes: notes.trim() || undefined,
         },
       });
+      if (photoUri) {
+        await setVehiclePhoto(newVehicle.id, photoUri);
+      }
       queryClient.invalidateQueries({ queryKey: getListVehiclesQueryKey() });
       Alert.alert("Success", "Vehicle added successfully", [
         { text: "OK", onPress: () => router.back() },
@@ -84,6 +138,32 @@ export default function AddVehicleScreen() {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <Text style={styles.subtitle}>Enter your vehicle details below</Text>
+
+        {/* Photo Picker */}
+        <View style={styles.photoSection}>
+          <Pressable style={styles.photoBtn} onPress={handlePickPhoto}>
+            {photoUri ? (
+              <Image source={{ uri: photoUri }} style={styles.photoPreview} resizeMode="cover" />
+            ) : (
+              <View style={styles.photoPlaceholder}>
+                <Feather name="camera" size={28} color={Colors.textTertiary} />
+                <Text style={styles.photoPlaceholderText}>{t("vehicle_photo_add")}</Text>
+              </View>
+            )}
+          </Pressable>
+          {photoUri && (
+            <View style={styles.photoActions}>
+              <Pressable style={styles.photoActionBtn} onPress={handlePickPhoto}>
+                <Feather name="edit-2" size={14} color={Colors.accent} />
+                <Text style={styles.photoActionText}>{t("vehicle_photo_change")}</Text>
+              </Pressable>
+              <Pressable style={styles.photoActionBtn} onPress={() => setPhotoUri(null)}>
+                <Feather name="trash-2" size={14} color={Colors.danger} />
+                <Text style={[styles.photoActionText, { color: Colors.danger }]}>{t("vehicle_photo_remove")}</Text>
+              </Pressable>
+            </View>
+          )}
+        </View>
 
         <View style={styles.field}>
           <Text style={styles.label}>Vehicle *</Text>
@@ -183,6 +263,23 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   content: { padding: 20, paddingBottom: 40 },
   subtitle: { fontFamily: "Inter_400Regular", fontSize: 14, color: Colors.textSecondary, marginBottom: 24 },
+  photoSection: { alignItems: "center", marginBottom: 24 },
+  photoBtn: {
+    width: 120,
+    height: 90,
+    borderRadius: 16,
+    overflow: "hidden",
+    backgroundColor: Colors.card,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderStyle: "dashed",
+  },
+  photoPreview: { width: "100%", height: "100%" },
+  photoPlaceholder: { flex: 1, alignItems: "center", justifyContent: "center", gap: 6 },
+  photoPlaceholderText: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.textTertiary },
+  photoActions: { flexDirection: "row", gap: 16, marginTop: 10 },
+  photoActionBtn: { flexDirection: "row", alignItems: "center", gap: 4 },
+  photoActionText: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.accent },
   field: { marginBottom: 16 },
   label: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: Colors.text, marginBottom: 8 },
   input: {
