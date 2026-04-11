@@ -11,13 +11,13 @@ import {
   Image,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import * as ImagePicker from "expo-image-picker";
 import { useGetVehicle, useUpdateVehicle, getListVehiclesQueryKey, getGetVehicleQueryKey } from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import VehicleSelector, { VehicleSelection } from "@/components/VehicleSelector";
 import { useI18n } from "@/i18n/TranslationContext";
+import { pickVehiclePhoto } from "@/lib/vehiclePhotoStorage";
 
 export default function EditVehicleScreen() {
   const { t } = useI18n();
@@ -79,32 +79,8 @@ export default function EditVehicleScreen() {
   };
 
   const launchPicker = async (source: "camera" | "gallery") => {
-    let result: ImagePicker.ImagePickerResult;
-    if (source === "camera") {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      if (status !== "granted") {
-        Alert.alert("Permission needed", "Camera access is required to take a photo.");
-        return;
-      }
-      result = await ImagePicker.launchCameraAsync({
-        mediaTypes: "images",
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.4,
-        base64: true,
-      });
-    } else {
-      result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "images",
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 0.4,
-        base64: true,
-      });
-    }
-    if (!result.canceled && result.assets[0]) {
-      const asset = result.assets[0];
-      const dataUri = `data:image/jpeg;base64,${asset.base64}`;
+    const dataUri = await pickVehiclePhoto(source);
+    if (dataUri) {
       setPhotoUri(dataUri);
       setPhotoRemoved(false);
     }
