@@ -169,6 +169,14 @@ export type T = {
   settings_modal_desc: string;
   settings_ads: string;
   settings_footer: string;
+
+  filter_all: string;
+  filter_all_vehicles: string;
+  filter_7d: string;
+  filter_30d: string;
+  filter_3m: string;
+  result_share: string;
+  share_diagnosis_title: string;
 };
 
 const en: T = {
@@ -340,6 +348,14 @@ const en: T = {
   settings_modal_desc: "The AI mechanic will respond in your selected language.",
   settings_ads: "GarageIQ uses ads to remain free. Your data stays on your device and is never sold.",
   settings_footer: "Made with care for car enthusiasts everywhere",
+
+  filter_all: "All",
+  filter_all_vehicles: "All Vehicles",
+  filter_7d: "7 Days",
+  filter_30d: "30 Days",
+  filter_3m: "3 Months",
+  result_share: "Share",
+  share_diagnosis_title: "GarageIQ Diagnosis Report",
 };
 
 const ar: T = {
@@ -511,6 +527,14 @@ const ar: T = {
   settings_modal_desc: "سيرد ميكانيكي الذكاء الاصطناعي بلغتك المختارة.",
   settings_ads: "يستخدم GarageIQ الإعلانات ليبقى مجانياً. بياناتك تبقى على جهازك ولا تُباع أبداً.",
   settings_footer: "صُنع باهتمام لعشاق السيارات في كل مكان",
+
+  filter_all: "الكل",
+  filter_all_vehicles: "كل المركبات",
+  filter_7d: "٧ أيام",
+  filter_30d: "٣٠ يوماً",
+  filter_3m: "٣ أشهر",
+  result_share: "مشاركة",
+  share_diagnosis_title: "تقرير تشخيص GarageIQ",
 };
 
 const fr: T = {
@@ -682,6 +706,14 @@ const fr: T = {
   settings_modal_desc: "Le mécanicien IA répondra dans votre langue sélectionnée.",
   settings_ads: "GarageIQ utilise des publicités pour rester gratuit. Vos données restent sur votre appareil.",
   settings_footer: "Fait avec soin pour les passionnés d'automobiles partout",
+
+  filter_all: "Tout",
+  filter_all_vehicles: "Tous les véhicules",
+  filter_7d: "7 Jours",
+  filter_30d: "30 Jours",
+  filter_3m: "3 Mois",
+  result_share: "Partager",
+  share_diagnosis_title: "Rapport de diagnostic GarageIQ",
 };
 
 const es: T = { ...en,

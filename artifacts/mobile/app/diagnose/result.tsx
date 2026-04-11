@@ -6,6 +6,7 @@ import {
   ScrollView,
   Pressable,
   ActivityIndicator,
+  Share,
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { MaterialCommunityIcons, Ionicons, Feather } from "@expo/vector-icons";
@@ -58,6 +59,40 @@ export default function DiagnosisResultScreen() {
     high: { color: "#F97316", bg: "#F9731618", label: t("sev_label_high"), icon: "alert-octagon" },
     critical: { color: Colors.danger, bg: Colors.danger + "18", label: t("sev_label_critical"), icon: "alert-octagon" },
     dangerous: { color: Colors.danger, bg: Colors.danger + "18", label: t("sev_label_dangerous"), icon: "alert-octagon" },
+  };
+
+  const handleShare = async () => {
+    if (!diagnosis) return;
+    const r = diagnosis.result;
+    const v = vehicles?.find((veh) => veh.id === diagnosis.vehicleId);
+    const vName = v ? `${v.year} ${v.make} ${v.model}` : "Vehicle";
+    const cost = r.estimatedCost
+      ? r.estimatedCost
+      : r.estimatedCostMin === 0 && r.estimatedCostMax === 0
+      ? t("result_contact_mechanic")
+      : `$${r.estimatedCostMin} – $${r.estimatedCostMax}`;
+    const lines: string[] = [
+      `🔧 ${t("share_diagnosis_title")}`,
+      `📅 ${new Date(diagnosis.createdAt).toLocaleDateString()}`,
+      `🚗 ${vName}`,
+      "",
+      `⚠️ ${t("result_summary")}`,
+      r.summary,
+      "",
+      `🔍 ${t("result_likely_causes")}`,
+      ...r.issues.map((i) => `• ${i}`),
+      "",
+      `🛠 ${t("result_solution")}`,
+      ...r.repairSteps.map((s, idx) => `${idx + 1}. ${s}`),
+      "",
+      `💰 ${t("result_cost")}: ${cost}`,
+    ];
+    if (r.maintenanceTips && r.maintenanceTips.length > 0) {
+      lines.push("", `✅ ${t("result_tips")}`);
+      r.maintenanceTips.forEach((tip) => lines.push(`• ${tip}`));
+    }
+    lines.push("", "— GarageIQ");
+    await Share.share({ message: lines.join("\n"), title: t("share_diagnosis_title") });
   };
 
   const handleUnlockPro = async () => {
@@ -322,13 +357,22 @@ export default function DiagnosisResultScreen() {
       )}
 
       {/* Actions */}
-      <Pressable
-        style={({ pressed }) => [styles.newDiagBtn, pressed && { opacity: 0.9 }]}
-        onPress={() => router.push("/diagnose/new")}
-      >
-        <MaterialCommunityIcons name="stethoscope" size={18} color="#fff" />
-        <Text style={styles.newDiagText}>{t("result_new")}</Text>
-      </Pressable>
+      <View style={styles.actionsRow}>
+        <Pressable
+          style={({ pressed }) => [styles.shareBtn, pressed && { opacity: 0.9 }]}
+          onPress={handleShare}
+        >
+          <Feather name="share-2" size={17} color={Colors.accent} />
+          <Text style={styles.shareBtnText}>{t("result_share")}</Text>
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [styles.newDiagBtn, pressed && { opacity: 0.9 }]}
+          onPress={() => router.push("/diagnose/new")}
+        >
+          <MaterialCommunityIcons name="stethoscope" size={18} color="#fff" />
+          <Text style={styles.newDiagText}>{t("result_new")}</Text>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }
@@ -435,7 +479,22 @@ const styles = StyleSheet.create({
   tagsRow: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
   tag: { backgroundColor: Colors.card2 ?? Colors.card, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, borderWidth: 1, borderColor: Colors.border },
   tagText: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.textSecondary, textTransform: "capitalize" },
+  actionsRow: { flexDirection: "row", gap: 10, marginTop: 8 },
+  shareBtn: {
+    flex: 1,
+    backgroundColor: Colors.card,
+    borderRadius: 14,
+    padding: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderWidth: 1,
+    borderColor: Colors.accent + "50",
+  },
+  shareBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: Colors.accent },
   newDiagBtn: {
+    flex: 2,
     backgroundColor: Colors.accent,
     borderRadius: 14,
     padding: 16,
@@ -443,7 +502,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    marginTop: 8,
   },
   newDiagText: { fontFamily: "Inter_700Bold", fontSize: 16, color: "#fff" },
   proLocked: {
