@@ -223,7 +223,7 @@ export default function HistoryTab() {
             }}
           >
             <Feather name="x" size={12} color={Colors.textSecondary} />
-            <Text style={styles.clearText}>Clear</Text>
+            <Text style={styles.clearText}>{t("filter_clear")}</Text>
           </Pressable>
         )}
       </ScrollView>
@@ -247,7 +247,7 @@ export default function HistoryTab() {
               <Text style={styles.emptyTitle}>{t("history_empty_title")}</Text>
               <Text style={[styles.emptyDesc, isRTL && styles.textRight]}>
                 {hasActiveFilters
-                  ? "No results match the selected filters"
+                  ? t("filter_no_results")
                   : t("history_empty_desc")}
               </Text>
               {!hasActiveFilters && (

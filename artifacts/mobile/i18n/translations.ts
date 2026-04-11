@@ -175,7 +175,10 @@ export type T = {
   filter_7d: string;
   filter_30d: string;
   filter_3m: string;
+  filter_clear: string;
+  filter_no_results: string;
   result_share: string;
+  result_symptoms: string;
   share_diagnosis_title: string;
 };
 
@@ -354,7 +357,10 @@ const en: T = {
   filter_7d: "7 Days",
   filter_30d: "30 Days",
   filter_3m: "3 Months",
+  filter_clear: "Clear",
+  filter_no_results: "No results match the selected filters",
   result_share: "Share",
+  result_symptoms: "Symptoms",
   share_diagnosis_title: "GarageIQ Diagnosis Report",
 };
 
@@ -533,7 +539,10 @@ const ar: T = {
   filter_7d: "٧ أيام",
   filter_30d: "٣٠ يوماً",
   filter_3m: "٣ أشهر",
+  filter_clear: "مسح",
+  filter_no_results: "لا توجد نتائج تطابق الفلاتر المحددة",
   result_share: "مشاركة",
+  result_symptoms: "الأعراض",
   share_diagnosis_title: "تقرير تشخيص GarageIQ",
 };
 
@@ -712,7 +721,10 @@ const fr: T = {
   filter_7d: "7 Jours",
   filter_30d: "30 Jours",
   filter_3m: "3 Mois",
+  filter_clear: "Effacer",
+  filter_no_results: "Aucun résultat ne correspond aux filtres",
   result_share: "Partager",
+  result_symptoms: "Symptômes",
   share_diagnosis_title: "Rapport de diagnostic GarageIQ",
 };
 
