@@ -17,7 +17,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import VehicleSelector, { VehicleSelection } from "@/components/VehicleSelector";
-import { getVehiclePhoto, setVehiclePhoto, removeVehiclePhoto } from "@/lib/vehiclePhotoStorage";
 import { useI18n } from "@/i18n/TranslationContext";
 
 export default function EditVehicleScreen() {
@@ -53,12 +52,10 @@ export default function EditVehicleScreen() {
   }, [vehicle]);
 
   useEffect(() => {
-    if (vehicleId > 0) {
-      getVehiclePhoto(vehicleId).then((uri) => {
-        if (uri) setPhotoUri(uri);
-      });
+    if (vehicle?.photo) {
+      setPhotoUri(vehicle.photo);
     }
-  }, [vehicleId]);
+  }, [vehicle?.photo]);
 
   const handleSelectorConfirm = (selection: VehicleSelection) => {
     setMake(selection.make);
@@ -140,13 +137,9 @@ export default function EditVehicleScreen() {
           licensePlate: licensePlate.trim() || undefined,
           color: color.trim() || undefined,
           notes: notes.trim() || undefined,
+          photo: photoRemoved ? null : photoUri ?? undefined,
         },
       });
-      if (photoUri) {
-        await setVehiclePhoto(vehicleId, photoUri);
-      } else if (photoRemoved) {
-        await removeVehiclePhoto(vehicleId);
-      }
       queryClient.invalidateQueries({ queryKey: getListVehiclesQueryKey() });
       queryClient.invalidateQueries({ queryKey: getGetVehicleQueryKey(vehicleId) });
       router.back();

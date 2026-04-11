@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -25,7 +25,6 @@ import {
 } from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
 import { useI18n } from "@/i18n/TranslationContext";
-import { getVehiclePhoto } from "@/lib/vehiclePhotoStorage";
 
 export default function GarageTab() {
   const insets = useSafeAreaInsets();
@@ -38,26 +37,6 @@ export default function GarageTab() {
   const { data: vehicles, isLoading, refetch } = useListVehicles();
   const deleteVehicleMutation = useDeleteVehicle();
   const { data: allDiagnoses } = useListDiagnoses({});
-
-  const [photos, setPhotos] = useState<Record<number, string>>({});
-
-  useEffect(() => {
-    if (!vehicles) return;
-    const load = async () => {
-      const entries = await Promise.all(
-        vehicles.map(async (v) => {
-          const uri = await getVehiclePhoto(v.id);
-          return uri ? ([v.id, uri] as [number, string]) : null;
-        })
-      );
-      const map: Record<number, string> = {};
-      for (const e of entries) {
-        if (e) map[e[0]] = e[1];
-      }
-      setPhotos(map);
-    };
-    load();
-  }, [vehicles]);
 
   const handleDelete = (id: number, name: string) => {
     Alert.alert(
@@ -114,7 +93,7 @@ export default function GarageTab() {
     const healthScore = getHealthScore(diags);
     const healthColor = getHealthColor(healthScore);
     const healthLabel = getHealthLabel(healthScore);
-    const photoUri = photos[item.id];
+    const photoUri = item.photo;
 
     return (
       <View style={styles.card}>

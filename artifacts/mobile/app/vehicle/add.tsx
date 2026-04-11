@@ -17,7 +17,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import Colors from "@/constants/colors";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import VehicleSelector, { VehicleSelection } from "@/components/VehicleSelector";
-import { setVehiclePhoto } from "@/lib/vehiclePhotoStorage";
 import { useI18n } from "@/i18n/TranslationContext";
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -103,7 +102,7 @@ export default function AddVehicleScreen() {
 
     setLoading(true);
     try {
-      const newVehicle = await createVehicle.mutateAsync({
+      await createVehicle.mutateAsync({
         data: {
           make: make.trim(),
           model: model.trim(),
@@ -112,11 +111,9 @@ export default function AddVehicleScreen() {
           licensePlate: licensePlate.trim() || undefined,
           color: color.trim() || undefined,
           notes: notes.trim() || undefined,
+          photo: photoUri ?? undefined,
         },
       });
-      if (photoUri) {
-        await setVehiclePhoto(newVehicle.id, photoUri);
-      }
       queryClient.invalidateQueries({ queryKey: getListVehiclesQueryKey() });
       Alert.alert("Success", "Vehicle added successfully", [
         { text: "OK", onPress: () => router.back() },
