@@ -52,9 +52,7 @@ export default function EditVehicleScreen() {
   }, [vehicle]);
 
   useEffect(() => {
-    if (vehicle?.photo) {
-      setPhotoUri(vehicle.photo);
-    }
+    setPhotoUri(vehicle?.photo ?? null);
   }, [vehicle?.photo]);
 
   const handleSelectorConfirm = (selection: VehicleSelection) => {
