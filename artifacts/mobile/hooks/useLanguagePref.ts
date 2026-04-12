@@ -4,25 +4,41 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const STORAGE_KEY = "@garageiq_language";
 
 export const LANGUAGES: Array<{ code: string; label: string; native: string }> = [
-  { code: "English", label: "English", native: "English" },
-  { code: "French", label: "French", native: "Français" },
-  { code: "Arabic", label: "Arabic", native: "العربية" },
-  { code: "Spanish", label: "Spanish", native: "Español" },
-  { code: "German", label: "German", native: "Deutsch" },
-  { code: "Dutch", label: "Dutch", native: "Nederlands" },
-  { code: "Italian", label: "Italian", native: "Italiano" },
-  { code: "Portuguese", label: "Portuguese", native: "Português" },
-  { code: "Turkish", label: "Turkish", native: "Türkçe" },
-  { code: "Russian", label: "Russian", native: "Русский" },
+  { code: "en", label: "English", native: "English" },
+  { code: "fr", label: "French", native: "Français" },
+  { code: "ar", label: "Arabic", native: "العربية" },
+  { code: "es", label: "Spanish", native: "Español" },
+  { code: "de", label: "German", native: "Deutsch" },
+  { code: "nl", label: "Dutch", native: "Nederlands" },
+  { code: "it", label: "Italian", native: "Italiano" },
+  { code: "pt", label: "Portuguese", native: "Português" },
+  { code: "tr", label: "Turkish", native: "Türkçe" },
+  { code: "ru", label: "Russian", native: "Русский" },
 ];
 
+const LEGACY_CODE_MAP: Record<string, string> = {
+  English: "en", French: "fr", Arabic: "ar", Spanish: "es",
+  German: "de", Dutch: "nl", Italian: "it", Portuguese: "pt",
+  Turkish: "tr", Russian: "ru",
+};
+
+function normalizeLangCode(val: string): string {
+  return LEGACY_CODE_MAP[val] ?? val;
+}
+
 export function useLanguagePref() {
-  const [language, setLanguageState] = useState<string>("English");
+  const [language, setLanguageState] = useState<string>("en");
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((val) => {
-      if (val) setLanguageState(val);
+    AsyncStorage.getItem(STORAGE_KEY).then(async (val) => {
+      if (val) {
+        const normalized = normalizeLangCode(val);
+        if (normalized !== val) {
+          await AsyncStorage.setItem(STORAGE_KEY, normalized);
+        }
+        setLanguageState(normalized);
+      }
       setLoaded(true);
     });
   }, []);
@@ -38,8 +54,8 @@ export function useLanguagePref() {
 export async function getStoredLanguage(): Promise<string> {
   try {
     const val = await AsyncStorage.getItem(STORAGE_KEY);
-    return val ?? "English";
+    return val ? normalizeLangCode(val) : "en";
   } catch {
-    return "English";
+    return "en";
   }
 }

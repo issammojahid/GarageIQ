@@ -50,19 +50,6 @@ function buildProInsights(
   };
 }
 
-const LANG_TO_LOCALE: Record<string, string> = {
-  English: "en",
-  French: "fr",
-  Arabic: "ar",
-  Spanish: "es",
-  German: "de",
-  Dutch: "nl",
-  Italian: "it",
-  Portuguese: "pt",
-  Turkish: "tr",
-  Russian: "ru",
-};
-
 export default function DiagnosisResultScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: diagnosis, isLoading } = useGetDiagnosis(parseInt(id || "0"));
@@ -70,7 +57,6 @@ export default function DiagnosisResultScreen() {
   const [proUnlocked, setProUnlocked] = useState(false);
   const [adLoading, setAdLoading] = useState(false);
   const { t, tf, isRTL, language } = useI18n();
-  const locale = LANG_TO_LOCALE[language] ?? "en";
   const { colors } = useTheme();
   const s = makeStyles(colors);
 
@@ -100,7 +86,7 @@ export default function DiagnosisResultScreen() {
       : `$${r.estimatedCostMin} – $${r.estimatedCostMax}`;
     const lines: string[] = [
       `🔧 ${t("share_diagnosis_title")}`,
-      `📅 ${new Date(diagnosis.createdAt).toLocaleDateString(locale)}`,
+      `📅 ${new Date(diagnosis.createdAt).toLocaleDateString(language)}`,
       `🚗 ${vName}`,
       "",
       `📝 ${t("result_symptoms")}`,
@@ -180,7 +166,7 @@ export default function DiagnosisResultScreen() {
           <Text style={s.metaText}>{vehicleName}</Text>
         </View>
         <Text style={s.metaDate}>
-          {new Date(diagnosis.createdAt).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}
+          {new Date(diagnosis.createdAt).toLocaleDateString(language, { month: "short", day: "numeric", year: "numeric" })}
         </Text>
       </View>
 
