@@ -15,27 +15,37 @@ import { useListVehicles } from "@/hooks/useLocalVehicles";
 import { showRewardedAd } from "@/components/AdBanner";
 import type { MaterialCommunityIconsName } from "@/types/icons";
 import { useI18n } from "@/i18n/TranslationContext";
+import type { T } from "@/i18n/translations";
 import { useTheme } from "@/context/ThemeContext";
 import type { AppColors } from "@/constants/colors";
 
-function buildProInsights(issues: string[], repairSteps: string[], severity: string) {
+type TFn = (key: keyof T) => string;
+type TFFn = (key: keyof T, value: string | number) => string;
+
+function buildProInsights(
+  issues: string[],
+  repairSteps: string[],
+  severity: string,
+  t: TFn,
+  tf: TFFn
+) {
   const questions = issues.slice(0, 3).map(
-    (issue) => `Ask about: "${issue.length > 60 ? issue.slice(0, 60) + "…" : issue}"`
+    (issue) => tf("pro_ask_prefix", issue.length > 60 ? issue.slice(0, 60) + "…" : issue)
   );
   const parts = repairSteps
     .filter((s) => /replace|install|check|inspect/i.test(s))
     .slice(0, 3)
     .map((s) => s.split(" ").slice(0, 6).join(" ") + "…");
   const tips: Record<string, string[]> = {
-    critical: ["Get this fixed immediately — driving risks further damage.", "Do not ignore warning lights.", "Get a second mechanic opinion for cost verification."],
-    dangerous: ["Get this fixed immediately — driving risks further damage.", "Do not ignore warning lights.", "Get a second mechanic opinion for cost verification."],
-    high: ["Schedule a repair within the week.", "Avoid long trips until resolved.", "Document symptoms for the mechanic."],
-    medium: ["Monitor for worsening symptoms.", "Plan a repair within the month.", "Check related fluid levels weekly."],
-    low: ["Address at next service visit.", "Keep an eye on symptom frequency.", "Log any changes in vehicle behavior."],
+    critical: [t("pro_tip_critical_1"), t("pro_tip_critical_2"), t("pro_tip_critical_3")],
+    dangerous: [t("pro_tip_critical_1"), t("pro_tip_critical_2"), t("pro_tip_critical_3")],
+    high: [t("pro_tip_high_1"), t("pro_tip_high_2"), t("pro_tip_high_3")],
+    medium: [t("pro_tip_medium_1"), t("pro_tip_medium_2"), t("pro_tip_medium_3")],
+    low: [t("pro_tip_low_1"), t("pro_tip_low_2"), t("pro_tip_low_3")],
   };
   return {
-    questions: questions.length > 0 ? questions : ["Ask for a full diagnostic report.", "Inquire about warranty on parts.", "Request itemized repair estimate."],
-    parts: parts.length > 0 ? parts : ["Diagnostic report", "Relevant replacement parts", "Labor estimate"],
+    questions: questions.length > 0 ? questions : [t("pro_fallback_q1"), t("pro_fallback_q2"), t("pro_fallback_q3")],
+    parts: parts.length > 0 ? parts : [t("pro_fallback_p1"), t("pro_fallback_p2"), t("pro_fallback_p3")],
     tips: tips[severity] ?? tips.medium,
   };
 }
@@ -46,7 +56,7 @@ export default function DiagnosisResultScreen() {
   const { data: vehicles } = useListVehicles();
   const [proUnlocked, setProUnlocked] = useState(false);
   const [adLoading, setAdLoading] = useState(false);
-  const { t, isRTL } = useI18n();
+  const { t, tf, isRTL, language } = useI18n();
   const { colors } = useTheme();
   const s = makeStyles(colors);
 
@@ -76,7 +86,7 @@ export default function DiagnosisResultScreen() {
       : `$${r.estimatedCostMin} – $${r.estimatedCostMax}`;
     const lines: string[] = [
       `🔧 ${t("share_diagnosis_title")}`,
-      `📅 ${new Date(diagnosis.createdAt).toLocaleDateString()}`,
+      `📅 ${new Date(diagnosis.createdAt).toLocaleDateString(language)}`,
       `🚗 ${vName}`,
       "",
       `📝 ${t("result_symptoms")}`,
@@ -97,7 +107,7 @@ export default function DiagnosisResultScreen() {
       lines.push("", `✅ ${t("result_tips")}`);
       r.maintenanceTips.forEach((tip) => lines.push(`• ${tip}`));
     }
-    lines.push("", "— GarageIQ");
+    lines.push("", t("result_share_footer"));
     await Share.share({ message: lines.join("\n"), title: t("share_diagnosis_title") });
   };
 
@@ -137,8 +147,8 @@ export default function DiagnosisResultScreen() {
   const result = diagnosis.result;
   const sev = SEV_CONFIG[result.severity] || SEV_CONFIG.medium;
   const vehicle = vehicles?.find((v) => v.id === diagnosis.vehicleId);
-  const vehicleName = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : "Vehicle";
-  const proInsights = buildProInsights(result.issues, result.repairSteps, result.severity);
+  const vehicleName = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : t("result_vehicle_fallback");
+  const proInsights = buildProInsights(result.issues, result.repairSteps, result.severity, t, tf);
   const confidenceCfg = result.confidence ? CONFIDENCE_CONFIG[result.confidence] : null;
 
   const costDisplay = result.estimatedCost
@@ -156,7 +166,7 @@ export default function DiagnosisResultScreen() {
           <Text style={s.metaText}>{vehicleName}</Text>
         </View>
         <Text style={s.metaDate}>
-          {new Date(diagnosis.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+          {new Date(diagnosis.createdAt).toLocaleDateString(language, { month: "short", day: "numeric", year: "numeric" })}
         </Text>
       </View>
 

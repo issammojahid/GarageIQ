@@ -67,7 +67,7 @@ export default function AddVehicleScreen() {
       return;
     }
     if (isNaN(year) || year < 1980 || year > CURRENT_YEAR + 1) {
-      Alert.alert(t("vehicle_invalid_year_title"), tf("vehicle_invalid_year_title", CURRENT_YEAR + 1));
+      Alert.alert(t("vehicle_invalid_year_title"), tf("vehicle_invalid_year_msg", CURRENT_YEAR + 1));
       return;
     }
     const mileageNum = parseInt(mileage || "0");

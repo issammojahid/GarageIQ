@@ -67,7 +67,7 @@ export default function NewDiagnoseScreen() {
   const queryClient = useQueryClient();
   const createDiagnosis = useCreateDiagnosis();
   const { language: selectedLanguage } = useLanguagePref();
-  const { t, isRTL } = useI18n();
+  const { t, tf, isRTL } = useI18n();
 
   const selectedLangInfo = LANGUAGES.find((l) => l.code === selectedLanguage) ?? LANGUAGES[0];
 
@@ -97,15 +97,12 @@ export default function NewDiagnoseScreen() {
 
   const handleTakePhoto = async () => {
     if (Platform.OS === "web") {
-      Alert.alert("Not supported", "Camera capture is not available on web. Please use Choose Photo instead.");
+      Alert.alert(t("diag_camera_web_title"), t("diag_camera_web_msg"));
       return;
     }
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
-        "Camera Permission Required",
-        "Please allow camera access in your settings to take a photo.",
-      );
+      Alert.alert(t("diag_camera_perm_title"), t("diag_camera_perm_msg"));
       return;
     }
     const result = await ImagePicker.launchCameraAsync({
@@ -124,10 +121,7 @@ export default function NewDiagnoseScreen() {
   const handleChoosePhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      Alert.alert(
-        "Photo Library Permission Required",
-        "Please allow photo library access in your settings to choose a photo.",
-      );
+      Alert.alert(t("diag_media_perm_title"), t("diag_media_perm_msg"));
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -166,7 +160,7 @@ export default function NewDiagnoseScreen() {
     const selectedVehicle = vehicles?.find((v) => v.id === selectedVehicleId);
     const requestData = {
       vehicleId: selectedVehicleId,
-      symptoms: symptoms.trim() || "Photo provided",
+      symptoms: symptoms.trim() || t("diag_photo_provided"),
       systems: selectedSystems,
       errorCodes: errorCodes.trim() || undefined,
       imageBase64: photoBase64 ?? undefined,
@@ -206,33 +200,33 @@ export default function NewDiagnoseScreen() {
       router.replace({ pathname: "/diagnose/result", params: { id: result.id } });
     } catch (err: unknown) {
       console.log("[Diagnose] Error:", err);
-      let title = "Error";
-      let message = "Unable to analyze now. Please try again later.";
+      let title = t("error");
+      let message = t("diag_err_default_msg");
       if (err instanceof Error && err.message === "TIMEOUT") {
-        title = "Timeout";
-        message = "Request took too long (20s). Check your connection and try again.";
+        title = t("diag_err_timeout_title");
+        message = t("diag_err_timeout_msg");
       } else if (err instanceof TypeError) {
-        title = "No Internet";
-        message = "No internet connection. Check your network and try again.";
+        title = t("diag_err_no_internet_title");
+        message = t("diag_err_no_internet_msg");
       } else if (err instanceof ApiError) {
         if (err.status === 400) {
           const errData = err.data as { details?: Record<string, string[]>; error?: string } | null;
           const fields = errData?.details
             ? Object.entries(errData.details).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join("\n")
             : null;
-          title = "Invalid Input";
-          message = fields ?? errData?.error ?? "Please check your input and try again.";
+          title = t("diag_err_invalid_input_title");
+          message = fields ?? errData?.error ?? t("diag_err_invalid_input_msg");
         } else if (err.status === 401 || err.status === 403) {
-          title = "Auth Error";
-          message = "Invalid API key or unauthorized. Please contact support.";
+          title = t("diag_err_auth_title");
+          message = t("diag_err_auth_msg");
         } else if (err.status === 503) {
-          title = "AI Unavailable";
-          message = "AI service is temporarily unavailable. Please try again later.";
+          title = t("diag_err_ai_title");
+          message = t("diag_err_ai_msg");
         } else if (err.status >= 500) {
-          title = "Server Error";
-          message = `Server error (${err.status}). Please try again later.`;
+          title = t("diag_err_server_title");
+          message = tf("diag_err_server_msg", err.status);
         } else {
-          message = `Request failed with status ${err.status}. Please try again.`;
+          message = tf("diag_err_request_failed_msg", err.status);
         }
       }
       Alert.alert(title, message);

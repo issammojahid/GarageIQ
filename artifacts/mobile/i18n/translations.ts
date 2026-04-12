@@ -287,6 +287,53 @@ export type T = {
   vs_models_count: string;
 
   ad_label: string;
+
+  vehicle_invalid_year_msg: string;
+
+  diag_camera_web_title: string;
+  diag_camera_web_msg: string;
+  diag_camera_perm_title: string;
+  diag_camera_perm_msg: string;
+  diag_media_perm_title: string;
+  diag_media_perm_msg: string;
+  diag_photo_provided: string;
+  diag_err_timeout_title: string;
+  diag_err_timeout_msg: string;
+  diag_err_no_internet_title: string;
+  diag_err_no_internet_msg: string;
+  diag_err_invalid_input_title: string;
+  diag_err_invalid_input_msg: string;
+  diag_err_auth_title: string;
+  diag_err_auth_msg: string;
+  diag_err_ai_title: string;
+  diag_err_ai_msg: string;
+  diag_err_server_title: string;
+  diag_err_server_msg: string;
+  diag_err_request_failed_msg: string;
+  diag_err_default_msg: string;
+
+  result_vehicle_fallback: string;
+  result_share_footer: string;
+
+  pro_ask_prefix: string;
+  pro_fallback_q1: string;
+  pro_fallback_q2: string;
+  pro_fallback_q3: string;
+  pro_fallback_p1: string;
+  pro_fallback_p2: string;
+  pro_fallback_p3: string;
+  pro_tip_critical_1: string;
+  pro_tip_critical_2: string;
+  pro_tip_critical_3: string;
+  pro_tip_high_1: string;
+  pro_tip_high_2: string;
+  pro_tip_high_3: string;
+  pro_tip_medium_1: string;
+  pro_tip_medium_2: string;
+  pro_tip_medium_3: string;
+  pro_tip_low_1: string;
+  pro_tip_low_2: string;
+  pro_tip_low_3: string;
 };
 
 const en: T = {
@@ -576,6 +623,53 @@ const en: T = {
   vs_models_count: "models",
 
   ad_label: "Advertisement",
+
+  vehicle_invalid_year_msg: "Year must be between 1980 and %d",
+
+  diag_camera_web_title: "Not Supported",
+  diag_camera_web_msg: "Camera capture is not available on web. Use Choose Photo instead.",
+  diag_camera_perm_title: "Camera Permission Required",
+  diag_camera_perm_msg: "Please allow camera access in your settings to take a photo.",
+  diag_media_perm_title: "Photo Library Permission Required",
+  diag_media_perm_msg: "Please allow photo library access in your settings to choose a photo.",
+  diag_photo_provided: "Photo provided",
+  diag_err_timeout_title: "Timeout",
+  diag_err_timeout_msg: "Request took too long (20s). Check your connection and try again.",
+  diag_err_no_internet_title: "No Internet",
+  diag_err_no_internet_msg: "No internet connection. Check your network and try again.",
+  diag_err_invalid_input_title: "Invalid Input",
+  diag_err_invalid_input_msg: "Please check your input and try again.",
+  diag_err_auth_title: "Auth Error",
+  diag_err_auth_msg: "Invalid API key or unauthorized. Please contact support.",
+  diag_err_ai_title: "AI Unavailable",
+  diag_err_ai_msg: "AI service is temporarily unavailable. Please try again later.",
+  diag_err_server_title: "Server Error",
+  diag_err_server_msg: "Server error (%d). Please try again later.",
+  diag_err_request_failed_msg: "Request failed with status %d. Please try again.",
+  diag_err_default_msg: "Unable to analyze now. Please try again later.",
+
+  result_vehicle_fallback: "Vehicle",
+  result_share_footer: "— GarageIQ",
+
+  pro_ask_prefix: "Ask about: \"%s\"",
+  pro_fallback_q1: "Ask for a full diagnostic report.",
+  pro_fallback_q2: "Inquire about warranty on parts.",
+  pro_fallback_q3: "Request itemized repair estimate.",
+  pro_fallback_p1: "Diagnostic report",
+  pro_fallback_p2: "Relevant replacement parts",
+  pro_fallback_p3: "Labor estimate",
+  pro_tip_critical_1: "Get this fixed immediately — driving risks further damage.",
+  pro_tip_critical_2: "Do not ignore warning lights.",
+  pro_tip_critical_3: "Get a second mechanic opinion for cost verification.",
+  pro_tip_high_1: "Schedule a repair within the week.",
+  pro_tip_high_2: "Avoid long trips until resolved.",
+  pro_tip_high_3: "Document symptoms for the mechanic.",
+  pro_tip_medium_1: "Monitor for worsening symptoms.",
+  pro_tip_medium_2: "Plan a repair within the month.",
+  pro_tip_medium_3: "Check related fluid levels weekly.",
+  pro_tip_low_1: "Address at next service visit.",
+  pro_tip_low_2: "Keep an eye on symptom frequency.",
+  pro_tip_low_3: "Log any changes in vehicle behavior.",
 };
 
 const ar: T = {
@@ -865,6 +959,53 @@ const ar: T = {
   vs_models_count: "موديل",
 
   ad_label: "إعلان",
+
+  vehicle_invalid_year_msg: "يجب أن تكون السنة بين 1980 و %d",
+
+  diag_camera_web_title: "غير متاح",
+  diag_camera_web_msg: "التقاط الصور من الكاميرا غير متاح على الويب. استخدم اختيار صورة بدلاً من ذلك.",
+  diag_camera_perm_title: "إذن الكاميرا مطلوب",
+  diag_camera_perm_msg: "يرجى السماح بالوصول إلى الكاميرا في الإعدادات.",
+  diag_media_perm_title: "إذن مكتبة الصور مطلوب",
+  diag_media_perm_msg: "يرجى السماح بالوصول إلى مكتبة الصور في الإعدادات.",
+  diag_photo_provided: "تم تقديم صورة",
+  diag_err_timeout_title: "انتهت المهلة",
+  diag_err_timeout_msg: "استغرق الطلب وقتاً طويلاً (20 ثانية). تحقق من اتصالك وأعد المحاولة.",
+  diag_err_no_internet_title: "لا إنترنت",
+  diag_err_no_internet_msg: "لا يوجد اتصال بالإنترنت. تحقق من شبكتك وأعد المحاولة.",
+  diag_err_invalid_input_title: "مدخل غير صالح",
+  diag_err_invalid_input_msg: "يرجى التحقق من المدخلات والمحاولة مجدداً.",
+  diag_err_auth_title: "خطأ في المصادقة",
+  diag_err_auth_msg: "مفتاح API غير صالح أو غير مصرح. تواصل مع الدعم.",
+  diag_err_ai_title: "الذكاء الاصطناعي غير متاح",
+  diag_err_ai_msg: "خدمة الذكاء الاصطناعي غير متاحة مؤقتاً. أعد المحاولة لاحقاً.",
+  diag_err_server_title: "خطأ في الخادم",
+  diag_err_server_msg: "خطأ في الخادم (%d). أعد المحاولة لاحقاً.",
+  diag_err_request_failed_msg: "فشل الطلب بحالة %d. أعد المحاولة.",
+  diag_err_default_msg: "تعذر التحليل حالياً. أعد المحاولة لاحقاً.",
+
+  result_vehicle_fallback: "مركبة",
+  result_share_footer: "— GarageIQ",
+
+  pro_ask_prefix: "اسأل عن: \"%s\"",
+  pro_fallback_q1: "اطلب تقرير تشخيصي كامل.",
+  pro_fallback_q2: "استفسر عن ضمان قطع الغيار.",
+  pro_fallback_q3: "اطلب تقديراً مفصلاً للتكاليف.",
+  pro_fallback_p1: "تقرير التشخيص",
+  pro_fallback_p2: "قطع الغيار المناسبة",
+  pro_fallback_p3: "تقدير تكلفة العمالة",
+  pro_tip_critical_1: "قم بالإصلاح فوراً — القيادة قد تسبب أضراراً إضافية.",
+  pro_tip_critical_2: "لا تتجاهل أضواء التحذير.",
+  pro_tip_critical_3: "احصل على رأي ميكانيكي ثانٍ للتحقق من التكلفة.",
+  pro_tip_high_1: "حدد موعداً للإصلاح في غضون أسبوع.",
+  pro_tip_high_2: "تجنب الرحلات الطويلة حتى الحل.",
+  pro_tip_high_3: "وثّق الأعراض للميكانيكي.",
+  pro_tip_medium_1: "راقب تفاقم الأعراض.",
+  pro_tip_medium_2: "خطط للإصلاح خلال الشهر.",
+  pro_tip_medium_3: "تحقق من مستويات السوائل ذات الصلة أسبوعياً.",
+  pro_tip_low_1: "تعامل مع الموضوع في الزيارة القادمة للصيانة.",
+  pro_tip_low_2: "راقب تكرار الأعراض.",
+  pro_tip_low_3: "سجّل أي تغييرات في سلوك المركبة.",
 };
 
 const fr: T = {
@@ -1154,6 +1295,53 @@ const fr: T = {
   vs_models_count: "modèles",
 
   ad_label: "Publicité",
+
+  vehicle_invalid_year_msg: "L'année doit être comprise entre 1980 et %d",
+
+  diag_camera_web_title: "Non supporté",
+  diag_camera_web_msg: "La capture par caméra n'est pas disponible sur web. Utilisez Choisir une photo.",
+  diag_camera_perm_title: "Accès caméra requis",
+  diag_camera_perm_msg: "Veuillez autoriser l'accès à la caméra dans les paramètres.",
+  diag_media_perm_title: "Accès médiathèque requis",
+  diag_media_perm_msg: "Veuillez autoriser l'accès à la médiathèque dans les paramètres.",
+  diag_photo_provided: "Photo fournie",
+  diag_err_timeout_title: "Délai dépassé",
+  diag_err_timeout_msg: "La requête a pris trop de temps (20s). Vérifiez votre connexion et réessayez.",
+  diag_err_no_internet_title: "Pas de connexion",
+  diag_err_no_internet_msg: "Pas de connexion Internet. Vérifiez votre réseau et réessayez.",
+  diag_err_invalid_input_title: "Entrée invalide",
+  diag_err_invalid_input_msg: "Veuillez vérifier vos données et réessayer.",
+  diag_err_auth_title: "Erreur d'auth",
+  diag_err_auth_msg: "Clé API invalide ou non autorisé. Contactez le support.",
+  diag_err_ai_title: "IA indisponible",
+  diag_err_ai_msg: "Le service IA est temporairement indisponible. Réessayez plus tard.",
+  diag_err_server_title: "Erreur serveur",
+  diag_err_server_msg: "Erreur serveur (%d). Veuillez réessayer plus tard.",
+  diag_err_request_failed_msg: "Échec de la requête avec le statut %d. Réessayez.",
+  diag_err_default_msg: "Analyse impossible pour l'instant. Réessayez plus tard.",
+
+  result_vehicle_fallback: "Véhicule",
+  result_share_footer: "— GarageIQ",
+
+  pro_ask_prefix: "Demandez à propos de : \"%s\"",
+  pro_fallback_q1: "Demandez un rapport de diagnostic complet.",
+  pro_fallback_q2: "Renseignez-vous sur la garantie des pièces.",
+  pro_fallback_q3: "Demandez un devis détaillé.",
+  pro_fallback_p1: "Rapport de diagnostic",
+  pro_fallback_p2: "Pièces de rechange appropriées",
+  pro_fallback_p3: "Estimation de la main-d'œuvre",
+  pro_tip_critical_1: "Faites réparer ceci immédiatement — conduire risque d'aggraver les dégâts.",
+  pro_tip_critical_2: "N'ignorez pas les voyants d'avertissement.",
+  pro_tip_critical_3: "Obtenez un deuxième avis de mécanicien pour vérifier les coûts.",
+  pro_tip_high_1: "Planifiez une réparation dans la semaine.",
+  pro_tip_high_2: "Évitez les longs trajets jusqu'à résolution.",
+  pro_tip_high_3: "Documentez les symptômes pour le mécanicien.",
+  pro_tip_medium_1: "Surveillez l'aggravation des symptômes.",
+  pro_tip_medium_2: "Planifiez une réparation dans le mois.",
+  pro_tip_medium_3: "Vérifiez les niveaux de liquides liés chaque semaine.",
+  pro_tip_low_1: "Réglez cela lors de la prochaine révision.",
+  pro_tip_low_2: "Surveillez la fréquence des symptômes.",
+  pro_tip_low_3: "Notez tout changement de comportement du véhicule.",
 };
 
 const es: T = { ...en,
