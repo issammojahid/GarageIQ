@@ -339,6 +339,71 @@ export type T = {
   ph_vehicle_mileage: string;
   ph_vehicle_license: string;
   ph_vehicle_color: string;
+
+  mech_screen_title: string;
+  mech_register_title: string;
+  mech_register_desc: string;
+  mech_field_name: string;
+  mech_field_phone: string;
+  mech_field_city: string;
+  mech_field_address: string;
+  mech_field_specialties: string;
+  mech_field_hours: string;
+  mech_field_description: string;
+  mech_field_edit_code: string;
+  mech_field_edit_code_hint: string;
+  mech_ph_name: string;
+  mech_ph_phone: string;
+  mech_ph_city: string;
+  mech_ph_address: string;
+  mech_ph_hours: string;
+  mech_ph_description: string;
+  mech_ph_edit_code: string;
+  mech_submit: string;
+  mech_success_title: string;
+  mech_success_msg: string;
+  mech_err_required: string;
+  mech_err_phone: string;
+  mech_err_code: string;
+  mech_err_failed: string;
+  mech_spec_engine: string;
+  mech_spec_brakes: string;
+  mech_spec_transmission: string;
+  mech_spec_electrical: string;
+  mech_spec_suspension: string;
+  mech_spec_cooling: string;
+  mech_spec_ac: string;
+  mech_spec_tires: string;
+  mech_spec_bodywork: string;
+  mech_spec_general: string;
+  mech_location_use: string;
+  mech_cta_title: string;
+  mech_cta_desc: string;
+  mech_cta_btn: string;
+  mech_sort_distance: string;
+  mech_sort_rating: string;
+  mech_sort_by: string;
+  mech_open: string;
+  mech_closed: string;
+  mech_call: string;
+  mech_directions: string;
+  mech_km_away: string;
+  mech_empty_title: string;
+  mech_empty_desc: string;
+  mech_loading: string;
+  mech_city_filter: string;
+  mech_all_cities: string;
+  mech_manage_title: string;
+  mech_manage_desc: string;
+  mech_delete_btn: string;
+  mech_delete_confirm: string;
+  mech_delete_success: string;
+  mech_update_btn: string;
+  mech_update_success: string;
+
+  menu_mechanic_register: string;
+  menu_mechanic_register_desc: string;
+  screen_mechanic_register: string;
 };
 
 const en: T = {
@@ -680,6 +745,71 @@ const en: T = {
   ph_vehicle_mileage: "45000",
   ph_vehicle_license: "ABC 1234",
   ph_vehicle_color: "e.g. Black, White, Silver...",
+
+  mech_screen_title: "Nearby Workshops",
+  mech_register_title: "Register Your Garage",
+  mech_register_desc: "Add your garage to GarageIQ and connect with drivers in your area.",
+  mech_field_name: "Garage Name",
+  mech_field_phone: "Phone Number",
+  mech_field_city: "City",
+  mech_field_address: "Address",
+  mech_field_specialties: "Specialties",
+  mech_field_hours: "Working Hours",
+  mech_field_description: "Description",
+  mech_field_edit_code: "Edit Code (PIN)",
+  mech_field_edit_code_hint: "You'll need this PIN to edit or delete your listing later. Keep it safe!",
+  mech_ph_name: "e.g. Hassan Auto Service",
+  mech_ph_phone: "+212 6XX XXX XXX",
+  mech_ph_city: "e.g. Casablanca",
+  mech_ph_address: "e.g. 12 Rue Mohammed V",
+  mech_ph_hours: "e.g. Mon–Sat 8am–7pm",
+  mech_ph_description: "Describe your services and experience...",
+  mech_ph_edit_code: "4+ digit PIN",
+  mech_submit: "Register Garage",
+  mech_success_title: "Garage Registered!",
+  mech_success_msg: "Your garage is now live in the directory. Save your PIN to manage your listing.",
+  mech_err_required: "Name, phone, and city are required.",
+  mech_err_phone: "Please enter a valid phone number.",
+  mech_err_code: "Edit code must be at least 4 characters.",
+  mech_err_failed: "Registration failed. Please try again.",
+  mech_spec_engine: "Engine",
+  mech_spec_brakes: "Brakes",
+  mech_spec_transmission: "Transmission",
+  mech_spec_electrical: "Electrical",
+  mech_spec_suspension: "Suspension",
+  mech_spec_cooling: "Cooling",
+  mech_spec_ac: "AC",
+  mech_spec_tires: "Tires",
+  mech_spec_bodywork: "Bodywork",
+  mech_spec_general: "General",
+  mech_location_use: "Use my location",
+  mech_cta_title: "Are you a mechanic?",
+  mech_cta_desc: "Add your garage to the directory and reach more drivers.",
+  mech_cta_btn: "Register Free",
+  mech_sort_distance: "Distance",
+  mech_sort_rating: "Rating",
+  mech_sort_by: "Sort by:",
+  mech_open: "Open",
+  mech_closed: "Closed",
+  mech_call: "Call",
+  mech_directions: "Directions",
+  mech_km_away: "km away",
+  mech_empty_title: "No workshops found",
+  mech_empty_desc: "Be the first to add your garage in this area!",
+  mech_loading: "Finding workshops near you...",
+  mech_city_filter: "Search by city...",
+  mech_all_cities: "All cities",
+  mech_manage_title: "Manage Listing",
+  mech_manage_desc: "Enter your PIN to edit or delete your listing.",
+  mech_delete_btn: "Delete Listing",
+  mech_delete_confirm: "This will permanently remove your listing.",
+  mech_delete_success: "Your listing has been removed.",
+  mech_update_btn: "Save Changes",
+  mech_update_success: "Your listing has been updated.",
+
+  menu_mechanic_register: "Register as Mechanic",
+  menu_mechanic_register_desc: "Add your garage to the directory",
+  screen_mechanic_register: "Register Garage",
 };
 
 const ar: T = {
@@ -1021,6 +1151,71 @@ const ar: T = {
   ph_vehicle_mileage: "45000",
   ph_vehicle_license: "أ ب 1234",
   ph_vehicle_color: "مثال: أسود، أبيض، فضي...",
+
+  mech_screen_title: "ورش قريبة",
+  mech_register_title: "سجّل مرآبك",
+  mech_register_desc: "أضف مرآبك إلى GarageIQ وتواصل مع السائقين في منطقتك.",
+  mech_field_name: "اسم المرآب",
+  mech_field_phone: "رقم الهاتف",
+  mech_field_city: "المدينة",
+  mech_field_address: "العنوان",
+  mech_field_specialties: "التخصصات",
+  mech_field_hours: "ساعات العمل",
+  mech_field_description: "الوصف",
+  mech_field_edit_code: "رمز التعديل (PIN)",
+  mech_field_edit_code_hint: "ستحتاج إلى هذا الرمز لتعديل أو حذف إدراجك لاحقاً. احتفظ به بأمان!",
+  mech_ph_name: "مثال: خدمة حسن للسيارات",
+  mech_ph_phone: "+212 6XX XXX XXX",
+  mech_ph_city: "مثال: الدار البيضاء",
+  mech_ph_address: "مثال: 12 شارع محمد الخامس",
+  mech_ph_hours: "مثال: الإثنين–السبت 8ص–7م",
+  mech_ph_description: "صف خدماتك وخبرتك...",
+  mech_ph_edit_code: "رمز 4 أرقام أو أكثر",
+  mech_submit: "تسجيل المرآب",
+  mech_success_title: "تم تسجيل المرآب!",
+  mech_success_msg: "مرآبك الآن ظاهر في الدليل. احفظ رمزك لإدارة إدراجك.",
+  mech_err_required: "الاسم والهاتف والمدينة مطلوبة.",
+  mech_err_phone: "الرجاء إدخال رقم هاتف صحيح.",
+  mech_err_code: "رمز التعديل يجب أن يكون 4 أحرف على الأقل.",
+  mech_err_failed: "فشل التسجيل. يرجى المحاولة مرة أخرى.",
+  mech_spec_engine: "المحرك",
+  mech_spec_brakes: "المكابح",
+  mech_spec_transmission: "ناقل الحركة",
+  mech_spec_electrical: "الكهرباء",
+  mech_spec_suspension: "التعليق",
+  mech_spec_cooling: "التبريد",
+  mech_spec_ac: "تكييف",
+  mech_spec_tires: "الإطارات",
+  mech_spec_bodywork: "هيكل السيارة",
+  mech_spec_general: "عام",
+  mech_location_use: "استخدم موقعي",
+  mech_cta_title: "هل أنت ميكانيكي؟",
+  mech_cta_desc: "أضف مرآبك إلى الدليل وتواصل مع المزيد من السائقين.",
+  mech_cta_btn: "سجّل مجاناً",
+  mech_sort_distance: "المسافة",
+  mech_sort_rating: "التقييم",
+  mech_sort_by: "ترتيب حسب:",
+  mech_open: "مفتوح",
+  mech_closed: "مغلق",
+  mech_call: "اتصال",
+  mech_directions: "اتجاهات",
+  mech_km_away: "كم",
+  mech_empty_title: "لا توجد ورش",
+  mech_empty_desc: "كن أول من يضيف مرآبه في هذه المنطقة!",
+  mech_loading: "جاري البحث عن ورش قريبة...",
+  mech_city_filter: "ابحث بالمدينة...",
+  mech_all_cities: "جميع المدن",
+  mech_manage_title: "إدارة الإدراج",
+  mech_manage_desc: "أدخل رمزك لتعديل أو حذف إدراجك.",
+  mech_delete_btn: "حذف الإدراج",
+  mech_delete_confirm: "سيؤدي هذا إلى إزالة إدراجك نهائياً.",
+  mech_delete_success: "تم حذف إدراجك.",
+  mech_update_btn: "حفظ التغييرات",
+  mech_update_success: "تم تحديث إدراجك.",
+
+  menu_mechanic_register: "سجّل كميكانيكي",
+  menu_mechanic_register_desc: "أضف مرآبك إلى الدليل",
+  screen_mechanic_register: "تسجيل المرآب",
 };
 
 const fr: T = {
@@ -1362,6 +1557,71 @@ const fr: T = {
   ph_vehicle_mileage: "45000",
   ph_vehicle_license: "AB-1234-CD",
   ph_vehicle_color: "p.ex. Noir, Blanc, Argent...",
+
+  mech_screen_title: "Ateliers à proximité",
+  mech_register_title: "Inscrivez votre garage",
+  mech_register_desc: "Ajoutez votre garage à GarageIQ et connectez-vous avec des conducteurs près de chez vous.",
+  mech_field_name: "Nom du garage",
+  mech_field_phone: "Numéro de téléphone",
+  mech_field_city: "Ville",
+  mech_field_address: "Adresse",
+  mech_field_specialties: "Spécialités",
+  mech_field_hours: "Heures d'ouverture",
+  mech_field_description: "Description",
+  mech_field_edit_code: "Code de modification (PIN)",
+  mech_field_edit_code_hint: "Vous aurez besoin de ce PIN pour modifier ou supprimer votre annonce plus tard. Gardez-le en sécurité!",
+  mech_ph_name: "ex. Garage Hassan",
+  mech_ph_phone: "+33 6 XX XX XX XX",
+  mech_ph_city: "ex. Paris",
+  mech_ph_address: "ex. 12 Rue de la Paix",
+  mech_ph_hours: "ex. Lun–Sam 8h–19h",
+  mech_ph_description: "Décrivez vos services et votre expérience...",
+  mech_ph_edit_code: "PIN de 4+ chiffres",
+  mech_submit: "Inscrire le garage",
+  mech_success_title: "Garage inscrit!",
+  mech_success_msg: "Votre garage est maintenant visible dans l'annuaire. Sauvegardez votre PIN pour gérer votre annonce.",
+  mech_err_required: "Nom, téléphone et ville sont requis.",
+  mech_err_phone: "Veuillez entrer un numéro de téléphone valide.",
+  mech_err_code: "Le code de modification doit comporter au moins 4 caractères.",
+  mech_err_failed: "Échec de l'inscription. Veuillez réessayer.",
+  mech_spec_engine: "Moteur",
+  mech_spec_brakes: "Freins",
+  mech_spec_transmission: "Transmission",
+  mech_spec_electrical: "Électrique",
+  mech_spec_suspension: "Suspension",
+  mech_spec_cooling: "Refroidissement",
+  mech_spec_ac: "Climatisation",
+  mech_spec_tires: "Pneus",
+  mech_spec_bodywork: "Carrosserie",
+  mech_spec_general: "Général",
+  mech_location_use: "Utiliser ma position",
+  mech_cta_title: "Vous êtes mécanicien?",
+  mech_cta_desc: "Ajoutez votre garage à l'annuaire et touchez plus de conducteurs.",
+  mech_cta_btn: "Inscription gratuite",
+  mech_sort_distance: "Distance",
+  mech_sort_rating: "Note",
+  mech_sort_by: "Trier par:",
+  mech_open: "Ouvert",
+  mech_closed: "Fermé",
+  mech_call: "Appeler",
+  mech_directions: "Itinéraire",
+  mech_km_away: "km",
+  mech_empty_title: "Aucun atelier trouvé",
+  mech_empty_desc: "Soyez le premier à ajouter votre garage dans cette zone!",
+  mech_loading: "Recherche des ateliers à proximité...",
+  mech_city_filter: "Rechercher par ville...",
+  mech_all_cities: "Toutes les villes",
+  mech_manage_title: "Gérer l'annonce",
+  mech_manage_desc: "Entrez votre PIN pour modifier ou supprimer votre annonce.",
+  mech_delete_btn: "Supprimer l'annonce",
+  mech_delete_confirm: "Cela supprimera définitivement votre annonce.",
+  mech_delete_success: "Votre annonce a été supprimée.",
+  mech_update_btn: "Enregistrer les modifications",
+  mech_update_success: "Votre annonce a été mise à jour.",
+
+  menu_mechanic_register: "S'inscrire comme mécanicien",
+  menu_mechanic_register_desc: "Ajoutez votre garage à l'annuaire",
+  screen_mechanic_register: "Inscrire le garage",
 };
 
 const es: T = { ...en,

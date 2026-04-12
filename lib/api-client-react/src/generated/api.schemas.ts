@@ -238,6 +238,55 @@ export interface IdentifyPartResult {
   replacementDifficulty: string;
 }
 
+export interface Mechanic {
+  id: number;
+  name: string;
+  phone: string;
+  city: string;
+  address?: string;
+  specialties?: string[];
+  description?: string;
+  workingHours?: string;
+  latitude?: number;
+  longitude?: number;
+  isActive: boolean;
+  rating: number;
+  reviewCount: number;
+  createdAt: string;
+}
+
+export interface CreateMechanicBody {
+  name: string;
+  phone: string;
+  city: string;
+  address?: string;
+  specialties?: string[];
+  description?: string;
+  workingHours?: string;
+  latitude?: number;
+  longitude?: number;
+  /** PIN set by mechanic to edit/delete their listing later */
+  editCode: string;
+}
+
+export interface UpdateMechanicBody {
+  name?: string;
+  phone?: string;
+  city?: string;
+  address?: string;
+  specialties?: string[];
+  description?: string;
+  workingHours?: string;
+  latitude?: number;
+  longitude?: number;
+  /** Required to authorize the update */
+  editCode: string;
+}
+
+export interface DeleteMechanicBody {
+  editCode: string;
+}
+
 export type ListDiagnosesParams = {
   vehicleId?: number;
 };
@@ -252,4 +301,11 @@ export type ListMaintenanceParams = {
 
 export type ListDocumentsParams = {
   vehicleId?: number;
+};
+
+export type ListMechanicsParams = {
+  /**
+   * Filter by city (case-insensitive partial match)
+   */
+  city?: string;
 };

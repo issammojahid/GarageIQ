@@ -21,6 +21,8 @@ tags:
     description: Vehicle documents
   - name: ai
     description: AI features
+  - name: mechanics
+    description: Mechanic directory
 paths:
   /healthz:
     get:
@@ -510,6 +512,142 @@ paths:
               schema:
                 $ref: "#/components/schemas/IdentifyPartResult"
 
+  /mechanics:
+    get:
+      operationId: listMechanics
+      tags: [mechanics]
+      summary: List mechanics directory
+      parameters:
+        - name: city
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by city (case-insensitive partial match)
+      responses:
+        "200":
+          description: List of mechanics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Mechanic"
+    post:
+      operationId: createMechanic
+      tags: [mechanics]
+      summary: Register as a mechanic
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMechanicBody"
+      responses:
+        "201":
+          description: Mechanic registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mechanic"
+        "400":
+          description: Invalid body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /mechanics/{id}:
+    get:
+      operationId: getMechanic
+      tags: [mechanics]
+      summary: Get a mechanic
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Mechanic
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mechanic"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updateMechanic
+      tags: [mechanics]
+      summary: Update mechanic listing (requires editCode)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMechanicBody"
+      responses:
+        "200":
+          description: Updated mechanic
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mechanic"
+        "401":
+          description: Wrong edit code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteMechanic
+      tags: [mechanics]
+      summary: Delete mechanic listing (requires editCode)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteMechanicBody"
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Wrong edit code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -970,3 +1108,115 @@ components:
         - commonIssues
         - estimatedCost
         - replacementDifficulty
+
+    Mechanic:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: string
+        city:
+          type: string
+        address:
+          type: string
+        specialties:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        workingHours:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        isActive:
+          type: boolean
+        rating:
+          type: number
+        reviewCount:
+          type: integer
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - phone
+        - city
+        - isActive
+        - rating
+        - reviewCount
+        - createdAt
+
+    CreateMechanicBody:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        city:
+          type: string
+        address:
+          type: string
+        specialties:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        workingHours:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        editCode:
+          type: string
+          description: PIN set by mechanic to edit/delete their listing later
+      required:
+        - name
+        - phone
+        - city
+        - editCode
+
+    UpdateMechanicBody:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        city:
+          type: string
+        address:
+          type: string
+        specialties:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        workingHours:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        editCode:
+          type: string
+          description: Required to authorize the update
+      required:
+        - editCode
+
+    DeleteMechanicBody:
+      type: object
+      properties:
+        editCode:
+          type: string
+      required:
+        - editCode

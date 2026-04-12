@@ -37,6 +37,7 @@ const MENU_ITEMS: MenuItem[] = [
   { id: "cost-calculator", labelKey: "menu_cost_calculator", descKey: "menu_cost_calculator_desc", icon: "calculator-variant", color: "#8B5CF6", bgColor: "#8B5CF620", route: "/screens/cost-calculator" },
   { id: "documents", labelKey: "menu_documents", descKey: "menu_documents_desc", icon: "file-document", color: "#EF4444", bgColor: "#EF444420", route: "/screens/documents" },
   { id: "nearby-workshops", labelKey: "menu_nearby", descKey: "menu_nearby_desc", icon: "map-marker", color: "#EC4899", bgColor: "#EC489920", route: "/screens/nearby-workshops" },
+  { id: "mechanic-register", labelKey: "menu_mechanic_register", descKey: "menu_mechanic_register_desc", icon: "garage", color: "#E85D04", bgColor: "#E85D0420", route: "/screens/mechanic-register" },
   { id: "settings", labelKey: "menu_settings", descKey: "menu_settings_desc", icon: "cog", color: "#6B7280", bgColor: "#6B728020", route: "/screens/settings" },
 ];
 

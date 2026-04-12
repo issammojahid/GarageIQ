@@ -21,7 +21,9 @@ import type {
   CreateDocumentBody,
   CreateFuelLogBody,
   CreateMaintenanceBody,
+  CreateMechanicBody,
   CreateVehicleBody,
+  DeleteMechanicBody,
   Diagnosis,
   Document,
   ErrorResponse,
@@ -33,10 +35,13 @@ import type {
   ListDocumentsParams,
   ListFuelLogsParams,
   ListMaintenanceParams,
+  ListMechanicsParams,
   MaintenanceRecord,
+  Mechanic,
   UpdateDocumentBody,
   UpdateFuelLogBody,
   UpdateMaintenanceBody,
+  UpdateMechanicBody,
   Vehicle,
 } from "./api.schemas";
 
@@ -2294,4 +2299,445 @@ export const useIdentifyPart = <
   TContext
 > => {
   return useMutation(getIdentifyPartMutationOptions(options));
+};
+
+/**
+ * @summary List mechanics directory
+ */
+export const getListMechanicsUrl = (params?: ListMechanicsParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/mechanics?${stringifiedParams}`
+    : `/api/mechanics`;
+};
+
+export const listMechanics = async (
+  params?: ListMechanicsParams,
+  options?: RequestInit,
+): Promise<Mechanic[]> => {
+  return customFetch<Mechanic[]>(getListMechanicsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListMechanicsQueryKey = (params?: ListMechanicsParams) => {
+  return [`/api/mechanics`, ...(params ? [params] : [])] as const;
+};
+
+export const getListMechanicsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listMechanics>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListMechanicsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listMechanics>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListMechanicsQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listMechanics>>> = ({
+    signal,
+  }) => listMechanics(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listMechanics>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListMechanicsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listMechanics>>
+>;
+export type ListMechanicsQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List mechanics directory
+ */
+
+export function useListMechanics<
+  TData = Awaited<ReturnType<typeof listMechanics>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListMechanicsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listMechanics>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListMechanicsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Register as a mechanic
+ */
+export const getCreateMechanicUrl = () => {
+  return `/api/mechanics`;
+};
+
+export const createMechanic = async (
+  createMechanicBody: CreateMechanicBody,
+  options?: RequestInit,
+): Promise<Mechanic> => {
+  return customFetch<Mechanic>(getCreateMechanicUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(createMechanicBody),
+  });
+};
+
+export const getCreateMechanicMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createMechanic>>,
+    TError,
+    { data: BodyType<CreateMechanicBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createMechanic>>,
+  TError,
+  { data: BodyType<CreateMechanicBody> },
+  TContext
+> => {
+  const mutationKey = ["createMechanic"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createMechanic>>,
+    { data: BodyType<CreateMechanicBody> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createMechanic(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateMechanicMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createMechanic>>
+>;
+export type CreateMechanicMutationBody = BodyType<CreateMechanicBody>;
+export type CreateMechanicMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Register as a mechanic
+ */
+export const useCreateMechanic = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createMechanic>>,
+    TError,
+    { data: BodyType<CreateMechanicBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createMechanic>>,
+  TError,
+  { data: BodyType<CreateMechanicBody> },
+  TContext
+> => {
+  return useMutation(getCreateMechanicMutationOptions(options));
+};
+
+/**
+ * @summary Get a mechanic
+ */
+export const getGetMechanicUrl = (id: number) => {
+  return `/api/mechanics/${id}`;
+};
+
+export const getMechanic = async (
+  id: number,
+  options?: RequestInit,
+): Promise<Mechanic> => {
+  return customFetch<Mechanic>(getGetMechanicUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetMechanicQueryKey = (id: number) => {
+  return [`/api/mechanics/${id}`] as const;
+};
+
+export const getGetMechanicQueryOptions = <
+  TData = Awaited<ReturnType<typeof getMechanic>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMechanic>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetMechanicQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getMechanic>>> = ({
+    signal,
+  }) => getMechanic(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getMechanic>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetMechanicQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getMechanic>>
+>;
+export type GetMechanicQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get a mechanic
+ */
+
+export function useGetMechanic<
+  TData = Awaited<ReturnType<typeof getMechanic>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getMechanic>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetMechanicQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Update mechanic listing (requires editCode)
+ */
+export const getUpdateMechanicUrl = (id: number) => {
+  return `/api/mechanics/${id}`;
+};
+
+export const updateMechanic = async (
+  id: number,
+  updateMechanicBody: UpdateMechanicBody,
+  options?: RequestInit,
+): Promise<Mechanic> => {
+  return customFetch<Mechanic>(getUpdateMechanicUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(updateMechanicBody),
+  });
+};
+
+export const getUpdateMechanicMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateMechanic>>,
+    TError,
+    { id: number; data: BodyType<UpdateMechanicBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateMechanic>>,
+  TError,
+  { id: number; data: BodyType<UpdateMechanicBody> },
+  TContext
+> => {
+  const mutationKey = ["updateMechanic"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateMechanic>>,
+    { id: number; data: BodyType<UpdateMechanicBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateMechanic(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateMechanicMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateMechanic>>
+>;
+export type UpdateMechanicMutationBody = BodyType<UpdateMechanicBody>;
+export type UpdateMechanicMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Update mechanic listing (requires editCode)
+ */
+export const useUpdateMechanic = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateMechanic>>,
+    TError,
+    { id: number; data: BodyType<UpdateMechanicBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateMechanic>>,
+  TError,
+  { id: number; data: BodyType<UpdateMechanicBody> },
+  TContext
+> => {
+  return useMutation(getUpdateMechanicMutationOptions(options));
+};
+
+/**
+ * @summary Delete mechanic listing (requires editCode)
+ */
+export const getDeleteMechanicUrl = (id: number) => {
+  return `/api/mechanics/${id}`;
+};
+
+export const deleteMechanic = async (
+  id: number,
+  deleteMechanicBody: DeleteMechanicBody,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteMechanicUrl(id), {
+    ...options,
+    method: "DELETE",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(deleteMechanicBody),
+  });
+};
+
+export const getDeleteMechanicMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteMechanic>>,
+    TError,
+    { id: number; data: BodyType<DeleteMechanicBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteMechanic>>,
+  TError,
+  { id: number; data: BodyType<DeleteMechanicBody> },
+  TContext
+> => {
+  const mutationKey = ["deleteMechanic"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteMechanic>>,
+    { id: number; data: BodyType<DeleteMechanicBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return deleteMechanic(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteMechanicMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteMechanic>>
+>;
+export type DeleteMechanicMutationBody = BodyType<DeleteMechanicBody>;
+export type DeleteMechanicMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Delete mechanic listing (requires editCode)
+ */
+export const useDeleteMechanic = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteMechanic>>,
+    TError,
+    { id: number; data: BodyType<DeleteMechanicBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteMechanic>>,
+  TError,
+  { id: number; data: BodyType<DeleteMechanicBody> },
+  TContext
+> => {
+  return useMutation(getDeleteMechanicMutationOptions(options));
 };

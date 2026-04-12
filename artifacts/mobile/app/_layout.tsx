@@ -97,6 +97,10 @@ function RootLayoutNav() {
         name="screens/cost-calculator"
         options={{ headerShown: true, title: t("screen_cost_calculator"), headerStyle, headerTintColor, headerTitleStyle }}
       />
+      <Stack.Screen
+        name="screens/mechanic-register"
+        options={{ headerShown: true, title: t("screen_mechanic_register"), headerStyle, headerTintColor, headerTitleStyle }}
+      />
     </Stack>
   );
 }

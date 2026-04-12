@@ -540,3 +540,121 @@ export const IdentifyPartResponse = zod.object({
   estimatedCost: zod.string(),
   replacementDifficulty: zod.string(),
 });
+
+/**
+ * @summary List mechanics directory
+ */
+export const ListMechanicsQueryParams = zod.object({
+  city: zod.coerce
+    .string()
+    .optional()
+    .describe("Filter by city (case-insensitive partial match)"),
+});
+
+export const ListMechanicsResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  phone: zod.string(),
+  city: zod.string(),
+  address: zod.string().optional(),
+  specialties: zod.array(zod.string()).optional(),
+  description: zod.string().optional(),
+  workingHours: zod.string().optional(),
+  latitude: zod.number().optional(),
+  longitude: zod.number().optional(),
+  isActive: zod.boolean(),
+  rating: zod.number(),
+  reviewCount: zod.number(),
+  createdAt: zod.string(),
+});
+export const ListMechanicsResponse = zod.array(ListMechanicsResponseItem);
+
+/**
+ * @summary Register as a mechanic
+ */
+export const CreateMechanicBody = zod.object({
+  name: zod.string(),
+  phone: zod.string(),
+  city: zod.string(),
+  address: zod.string().optional(),
+  specialties: zod.array(zod.string()).optional(),
+  description: zod.string().optional(),
+  workingHours: zod.string().optional(),
+  latitude: zod.number().optional(),
+  longitude: zod.number().optional(),
+  editCode: zod
+    .string()
+    .describe("PIN set by mechanic to edit\/delete their listing later"),
+});
+
+/**
+ * @summary Get a mechanic
+ */
+export const GetMechanicParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetMechanicResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  phone: zod.string(),
+  city: zod.string(),
+  address: zod.string().optional(),
+  specialties: zod.array(zod.string()).optional(),
+  description: zod.string().optional(),
+  workingHours: zod.string().optional(),
+  latitude: zod.number().optional(),
+  longitude: zod.number().optional(),
+  isActive: zod.boolean(),
+  rating: zod.number(),
+  reviewCount: zod.number(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Update mechanic listing (requires editCode)
+ */
+export const UpdateMechanicParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateMechanicBody = zod.object({
+  name: zod.string().optional(),
+  phone: zod.string().optional(),
+  city: zod.string().optional(),
+  address: zod.string().optional(),
+  specialties: zod.array(zod.string()).optional(),
+  description: zod.string().optional(),
+  workingHours: zod.string().optional(),
+  latitude: zod.number().optional(),
+  longitude: zod.number().optional(),
+  editCode: zod.string().describe("Required to authorize the update"),
+});
+
+export const UpdateMechanicResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  phone: zod.string(),
+  city: zod.string(),
+  address: zod.string().optional(),
+  specialties: zod.array(zod.string()).optional(),
+  description: zod.string().optional(),
+  workingHours: zod.string().optional(),
+  latitude: zod.number().optional(),
+  longitude: zod.number().optional(),
+  isActive: zod.boolean(),
+  rating: zod.number(),
+  reviewCount: zod.number(),
+  createdAt: zod.string(),
+});
+
+/**
+ * @summary Delete mechanic listing (requires editCode)
+ */
+export const DeleteMechanicParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const DeleteMechanicBody = zod.object({
+  editCode: zod.string(),
+});
