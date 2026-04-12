@@ -182,7 +182,7 @@ export default function EditVehicleScreen() {
           <Text style={s.label}>{t("add_vehicle_field_mileage")}</Text>
           <TextInput
             style={s.input}
-            placeholder="45000"
+            placeholder={t("ph_vehicle_mileage")}
             placeholderTextColor={colors.textTertiary}
             value={mileage}
             onChangeText={setMileage}
@@ -194,7 +194,7 @@ export default function EditVehicleScreen() {
           <Text style={s.label}>{t("add_vehicle_field_license")}</Text>
           <TextInput
             style={s.input}
-            placeholder="12345 A 6"
+            placeholder={t("ph_vehicle_license")}
             placeholderTextColor={colors.textTertiary}
             value={licensePlate}
             onChangeText={setLicensePlate}
@@ -206,7 +206,7 @@ export default function EditVehicleScreen() {
           <Text style={s.label}>{t("add_vehicle_field_color")}</Text>
           <TextInput
             style={s.input}
-            placeholder="Black"
+            placeholder={t("ph_vehicle_color")}
             placeholderTextColor={colors.textTertiary}
             value={color}
             onChangeText={setColor}

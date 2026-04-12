@@ -334,6 +334,11 @@ export type T = {
   pro_tip_low_1: string;
   pro_tip_low_2: string;
   pro_tip_low_3: string;
+
+  ok_btn: string;
+  ph_vehicle_mileage: string;
+  ph_vehicle_license: string;
+  ph_vehicle_color: string;
 };
 
 const en: T = {
@@ -670,6 +675,11 @@ const en: T = {
   pro_tip_low_1: "Address at next service visit.",
   pro_tip_low_2: "Keep an eye on symptom frequency.",
   pro_tip_low_3: "Log any changes in vehicle behavior.",
+
+  ok_btn: "OK",
+  ph_vehicle_mileage: "45000",
+  ph_vehicle_license: "ABC 1234",
+  ph_vehicle_color: "e.g. Black, White, Silver...",
 };
 
 const ar: T = {
@@ -1006,6 +1016,11 @@ const ar: T = {
   pro_tip_low_1: "تعامل مع الموضوع في الزيارة القادمة للصيانة.",
   pro_tip_low_2: "راقب تكرار الأعراض.",
   pro_tip_low_3: "سجّل أي تغييرات في سلوك المركبة.",
+
+  ok_btn: "حسناً",
+  ph_vehicle_mileage: "45000",
+  ph_vehicle_license: "أ ب 1234",
+  ph_vehicle_color: "مثال: أسود، أبيض، فضي...",
 };
 
 const fr: T = {
@@ -1342,6 +1357,11 @@ const fr: T = {
   pro_tip_low_1: "Réglez cela lors de la prochaine révision.",
   pro_tip_low_2: "Surveillez la fréquence des symptômes.",
   pro_tip_low_3: "Notez tout changement de comportement du véhicule.",
+
+  ok_btn: "OK",
+  ph_vehicle_mileage: "45000",
+  ph_vehicle_license: "AB-1234-CD",
+  ph_vehicle_color: "p.ex. Noir, Blanc, Argent...",
 };
 
 const es: T = { ...en,
