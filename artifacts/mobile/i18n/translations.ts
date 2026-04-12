@@ -405,6 +405,20 @@ export type T = {
   menu_mechanic_register: string;
   menu_mechanic_register_desc: string;
   screen_mechanic_register: string;
+
+  mech_location_section: string;
+  mech_field_latitude: string;
+  mech_field_longitude: string;
+  mech_ph_latitude: string;
+  mech_ph_longitude: string;
+  mech_listing_id: string;
+  mech_listing_id_ph: string;
+  mech_listing_id_hint: string;
+  mech_load_btn: string;
+  mech_done_btn: string;
+  mech_cancel_btn: string;
+  mech_register_tab: string;
+  mech_manage_tab: string;
 };
 
 const en: T = {
@@ -812,6 +826,20 @@ const en: T = {
   menu_mechanic_register: "Register as Mechanic",
   menu_mechanic_register_desc: "Add your garage to the directory",
   screen_mechanic_register: "Register Garage",
+
+  mech_location_section: "Location (GPS)",
+  mech_field_latitude: "Latitude",
+  mech_field_longitude: "Longitude",
+  mech_ph_latitude: "e.g. 33.5731",
+  mech_ph_longitude: "e.g. -7.5898",
+  mech_listing_id: "Listing ID",
+  mech_listing_id_ph: "Enter your listing ID",
+  mech_listing_id_hint: "Your listing ID was shown after registration. Use it with your PIN to manage your listing.",
+  mech_load_btn: "Load",
+  mech_done_btn: "Done",
+  mech_cancel_btn: "Cancel",
+  mech_register_tab: "Register",
+  mech_manage_tab: "Manage Listing",
 };
 
 const ar: T = {
@@ -1219,6 +1247,20 @@ const ar: T = {
   menu_mechanic_register: "سجّل كميكانيكي",
   menu_mechanic_register_desc: "أضف مرآبك إلى الدليل",
   screen_mechanic_register: "تسجيل المرآب",
+
+  mech_location_section: "الموقع الجغرافي (GPS)",
+  mech_field_latitude: "خط العرض",
+  mech_field_longitude: "خط الطول",
+  mech_ph_latitude: "مثال: 33.5731",
+  mech_ph_longitude: "مثال: -7.5898",
+  mech_listing_id: "معرّف الإدراج",
+  mech_listing_id_ph: "أدخل معرّف إدراجك",
+  mech_listing_id_hint: "تم عرض معرّف إدراجك بعد التسجيل. استخدمه مع رمزك لإدارة إدراجك.",
+  mech_load_btn: "تحميل",
+  mech_done_btn: "تم",
+  mech_cancel_btn: "إلغاء",
+  mech_register_tab: "تسجيل",
+  mech_manage_tab: "إدارة الإدراج",
 };
 
 const fr: T = {
@@ -1626,6 +1668,20 @@ const fr: T = {
   menu_mechanic_register: "S'inscrire comme mécanicien",
   menu_mechanic_register_desc: "Ajoutez votre garage à l'annuaire",
   screen_mechanic_register: "Inscrire le garage",
+
+  mech_location_section: "Localisation (GPS)",
+  mech_field_latitude: "Latitude",
+  mech_field_longitude: "Longitude",
+  mech_ph_latitude: "ex. 33.5731",
+  mech_ph_longitude: "ex. -7.5898",
+  mech_listing_id: "ID de l'annonce",
+  mech_listing_id_ph: "Entrez l'ID de votre annonce",
+  mech_listing_id_hint: "Votre ID a été affiché après l'inscription. Utilisez-le avec votre PIN pour gérer votre annonce.",
+  mech_load_btn: "Charger",
+  mech_done_btn: "Terminer",
+  mech_cancel_btn: "Annuler",
+  mech_register_tab: "Inscription",
+  mech_manage_tab: "Gérer l'annonce",
 };
 
 const es: T = { ...en,

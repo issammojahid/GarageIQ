@@ -23,6 +23,7 @@ import {
   useDeleteMechanic,
   useGetMechanic,
 } from "@workspace/api-client-react";
+import type { Mechanic } from "@workspace/api-client-react";
 
 const SPECIALTIES_KEYS = [
   "mech_spec_engine",
@@ -58,7 +59,7 @@ export default function MechanicRegisterScreen() {
           onPress={() => setTab("register")}
         >
           <Text style={[s.tabBtnText, tab === "register" && s.tabBtnTextActive]}>
-            {t("mech_register_title")}
+            {t("mech_register_tab")}
           </Text>
         </Pressable>
         <Pressable
@@ -66,7 +67,7 @@ export default function MechanicRegisterScreen() {
           onPress={() => setTab("manage")}
         >
           <Text style={[s.tabBtnText, tab === "manage" && s.tabBtnTextActive]}>
-            {t("mech_manage_title")}
+            {t("mech_manage_tab")}
           </Text>
         </Pressable>
       </View>
@@ -103,7 +104,7 @@ function RegisterForm({
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [locLoading, setLocLoading] = useState(false);
-  const [done, setDone] = useState(false);
+  const [createdMechanic, setCreatedMechanic] = useState<Mechanic | null>(null);
 
   const createMutation = useCreateMechanic();
 
@@ -118,18 +119,18 @@ function RegisterForm({
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        Alert.alert("", "Location permission denied.");
+        Alert.alert("", t("mech_err_required"));
         return;
       }
       const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       setLatitude(loc.coords.latitude.toFixed(6));
       setLongitude(loc.coords.longitude.toFixed(6));
     } catch {
-      Alert.alert("Error", "Could not get location.");
+      Alert.alert("Error", t("mech_err_failed"));
     } finally {
       setLocLoading(false);
     }
-  }, []);
+  }, [t]);
 
   async function handleSubmit() {
     if (!name.trim() || !phone.trim() || !city.trim()) {
@@ -160,27 +161,36 @@ function RegisterForm({
         },
       },
       {
-        onSuccess: () => setDone(true),
+        onSuccess: (data) => setCreatedMechanic(data),
         onError: () => Alert.alert("", t("mech_err_failed")),
       }
     );
   }
 
-  if (done) {
+  if (createdMechanic) {
     return (
       <View style={s.successContainer}>
         <MaterialCommunityIcons name="check-circle" size={64} color={colors.success} />
         <Text style={s.successTitle}>{t("mech_success_title")}</Text>
         <Text style={s.successMsg}>{t("mech_success_msg")}</Text>
+
+        <View style={s.idCard}>
+          <Text style={s.idCardLabel}>{t("mech_listing_id")}</Text>
+          <Text style={s.idCardValue}>#{createdMechanic.id}</Text>
+          <Text style={s.idCardHint}>{t("mech_listing_id_hint")}</Text>
+        </View>
+
         <View style={s.pinReminder}>
           <Ionicons name="key-outline" size={20} color={colors.accent} />
+          <Text style={s.pinLabel}>{t("mech_field_edit_code")}: </Text>
           <Text style={s.pinReminderText}>{editCode}</Text>
         </View>
+
         <Pressable
           style={({ pressed }) => [s.doneBtn, pressed && { opacity: 0.85 }]}
           onPress={() => router.back()}
         >
-          <Text style={s.doneBtnText}>Done</Text>
+          <Text style={s.doneBtnText}>{t("mech_done_btn")}</Text>
         </Pressable>
       </View>
     );
@@ -222,7 +232,7 @@ function RegisterForm({
 
         <View style={s.section}>
           <View style={[s.locationHeader, isRTL && s.rowReverse]}>
-            <Text style={[s.sectionTitle, { flex: 1 }, isRTL && s.textRight]}>Location (GPS)</Text>
+            <Text style={[s.sectionTitle, { flex: 1 }, isRTL && s.textRight]}>{t("mech_location_section")}</Text>
             <Pressable style={[s.locationBtn, locLoading && { opacity: 0.7 }]} onPress={autofillLocation} disabled={locLoading}>
               {locLoading ? (
                 <ActivityIndicator size="small" color={colors.accent} />
@@ -236,12 +246,12 @@ function RegisterForm({
           </View>
           <View style={[s.latLngRow, isRTL && s.rowReverse]}>
             <View style={{ flex: 1 }}>
-              <Text style={[s.fieldLabelSmall, isRTL && s.textRight]}>Latitude</Text>
-              <TextInput style={[s.input, isRTL && s.inputRTL]} placeholder="e.g. 33.5731" placeholderTextColor={colors.textTertiary} value={latitude} onChangeText={setLatitude} keyboardType="decimal-pad" textAlign={isRTL ? "right" : "left"} />
+              <Text style={[s.fieldLabelSmall, isRTL && s.textRight]}>{t("mech_field_latitude")}</Text>
+              <TextInput style={[s.input, isRTL && s.inputRTL]} placeholder={t("mech_ph_latitude")} placeholderTextColor={colors.textTertiary} value={latitude} onChangeText={setLatitude} keyboardType="decimal-pad" textAlign={isRTL ? "right" : "left"} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[s.fieldLabelSmall, isRTL && s.textRight]}>Longitude</Text>
-              <TextInput style={[s.input, isRTL && s.inputRTL]} placeholder="e.g. -7.5898" placeholderTextColor={colors.textTertiary} value={longitude} onChangeText={setLongitude} keyboardType="decimal-pad" textAlign={isRTL ? "right" : "left"} />
+              <Text style={[s.fieldLabelSmall, isRTL && s.textRight]}>{t("mech_field_longitude")}</Text>
+              <TextInput style={[s.input, isRTL && s.inputRTL]} placeholder={t("mech_ph_longitude")} placeholderTextColor={colors.textTertiary} value={longitude} onChangeText={setLongitude} keyboardType="decimal-pad" textAlign={isRTL ? "right" : "left"} />
             </View>
           </View>
         </View>
@@ -377,7 +387,7 @@ function ManageForm({
       return;
     }
     Alert.alert(t("mech_delete_btn"), t("mech_delete_confirm"), [
-      { text: "Cancel", style: "cancel" },
+      { text: t("mech_cancel_btn"), style: "cancel" },
       {
         text: t("mech_delete_btn"),
         style: "destructive",
@@ -409,11 +419,12 @@ function ManageForm({
         </View>
 
         <View style={s.section}>
-          <Text style={[s.fieldLabel, isRTL && s.textRight]}>Listing ID</Text>
+          <Text style={[s.fieldLabel, isRTL && s.textRight]}>{t("mech_listing_id")}</Text>
+          <Text style={[s.hintText, isRTL && s.textRight]}>{t("mech_listing_id_hint")}</Text>
           <View style={s.codeInputRow}>
             <TextInput
               style={[s.input, s.codeInput, isRTL && s.inputRTL]}
-              placeholder="Enter your listing ID"
+              placeholder={t("mech_listing_id_ph")}
               placeholderTextColor={colors.textTertiary}
               value={lookupId}
               onChangeText={(v) => { setLookupId(v); setLoaded(false); }}
@@ -421,7 +432,7 @@ function ManageForm({
               textAlign={isRTL ? "right" : "left"}
             />
             <Pressable style={s.loadBtn} onPress={handleLoad}>
-              <Text style={s.loadBtnText}>Load</Text>
+              <Text style={s.loadBtnText}>{t("mech_load_btn")}</Text>
             </Pressable>
           </View>
 
@@ -451,7 +462,7 @@ function ManageForm({
             <Text style={s.mechPreviewSub}>{mechanic.phone}</Text>
             {mechanic.workingHours ? <Text style={s.mechPreviewSub}>{mechanic.workingHours}</Text> : null}
             <View style={s.mechPreviewActions}>
-              <Pressable style={[s.editBtn]} onPress={enterEdit}>
+              <Pressable style={s.editBtn} onPress={enterEdit}>
                 <Ionicons name="pencil-outline" size={16} color={colors.accent} />
                 <Text style={s.editBtnText}>{t("mech_update_btn")}</Text>
               </Pressable>
@@ -492,8 +503,8 @@ function ManageForm({
             <TextInput style={[s.input, s.inputMultiline, isRTL && s.inputRTL]} value={description} onChangeText={setDescription} multiline numberOfLines={3} textAlignVertical="top" placeholderTextColor={colors.textTertiary} textAlign={isRTL ? "right" : "left"} />
 
             <View style={[s.editFormActions, isRTL && s.rowReverse]}>
-              <Pressable style={[s.cancelBtn]} onPress={() => setEditMode(false)}>
-                <Text style={s.cancelBtnText}>Cancel</Text>
+              <Pressable style={s.cancelBtn} onPress={() => setEditMode(false)}>
+                <Text style={s.cancelBtnText}>{t("mech_cancel_btn")}</Text>
               </Pressable>
               <Pressable
                 style={[s.saveBtn, updateMutation.isPending && { opacity: 0.6 }]}
@@ -570,8 +581,13 @@ function makeStyles(colors: AppColors) {
     successContainer: { flex: 1, backgroundColor: colors.bg, alignItems: "center", justifyContent: "center", padding: 32, gap: 16 },
     successTitle: { fontFamily: "Inter_700Bold", fontSize: 24, color: colors.text, textAlign: "center" },
     successMsg: { fontFamily: "Inter_400Regular", fontSize: 15, color: colors.textSecondary, textAlign: "center", lineHeight: 22 },
-    pinReminder: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.accent + "20", borderWidth: 1, borderColor: colors.accent + "50", borderRadius: 14, paddingHorizontal: 20, paddingVertical: 14, marginTop: 8 },
-    pinReminderText: { fontFamily: "Inter_700Bold", fontSize: 22, color: colors.accent, letterSpacing: 4 },
+    idCard: { backgroundColor: colors.card, borderRadius: 16, padding: 20, borderWidth: 1, borderColor: colors.border, alignItems: "center", gap: 6, width: "100%" },
+    idCardLabel: { fontFamily: "Inter_500Medium", fontSize: 13, color: colors.textSecondary },
+    idCardValue: { fontFamily: "Inter_700Bold", fontSize: 36, color: colors.accent },
+    idCardHint: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textTertiary, textAlign: "center", lineHeight: 18 },
+    pinReminder: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: colors.accent + "20", borderWidth: 1, borderColor: colors.accent + "50", borderRadius: 14, paddingHorizontal: 20, paddingVertical: 14 },
+    pinLabel: { fontFamily: "Inter_500Medium", fontSize: 14, color: colors.textSecondary },
+    pinReminderText: { fontFamily: "Inter_700Bold", fontSize: 20, color: colors.accent, letterSpacing: 3 },
     doneBtn: { backgroundColor: colors.accent, borderRadius: 14, paddingHorizontal: 40, paddingVertical: 14, marginTop: 8 },
     doneBtnText: { fontFamily: "Inter_700Bold", fontSize: 16, color: "#fff" },
   });
