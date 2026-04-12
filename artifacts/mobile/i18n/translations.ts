@@ -382,6 +382,7 @@ export type T = {
   mech_cta_btn: string;
   mech_sort_distance: string;
   mech_sort_rating: string;
+  mech_sort_name: string;
   mech_sort_by: string;
   mech_open: string;
   mech_closed: string;
@@ -788,6 +789,7 @@ const en: T = {
   mech_cta_btn: "Register Free",
   mech_sort_distance: "Distance",
   mech_sort_rating: "Rating",
+  mech_sort_name: "Name",
   mech_sort_by: "Sort by:",
   mech_open: "Open",
   mech_closed: "Closed",
@@ -1194,6 +1196,7 @@ const ar: T = {
   mech_cta_btn: "سجّل مجاناً",
   mech_sort_distance: "المسافة",
   mech_sort_rating: "التقييم",
+  mech_sort_name: "الاسم",
   mech_sort_by: "ترتيب حسب:",
   mech_open: "مفتوح",
   mech_closed: "مغلق",
@@ -1600,6 +1603,7 @@ const fr: T = {
   mech_cta_btn: "Inscription gratuite",
   mech_sort_distance: "Distance",
   mech_sort_rating: "Note",
+  mech_sort_name: "Nom",
   mech_sort_by: "Trier par:",
   mech_open: "Ouvert",
   mech_closed: "Fermé",

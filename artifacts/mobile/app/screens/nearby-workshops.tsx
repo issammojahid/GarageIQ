@@ -22,7 +22,7 @@ import { BannerAd } from "@/components/AdBanner";
 import { useListMechanics } from "@workspace/api-client-react";
 import type { Mechanic } from "@workspace/api-client-react";
 
-type SortKey = "distance" | "rating";
+type SortKey = "distance" | "rating" | "name";
 
 function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371;
@@ -139,11 +139,11 @@ export default function NearbyWorkshopsScreen() {
         : 9999,
   }));
 
-  const sorted = [...mechanicsWithDistance].sort((a, b) =>
-    sortBy === "rating"
-      ? (b.rating ?? 0) - (a.rating ?? 0)
-      : a.distance - b.distance
-  );
+  const sorted = [...mechanicsWithDistance].sort((a, b) => {
+    if (sortBy === "rating") return (b.rating ?? 0) - (a.rating ?? 0);
+    if (sortBy === "name") return a.name.localeCompare(b.name);
+    return a.distance - b.distance;
+  });
 
   const s = makeStyles(colors);
 
@@ -252,6 +252,12 @@ export default function NearbyWorkshopsScreen() {
               onPress={() => setSortBy("rating")}
             >
               <Text style={[s.sortBtnText, sortBy === "rating" && s.sortBtnTextActive]}>{t("mech_sort_rating")}</Text>
+            </Pressable>
+            <Pressable
+              style={[s.sortBtn, sortBy === "name" && s.sortBtnActive]}
+              onPress={() => setSortBy("name")}
+            >
+              <Text style={[s.sortBtnText, sortBy === "name" && s.sortBtnTextActive]}>{t("mech_sort_name")}</Text>
             </Pressable>
           </View>
 
