@@ -99,6 +99,24 @@ function RecordItem({ item, onEdit, onDelete }: RecordItemProps) {
     ]);
   };
 
+  const handleMarkDone = async () => {
+    Alert.alert(
+      "Mark as done",
+      `Mark "${item.type}" as completed and cancel the reminder?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Mark done",
+          onPress: async () => {
+            await cancelMaintenanceReminder(item.id);
+            await refresh();
+            Alert.alert("Done!", `Reminder for ${item.type} has been cancelled.`);
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <>
       <View style={styles.record}>
@@ -135,6 +153,12 @@ function RecordItem({ item, onEdit, onDelete }: RecordItemProps) {
                 {reminder ? "Reminder set" : "Set reminder"}
               </Text>
             </Pressable>
+            {reminder && (
+              <Pressable style={styles.doneBtn} onPress={handleMarkDone}>
+                <Ionicons name="checkmark-circle-outline" size={13} color={Colors.success} />
+                <Text style={styles.doneBtnText}>Mark done</Text>
+              </Pressable>
+            )}
           </View>
         </View>
         <Pressable hitSlop={10} onPress={() => onEdit(item)} style={{ marginRight: 8, paddingTop: 2 }}>
@@ -398,6 +422,19 @@ const styles = StyleSheet.create({
   reminderBtnActive: { borderColor: Colors.accent + "60", backgroundColor: Colors.accent + "10" },
   reminderBtnText: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.textSecondary },
   reminderBtnTextActive: { color: Colors.accent },
+  doneBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.success + "50",
+    backgroundColor: Colors.success + "10",
+    marginLeft: 8,
+  },
+  doneBtnText: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.success },
   empty: { alignItems: "center", paddingTop: 60, gap: 12 },
   emptyText: { fontFamily: "Inter_400Regular", fontSize: 16, color: Colors.textSecondary },
   fab: { position: "absolute", bottom: 24, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: Colors.accent, alignItems: "center", justifyContent: "center", elevation: 8 },
