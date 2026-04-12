@@ -22,8 +22,10 @@ import {
   useUpdateMechanic,
   useDeleteMechanic,
   useGetMechanic,
+  getListMechanicsQueryKey,
 } from "@workspace/api-client-react";
 import type { Mechanic } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 const SPECIALTIES_KEYS = [
   "mech_spec_engine",
@@ -106,6 +108,7 @@ function RegisterForm({
   const [locLoading, setLocLoading] = useState(false);
   const [createdMechanic, setCreatedMechanic] = useState<Mechanic | null>(null);
 
+  const queryClient = useQueryClient();
   const createMutation = useCreateMechanic();
 
   function toggleSpecialty(value: string) {
@@ -161,7 +164,10 @@ function RegisterForm({
         },
       },
       {
-        onSuccess: (data) => setCreatedMechanic(data),
+        onSuccess: (data) => {
+          queryClient.invalidateQueries({ queryKey: getListMechanicsQueryKey() });
+          setCreatedMechanic(data);
+        },
         onError: () => Alert.alert("", t("mech_err_failed")),
       }
     );
@@ -332,6 +338,7 @@ function ManageForm({
     query: { enabled: mechId > 0 && loaded },
   });
 
+  const queryClient = useQueryClient();
   const updateMutation = useUpdateMechanic();
   const deleteMutation = useDeleteMechanic();
 
@@ -372,6 +379,7 @@ function ManageForm({
       },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getListMechanicsQueryKey() });
           Alert.alert("", t("mech_update_success"));
           setEditMode(false);
           refetch();
@@ -396,6 +404,7 @@ function ManageForm({
             { id: mechanic.id, data: { editCode: editCode.trim() } },
             {
               onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: getListMechanicsQueryKey() });
                 Alert.alert("", t("mech_delete_success"));
                 setLoaded(false);
                 setLookupId("");

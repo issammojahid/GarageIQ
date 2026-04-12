@@ -19,7 +19,7 @@ import { useTheme } from "@/context/ThemeContext";
 import type { AppColors } from "@/constants/colors";
 import { useI18n } from "@/i18n/TranslationContext";
 import { BannerAd } from "@/components/AdBanner";
-import { useListMechanics } from "@workspace/api-client-react";
+import { useListMechanics, getListMechanicsQueryKey } from "@workspace/api-client-react";
 import type { Mechanic } from "@workspace/api-client-react";
 
 type SortKey = "distance" | "rating" | "name";
@@ -95,13 +95,16 @@ export default function NearbyWorkshopsScreen() {
   const { t, isRTL } = useI18n();
   const [locationState, setLocationState] = useState<"idle" | "loading" | "granted" | "denied">("idle");
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [nearestCity, setNearestCity] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<SortKey>("distance");
   const [showMap, setShowMap] = useState(false);
   const [cityFilter, setCityFilter] = useState("");
   const webViewRef = useRef<WebView>(null);
 
-  const { data: mechanics = [], isLoading: mechLoading, refetch } = useListMechanics(
-    cityFilter.trim() ? { city: cityFilter.trim() } : {}
+  const activeCity = cityFilter.trim() || nearestCity || undefined;
+
+  const { data: mechanics = [], isLoading: mechLoading } = useListMechanics(
+    activeCity ? { city: activeCity } : {}
   );
 
   const requestLocation = useCallback(async () => {
@@ -110,17 +113,24 @@ export default function NearbyWorkshopsScreen() {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setLocationState("denied");
-        Alert.alert("", t("mech_location_use"), [{ text: "OK" }]);
         return;
       }
       const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      setUserLocation({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
+      const coords = { latitude: loc.coords.latitude, longitude: loc.coords.longitude };
+      setUserLocation(coords);
       setLocationState("granted");
+      try {
+        const [place] = await Location.reverseGeocodeAsync(coords);
+        if (place?.city) {
+          setNearestCity(place.city);
+        }
+      } catch {
+        // Reverse geocode failed silently — show all listings
+      }
     } catch {
       setLocationState("denied");
-      Alert.alert("Error", "Could not get your location. Please try again.");
     }
-  }, [t]);
+  }, []);
 
   React.useEffect(() => {
     requestLocation();
@@ -164,7 +174,9 @@ export default function NearbyWorkshopsScreen() {
         <View style={s.locationBanner}>
           <Ionicons name="location" size={14} color={colors.success} />
           <Text style={s.locationText}>
-            {userLocation.latitude.toFixed(3)}, {userLocation.longitude.toFixed(3)}
+            {nearestCity
+              ? `${nearestCity} · ${userLocation.latitude.toFixed(3)}, ${userLocation.longitude.toFixed(3)}`
+              : `${userLocation.latitude.toFixed(3)}, ${userLocation.longitude.toFixed(3)}`}
           </Text>
         </View>
       )}
