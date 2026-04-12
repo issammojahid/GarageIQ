@@ -1,18 +1,30 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View, Text, StyleSheet, ScrollView, Pressable, TextInput, Alert, Modal,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTheme } from "@/context/ThemeContext";
 import type { AppColors } from "@/constants/colors";
 import { useI18n } from "@/i18n/TranslationContext";
 import type { MaterialCommunityIconsName } from "@/types/icons";
+
+const STORAGE_KEY = "cost-calculator-estimates";
 
 type LineItem = {
   id: string;
   label: string;
   amount: string;
   type: "part" | "labor" | "other";
+};
+
+type SavedEstimate = {
+  id: string;
+  title: string;
+  items: LineItem[];
+  taxRate: string;
+  currencyCode: string;
+  savedAt: string;
 };
 
 const CURRENCIES = [
@@ -36,13 +48,29 @@ export default function CostCalculatorScreen() {
   const { isRTL } = useI18n();
   const [items, setItems] = useState<LineItem[]>([]);
   const [currency, setCurrency] = useState(CURRENCIES[0]);
+  const [taxRate, setTaxRate] = useState("0");
   const [showCurrencyModal, setShowCurrencyModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showSavedModal, setShowSavedModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [newLabel, setNewLabel] = useState("");
   const [newAmount, setNewAmount] = useState("");
   const [newType, setNewType] = useState<LineItem["type"]>("part");
-  const [taxRate, setTaxRate] = useState("0");
+  const [savedEstimates, setSavedEstimates] = useState<SavedEstimate[]>([]);
+  const [saveTitle, setSaveTitle] = useState("");
+  const [showSavePrompt, setShowSavePrompt] = useState(false);
+
+  const loadEstimates = useCallback(async () => {
+    const raw = await AsyncStorage.getItem(STORAGE_KEY);
+    if (raw) setSavedEstimates(JSON.parse(raw));
+  }, []);
+
+  useEffect(() => { loadEstimates(); }, [loadEstimates]);
+
+  const persistEstimates = async (next: SavedEstimate[]) => {
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    setSavedEstimates(next);
+  };
 
   const resetModal = () => { setNewLabel(""); setNewAmount(""); setNewType("part"); setEditId(null); };
 
@@ -53,7 +81,7 @@ export default function CostCalculatorScreen() {
     setShowAddModal(true);
   };
 
-  const handleSave = () => {
+  const handleSaveItem = () => {
     if (!newLabel.trim()) { Alert.alert("Required", "Label is required."); return; }
     if (editId) {
       setItems((prev) => prev.map((i) => i.id === editId ? { ...i, label: newLabel, amount: newAmount, type: newType } : i));
@@ -64,10 +92,41 @@ export default function CostCalculatorScreen() {
     resetModal();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDeleteItem = (id: string) => {
     Alert.alert("Remove", "Remove this line item?", [
       { text: "Cancel", style: "cancel" },
       { text: "Remove", style: "destructive", onPress: () => setItems((prev) => prev.filter((i) => i.id !== id)) },
+    ]);
+  };
+
+  const handleSaveEstimate = async () => {
+    if (!saveTitle.trim()) { Alert.alert("Required", "Please enter a title for this estimate."); return; }
+    const estimate: SavedEstimate = {
+      id: Date.now().toString(),
+      title: saveTitle.trim(),
+      items,
+      taxRate,
+      currencyCode: currency.code,
+      savedAt: new Date().toISOString(),
+    };
+    await persistEstimates([estimate, ...savedEstimates]);
+    setSaveTitle("");
+    setShowSavePrompt(false);
+    Alert.alert("Saved", "Estimate saved successfully.");
+  };
+
+  const handleLoadEstimate = (estimate: SavedEstimate) => {
+    const cur = CURRENCIES.find((c) => c.code === estimate.currencyCode) ?? CURRENCIES[0];
+    setCurrency(cur);
+    setTaxRate(estimate.taxRate);
+    setItems(estimate.items);
+    setShowSavedModal(false);
+  };
+
+  const handleDeleteEstimate = async (id: string) => {
+    Alert.alert("Delete", "Delete this saved estimate?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Delete", style: "destructive", onPress: async () => { await persistEstimates(savedEstimates.filter((e) => e.id !== id)); } },
     ]);
   };
 
@@ -84,13 +143,26 @@ export default function CostCalculatorScreen() {
   return (
     <View style={s.container}>
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {/* Currency Row */}
-        <View style={[s.row, isRTL && s.rowReverse]}>
-          <Text style={[s.sectionTitle, isRTL && s.textRight]}>Currency</Text>
+        {/* Top controls row */}
+        <View style={[s.topRow, isRTL && s.rowReverse]}>
           <Pressable style={s.currencyBtn} onPress={() => setShowCurrencyModal(true)}>
             <Text style={s.currencyBtnText}>{currency.code} {currency.symbol}</Text>
             <Ionicons name="chevron-down" size={14} color={colors.accent} />
           </Pressable>
+          <View style={[s.topActions, isRTL && s.rowReverse]}>
+            {savedEstimates.length > 0 && (
+              <Pressable style={s.topBtn} onPress={() => setShowSavedModal(true)}>
+                <Ionicons name="folder-outline" size={16} color={colors.accent} />
+                <Text style={s.topBtnText}>Saved</Text>
+              </Pressable>
+            )}
+            {items.length > 0 && (
+              <Pressable style={s.topBtn} onPress={() => setShowSavePrompt(true)}>
+                <Ionicons name="save-outline" size={16} color={colors.accent} />
+                <Text style={s.topBtnText}>Save</Text>
+              </Pressable>
+            )}
+          </View>
         </View>
 
         {/* Line Items grouped by type */}
@@ -111,7 +183,7 @@ export default function CostCalculatorScreen() {
                     <Pressable onPress={() => openEdit(item)} hitSlop={8}>
                       <Ionicons name="pencil-outline" size={16} color={colors.textTertiary} />
                     </Pressable>
-                    <Pressable onPress={() => handleDelete(item.id)} hitSlop={8}>
+                    <Pressable onPress={() => handleDeleteItem(item.id)} hitSlop={8}>
                       <Ionicons name="trash-outline" size={16} color={colors.danger} />
                     </Pressable>
                   </View>
@@ -246,10 +318,65 @@ export default function CostCalculatorScreen() {
               <Pressable style={s.cancelBtn} onPress={() => { setShowAddModal(false); resetModal(); }}>
                 <Text style={s.cancelBtnText}>Cancel</Text>
               </Pressable>
-              <Pressable style={s.saveBtn} onPress={handleSave}>
+              <Pressable style={s.saveBtn} onPress={handleSaveItem}>
                 <Text style={s.saveBtnText}>{editId ? "Update" : "Add"}</Text>
               </Pressable>
             </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Save Estimate Prompt */}
+      <Modal visible={showSavePrompt} transparent animationType="fade" onRequestClose={() => setShowSavePrompt(false)}>
+        <Pressable style={s.overlay} onPress={() => setShowSavePrompt(false)}>
+          <Pressable style={[s.sheet, { paddingBottom: 24 }]} onPress={() => {}}>
+            <View style={s.handle} />
+            <Text style={[s.sheetTitle, isRTL && s.textRight]}>Save Estimate</Text>
+            <Text style={[s.fieldLabel, isRTL && s.textRight]}>Estimate Title</Text>
+            <TextInput
+              style={[s.input, isRTL && s.textRight]}
+              value={saveTitle}
+              onChangeText={setSaveTitle}
+              placeholder="e.g. Front brake service"
+              placeholderTextColor={colors.textTertiary}
+            />
+            <View style={[s.btnRow, isRTL && s.rowReverse]}>
+              <Pressable style={s.cancelBtn} onPress={() => setShowSavePrompt(false)}>
+                <Text style={s.cancelBtnText}>Cancel</Text>
+              </Pressable>
+              <Pressable style={s.saveBtn} onPress={handleSaveEstimate}>
+                <Text style={s.saveBtnText}>Save</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Saved Estimates Modal */}
+      <Modal visible={showSavedModal} transparent animationType="slide" onRequestClose={() => setShowSavedModal(false)}>
+        <Pressable style={s.overlay} onPress={() => setShowSavedModal(false)}>
+          <Pressable style={s.sheet} onPress={() => {}}>
+            <View style={s.handle} />
+            <Text style={[s.sheetTitle, isRTL && s.textRight]}>Saved Estimates</Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {savedEstimates.map((est) => {
+                const cur = CURRENCIES.find((c) => c.code === est.currencyCode) ?? CURRENCIES[0];
+                const total = est.items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+                const totalWithTax = total * (1 + (parseFloat(est.taxRate) || 0) / 100);
+                const date = new Date(est.savedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+                return (
+                  <View key={est.id} style={[s.savedRow, isRTL && s.rowReverse]}>
+                    <Pressable style={{ flex: 1 }} onPress={() => handleLoadEstimate(est)}>
+                      <Text style={[s.savedTitle, isRTL && s.textRight]}>{est.title}</Text>
+                      <Text style={[s.savedMeta, isRTL && s.textRight]}>{date} · {cur.symbol}{totalWithTax.toFixed(2)}</Text>
+                    </Pressable>
+                    <Pressable onPress={() => handleDeleteEstimate(est.id)} hitSlop={8}>
+                      <Ionicons name="trash-outline" size={18} color={colors.danger} />
+                    </Pressable>
+                  </View>
+                );
+              })}
+            </ScrollView>
           </Pressable>
         </Pressable>
       </Modal>
@@ -259,7 +386,7 @@ export default function CostCalculatorScreen() {
 
 function SummaryRow({ label, value, colors, isRTL }: { label: string; value: string; colors: AppColors; isRTL: boolean }) {
   return (
-    <View style={[{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", marginBottom: 8 }]}>
+    <View style={{ flexDirection: isRTL ? "row-reverse" : "row", justifyContent: "space-between", marginBottom: 8 }}>
       <Text style={{ fontFamily: "Inter_400Regular", fontSize: 14, color: colors.textSecondary }}>{label}</Text>
       <Text style={{ fontFamily: "Inter_500Medium", fontSize: 14, color: colors.text }}>{value}</Text>
     </View>
@@ -272,6 +399,10 @@ function makeStyles(colors: AppColors) {
     content: { padding: 16, paddingBottom: 100 },
     rowReverse: { flexDirection: "row-reverse" },
     textRight: { textAlign: "right" },
+    topRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
+    topActions: { flexDirection: "row", gap: 8 },
+    topBtn: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8 },
+    topBtnText: { fontFamily: "Inter_500Medium", fontSize: 13, color: colors.accent },
     row: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 14 },
     sectionTitle: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: colors.textSecondary, textTransform: "uppercase", letterSpacing: 0.6 },
     section: { marginBottom: 12 },
@@ -319,5 +450,8 @@ function makeStyles(colors: AppColors) {
     currencyCode: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: colors.text },
     currencyLabel: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textSecondary, marginTop: 1 },
     currencySymbol: { fontFamily: "Inter_600SemiBold", fontSize: 16, color: colors.textSecondary },
+    savedRow: { flexDirection: "row", alignItems: "center", paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.border, gap: 12 },
+    savedTitle: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: colors.text },
+    savedMeta: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textSecondary, marginTop: 2 },
   });
 }

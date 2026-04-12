@@ -16,11 +16,22 @@ const STORAGE_KEY = "parts-history";
 type PartRecord = {
   id: string;
   partName: string;
-  vehicleId: string;
+  vehicleId: number | null;
   date: string;
   cost: string;
   mileage: string;
   notes: string;
+};
+
+type PartForm = Omit<PartRecord, "id">;
+
+const EMPTY_FORM: PartForm = {
+  partName: "",
+  vehicleId: null,
+  date: "",
+  cost: "",
+  mileage: "",
+  notes: "",
 };
 
 export default function PartsHistoryScreen() {
@@ -30,10 +41,7 @@ export default function PartsHistoryScreen() {
   const [parts, setParts] = useState<PartRecord[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-
-  const [form, setForm] = useState<Omit<PartRecord, "id">>({
-    partName: "", vehicleId: "", date: "", cost: "", mileage: "", notes: "",
-  });
+  const [form, setForm] = useState<PartForm>(EMPTY_FORM);
 
   const loadParts = useCallback(async () => {
     const raw = await AsyncStorage.getItem(STORAGE_KEY);
@@ -47,18 +55,30 @@ export default function PartsHistoryScreen() {
     setParts(next);
   };
 
-  const resetForm = () => {
-    setForm({ partName: "", vehicleId: vehicles?.[0]?.id ?? "", date: new Date().toISOString().split("T")[0], cost: "", mileage: "", notes: "" });
-    setEditingId(null);
-  };
+  const buildDefaultForm = useCallback((): PartForm => ({
+    partName: "",
+    vehicleId: vehicles?.[0]?.id ?? null,
+    date: new Date().toISOString().split("T")[0],
+    cost: "",
+    mileage: "",
+    notes: "",
+  }), [vehicles]);
 
   const openAdd = () => {
-    resetForm();
+    setForm(buildDefaultForm());
+    setEditingId(null);
     setShowModal(true);
   };
 
   const openEdit = (item: PartRecord) => {
-    setForm({ partName: item.partName, vehicleId: item.vehicleId, date: item.date, cost: item.cost, mileage: item.mileage, notes: item.notes });
+    setForm({
+      partName: item.partName,
+      vehicleId: item.vehicleId,
+      date: item.date,
+      cost: item.cost,
+      mileage: item.mileage,
+      notes: item.notes,
+    });
     setEditingId(item.id);
     setShowModal(true);
   };
@@ -76,7 +96,7 @@ export default function PartsHistoryScreen() {
       await saveParts([record, ...parts]);
     }
     setShowModal(false);
-    resetForm();
+    setForm(EMPTY_FORM);
   };
 
   const handleDelete = (id: string) => {
@@ -86,8 +106,9 @@ export default function PartsHistoryScreen() {
     ]);
   };
 
-  const getVehicleLabel = (id: string) => {
-    const v = vehicles?.find((v) => v.id === id);
+  const getVehicleLabel = (vehicleId: number | null) => {
+    if (vehicleId == null) return "—";
+    const v = vehicles?.find((v) => v.id === vehicleId);
     return v ? `${v.year} ${v.make} ${v.model}` : "—";
   };
 
@@ -98,15 +119,15 @@ export default function PartsHistoryScreen() {
       <View style={[s.cardIcon, { backgroundColor: colors.accent + "20" }]}>
         <MaterialCommunityIcons name="cog" size={24} color={colors.accent} />
       </View>
-      <View style={[s.cardContent, isRTL && s.textRight]}>
+      <View style={[s.cardContent]}>
         <Text style={[s.partName, isRTL && s.textRight]}>{item.partName}</Text>
-        {item.vehicleId ? (
+        {item.vehicleId != null ? (
           <Text style={[s.vehicleLabel, isRTL && s.textRight]}>{getVehicleLabel(item.vehicleId)}</Text>
         ) : null}
         <View style={[s.metaRow, isRTL && s.rowReverse]}>
           {item.date ? <Text style={s.meta}>{item.date}</Text> : null}
           {item.mileage ? <Text style={s.meta}>{item.mileage} km</Text> : null}
-          {item.cost ? <Text style={[s.cost]}>${item.cost}</Text> : null}
+          {item.cost ? <Text style={s.cost}>${item.cost}</Text> : null}
         </View>
         {item.notes ? <Text style={[s.notes, isRTL && s.textRight]} numberOfLines={2}>{item.notes}</Text> : null}
       </View>
@@ -143,8 +164,8 @@ export default function PartsHistoryScreen() {
         <Ionicons name="add" size={28} color="#FFF" />
       </Pressable>
 
-      <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <Pressable style={s.overlay} onPress={() => setShowModal(false)}>
+      <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => { setShowModal(false); setForm(EMPTY_FORM); }}>
+        <Pressable style={s.overlay} onPress={() => { setShowModal(false); setForm(EMPTY_FORM); }}>
           <Pressable style={s.sheet} onPress={() => {}}>
             <View style={s.handle} />
             <Text style={[s.sheetTitle, isRTL && s.textRight]}>
@@ -178,7 +199,7 @@ export default function PartsHistoryScreen() {
               <FormField label="Notes" value={form.notes} onChangeText={(v) => setForm((f) => ({ ...f, notes: v }))} placeholder="Optional notes..." multiline colors={colors} isRTL={isRTL} />
 
               <View style={[s.btnRow, isRTL && s.rowReverse]}>
-                <Pressable style={s.cancelBtn} onPress={() => { setShowModal(false); resetForm(); }}>
+                <Pressable style={s.cancelBtn} onPress={() => { setShowModal(false); setForm(EMPTY_FORM); }}>
                   <Text style={s.cancelBtnText}>Cancel</Text>
                 </Pressable>
                 <Pressable style={s.saveBtn} onPress={handleSave}>
