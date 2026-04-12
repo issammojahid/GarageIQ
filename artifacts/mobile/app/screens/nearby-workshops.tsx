@@ -183,7 +183,7 @@ export default function NearbyWorkshopsScreen() {
       {locationState === "denied" && (
         <Pressable style={s.locationDeniedBanner} onPress={requestLocation}>
           <Ionicons name="location-outline" size={14} color={colors.warning} />
-          <Text style={s.locationDeniedText}>{t("mech_location_use")} — tap to retry</Text>
+          <Text style={s.locationDeniedText}>{t("mech_location_use")} — {t("mech_tap_retry")}</Text>
         </Pressable>
       )}
 

@@ -377,6 +377,7 @@ export type T = {
   mech_spec_bodywork: string;
   mech_spec_general: string;
   mech_location_use: string;
+  mech_tap_retry: string;
   mech_cta_title: string;
   mech_cta_desc: string;
   mech_cta_btn: string;
@@ -798,6 +799,7 @@ const en: T = {
   mech_spec_bodywork: "Bodywork",
   mech_spec_general: "General",
   mech_location_use: "Use my location",
+  mech_tap_retry: "tap to retry",
   mech_cta_title: "Are you a mechanic?",
   mech_cta_desc: "Add your garage to the directory and reach more drivers.",
   mech_cta_btn: "Register Free",
@@ -1219,6 +1221,7 @@ const ar: T = {
   mech_spec_bodywork: "هيكل السيارة",
   mech_spec_general: "عام",
   mech_location_use: "استخدم موقعي",
+  mech_tap_retry: "اضغط للمحاولة مجدداً",
   mech_cta_title: "هل أنت ميكانيكي؟",
   mech_cta_desc: "أضف مرآبك إلى الدليل وتواصل مع المزيد من السائقين.",
   mech_cta_btn: "سجّل مجاناً",
@@ -1640,6 +1643,7 @@ const fr: T = {
   mech_spec_bodywork: "Carrosserie",
   mech_spec_general: "Général",
   mech_location_use: "Utiliser ma position",
+  mech_tap_retry: "appuyez pour réessayer",
   mech_cta_title: "Vous êtes mécanicien?",
   mech_cta_desc: "Ajoutez votre garage à l'annuaire et touchez plus de conducteurs.",
   mech_cta_btn: "Inscription gratuite",
