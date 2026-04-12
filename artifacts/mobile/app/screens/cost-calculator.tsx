@@ -6,6 +6,7 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@/context/ThemeContext";
 import type { AppColors } from "@/constants/colors";
 import { useI18n } from "@/i18n/TranslationContext";
+import type { MaterialCommunityIconsName } from "@/types/icons";
 
 type LineItem = {
   id: string;
@@ -24,7 +25,7 @@ const CURRENCIES = [
   { code: "TRY", symbol: "₺", label: "Turkish Lira" },
 ];
 
-const ITEM_TYPES: Array<{ key: LineItem["type"]; label: string; icon: string; color: string }> = [
+const ITEM_TYPES: Array<{ key: LineItem["type"]; label: string; icon: MaterialCommunityIconsName; color: string }> = [
   { key: "part", label: "Part", icon: "cog-outline", color: "#E85D04" },
   { key: "labor", label: "Labor", icon: "wrench-outline", color: "#3B82F6" },
   { key: "other", label: "Other", icon: "plus-circle-outline", color: "#22C55E" },
@@ -99,7 +100,7 @@ export default function CostCalculatorScreen() {
           return (
             <View key={key} style={s.section}>
               <View style={[s.typeHeader, isRTL && s.rowReverse]}>
-                <MaterialCommunityIcons name={icon as any} size={15} color={color} />
+                <MaterialCommunityIcons name={icon} size={15} color={color} />
                 <Text style={[s.typeLabel, { color }]}>{label}</Text>
               </View>
               {typeItems.map((item) => (
