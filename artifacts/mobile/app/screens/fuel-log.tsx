@@ -12,7 +12,8 @@ import {
   ScrollView,
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
-import Colors from "@/constants/colors";
+import { useTheme } from "@/context/ThemeContext";
+import type { AppColors } from "@/constants/colors";
 import {
   useListFuelLogs,
   useCreateFuelLog,
@@ -25,6 +26,7 @@ import { useListVehicles } from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function FuelLogScreen() {
+  const { colors } = useTheme();
   const queryClient = useQueryClient();
   const { data: vehicles } = useListVehicles();
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
@@ -121,109 +123,111 @@ export default function FuelLogScreen() {
   const totalSpent = logs.reduce((sum, l) => sum + l.totalCost, 0);
   const totalLiters = logs.reduce((sum, l) => sum + l.liters, 0);
 
+  const s = makeStyles(colors);
+
   return (
-    <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.vehicleBar}>
+    <View style={s.container}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.vehicleBar}>
         {(vehicles ?? []).map((v) => (
           <Pressable
             key={v.id}
-            style={[styles.vehicleChip, vehicleId === v.id && styles.vehicleChipActive]}
+            style={[s.vehicleChip, vehicleId === v.id && s.vehicleChipActive]}
             onPress={() => setSelectedVehicleId(v.id)}
           >
-            <Text style={[styles.vehicleChipText, vehicleId === v.id && styles.vehicleChipTextActive]}>
+            <Text style={[s.vehicleChipText, vehicleId === v.id && s.vehicleChipTextActive]}>
               {v.year} {v.make}
             </Text>
           </Pressable>
         ))}
       </ScrollView>
 
-      <View style={styles.statsRow}>
-        <View style={styles.stat}>
-          <Text style={styles.statValue}>${totalSpent.toFixed(0)}</Text>
-          <Text style={styles.statLabel}>Total Spent</Text>
+      <View style={s.statsRow}>
+        <View style={s.stat}>
+          <Text style={s.statValue}>${totalSpent.toFixed(0)}</Text>
+          <Text style={s.statLabel}>Total Spent</Text>
         </View>
-        <View style={styles.stat}>
-          <Text style={styles.statValue}>{totalLiters.toFixed(0)}L</Text>
-          <Text style={styles.statLabel}>Total Liters</Text>
+        <View style={s.stat}>
+          <Text style={s.statValue}>{totalLiters.toFixed(0)}L</Text>
+          <Text style={s.statLabel}>Total Liters</Text>
         </View>
-        <View style={styles.stat}>
-          <Text style={styles.statValue}>{logs.length}</Text>
-          <Text style={styles.statLabel}>Fill-ups</Text>
+        <View style={s.stat}>
+          <Text style={s.statValue}>{logs.length}</Text>
+          <Text style={s.statLabel}>Fill-ups</Text>
         </View>
       </View>
 
       {isLoading ? (
-        <ActivityIndicator color={Colors.accent} style={{ flex: 1 }} />
+        <ActivityIndicator color={colors.accent} style={{ flex: 1 }} />
       ) : (
         <FlatList
           data={logs.slice().reverse()}
           keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={s.list}
           scrollEnabled={!!logs.length}
           onRefresh={refetch}
           refreshing={isLoading}
           renderItem={({ item }) => (
-            <View style={styles.logCard}>
-              <View style={styles.logLeft}>
-                <MaterialCommunityIcons name="gas-station" size={22} color={Colors.success} />
+            <View style={s.logCard}>
+              <View style={s.logLeft}>
+                <MaterialCommunityIcons name="gas-station" size={22} color={colors.success} />
                 <View>
-                  <Text style={styles.logDate}>{item.date}</Text>
-                  <Text style={styles.logOdo}>{item.odometer.toLocaleString()} km</Text>
+                  <Text style={s.logDate}>{item.date}</Text>
+                  <Text style={s.logOdo}>{item.odometer.toLocaleString()} km</Text>
                 </View>
               </View>
-              <View style={styles.logRight}>
-                <Text style={styles.logCost}>${item.totalCost.toFixed(2)}</Text>
-                <Text style={styles.logLiters}>{item.liters.toFixed(1)}L</Text>
+              <View style={s.logRight}>
+                <Text style={s.logCost}>${item.totalCost.toFixed(2)}</Text>
+                <Text style={s.logLiters}>{item.liters.toFixed(1)}L</Text>
               </View>
               <Pressable hitSlop={10} onPress={() => openEdit(item)} style={{ marginRight: 8 }}>
-                <Ionicons name="pencil-outline" size={18} color={Colors.textSecondary} />
+                <Ionicons name="pencil-outline" size={18} color={colors.textSecondary} />
               </Pressable>
               <Pressable hitSlop={10} onPress={() => handleDelete(item.id)}>
-                <Ionicons name="trash-outline" size={18} color={Colors.textTertiary} />
+                <Ionicons name="trash-outline" size={18} color={colors.textTertiary} />
               </Pressable>
             </View>
           )}
           ListEmptyComponent={
-            <View style={styles.empty}>
-              <MaterialCommunityIcons name="gas-station-outline" size={48} color={Colors.textTertiary} />
-              <Text style={styles.emptyText}>No fuel logs yet</Text>
+            <View style={s.empty}>
+              <MaterialCommunityIcons name="gas-station-outline" size={48} color={colors.textTertiary} />
+              <Text style={s.emptyText}>No fuel logs yet</Text>
             </View>
           }
         />
       )}
 
-      <Pressable style={styles.fab} onPress={openAdd}>
+      <Pressable style={s.fab} onPress={openAdd}>
         <Ionicons name="add" size={28} color="#fff" />
       </Pressable>
 
       <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editingItem ? "Edit Fuel Log" : "Add Fuel Log"}</Text>
-            <View style={styles.row}>
-              <View style={styles.halfField}>
-                <Text style={styles.fieldLabel}>Liters *</Text>
-                <TextInput style={styles.input} placeholder="45.5" placeholderTextColor={Colors.textTertiary} value={liters} onChangeText={setLiters} keyboardType="decimal-pad" />
+        <View style={s.modalOverlay}>
+          <View style={s.modalContent}>
+            <Text style={s.modalTitle}>{editingItem ? "Edit Fuel Log" : "Add Fuel Log"}</Text>
+            <View style={s.row}>
+              <View style={s.halfField}>
+                <Text style={s.fieldLabel}>Liters *</Text>
+                <TextInput style={s.input} placeholder="45.5" placeholderTextColor={colors.textTertiary} value={liters} onChangeText={setLiters} keyboardType="decimal-pad" />
               </View>
-              <View style={styles.halfField}>
-                <Text style={styles.fieldLabel}>Price/L *</Text>
-                <TextInput style={styles.input} placeholder="1.85" placeholderTextColor={Colors.textTertiary} value={pricePerLiter} onChangeText={setPricePerLiter} keyboardType="decimal-pad" />
+              <View style={s.halfField}>
+                <Text style={s.fieldLabel}>Price/L *</Text>
+                <TextInput style={s.input} placeholder="1.85" placeholderTextColor={colors.textTertiary} value={pricePerLiter} onChangeText={setPricePerLiter} keyboardType="decimal-pad" />
               </View>
             </View>
-            <View style={styles.totalRow}>
-              <Text style={styles.fieldLabel}>Total Cost</Text>
-              <Text style={styles.totalCost}>${totalCost}</Text>
+            <View style={s.totalRow}>
+              <Text style={s.fieldLabel}>Total Cost</Text>
+              <Text style={s.totalCost}>${totalCost}</Text>
             </View>
-            <Text style={styles.fieldLabel}>Odometer (km) *</Text>
-            <TextInput style={[styles.input, { marginBottom: 12 }]} placeholder="85000" placeholderTextColor={Colors.textTertiary} value={odometer} onChangeText={setOdometer} keyboardType="number-pad" />
-            <Text style={styles.fieldLabel}>Date</Text>
-            <TextInput style={[styles.input, { marginBottom: 12 }]} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} value={date} onChangeText={setDate} />
-            <View style={styles.modalActions}>
-              <Pressable style={styles.cancelBtn} onPress={() => setShowModal(false)}>
-                <Text style={styles.cancelBtnText}>Cancel</Text>
+            <Text style={s.fieldLabel}>Odometer (km) *</Text>
+            <TextInput style={[s.input, { marginBottom: 12 }]} placeholder="85000" placeholderTextColor={colors.textTertiary} value={odometer} onChangeText={setOdometer} keyboardType="number-pad" />
+            <Text style={s.fieldLabel}>Date</Text>
+            <TextInput style={[s.input, { marginBottom: 12 }]} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textTertiary} value={date} onChangeText={setDate} />
+            <View style={s.modalActions}>
+              <Pressable style={s.cancelBtn} onPress={() => setShowModal(false)}>
+                <Text style={s.cancelBtnText}>Cancel</Text>
               </Pressable>
-              <Pressable style={styles.saveBtn} onPress={handleSave} disabled={saving}>
-                {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>{editingItem ? "Update" : "Save"}</Text>}
+              <Pressable style={s.saveBtn} onPress={handleSave} disabled={saving}>
+                {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={s.saveBtnText}>{editingItem ? "Update" : "Save"}</Text>}
               </Pressable>
             </View>
           </View>
@@ -233,40 +237,42 @@ export default function FuelLogScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bg },
-  vehicleBar: { paddingHorizontal: 16, paddingVertical: 12, maxHeight: 60 },
-  vehicleChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.card, marginRight: 8 },
-  vehicleChipActive: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
-  vehicleChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.textSecondary },
-  vehicleChipTextActive: { color: Colors.accent },
-  statsRow: { flexDirection: "row", paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  stat: { flex: 1, alignItems: "center" },
-  statValue: { fontFamily: "Inter_700Bold", fontSize: 20, color: Colors.text },
-  statLabel: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
-  list: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 80 },
-  logCard: { flexDirection: "row", alignItems: "center", backgroundColor: Colors.card, borderRadius: 14, padding: 14, marginBottom: 10, gap: 12, borderWidth: 1, borderColor: Colors.border },
-  logLeft: { flexDirection: "row", alignItems: "center", gap: 10, flex: 1 },
-  logDate: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: Colors.text },
-  logOdo: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
-  logRight: { alignItems: "flex-end", marginRight: 8 },
-  logCost: { fontFamily: "Inter_700Bold", fontSize: 16, color: Colors.success },
-  logLiters: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textSecondary },
-  empty: { alignItems: "center", paddingTop: 60, gap: 12 },
-  emptyText: { fontFamily: "Inter_400Regular", fontSize: 16, color: Colors.textSecondary },
-  fab: { position: "absolute", bottom: 24, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: Colors.accent, alignItems: "center", justifyContent: "center", shadowColor: Colors.accent, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 8 },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.8)", justifyContent: "flex-end" },
-  modalContent: { backgroundColor: Colors.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
-  modalTitle: { fontFamily: "Inter_700Bold", fontSize: 20, color: Colors.text, marginBottom: 20 },
-  row: { flexDirection: "row", gap: 12, marginBottom: 12 },
-  halfField: { flex: 1 },
-  fieldLabel: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: Colors.text, marginBottom: 6 },
-  input: { backgroundColor: Colors.card2, borderRadius: 12, padding: 12, color: Colors.text, fontFamily: "Inter_400Regular", fontSize: 14, borderWidth: 1, borderColor: Colors.border },
-  totalRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
-  totalCost: { fontFamily: "Inter_700Bold", fontSize: 18, color: Colors.success },
-  modalActions: { flexDirection: "row", gap: 12, marginTop: 12 },
-  cancelBtn: { flex: 1, backgroundColor: Colors.card2, borderRadius: 12, padding: 14, alignItems: "center" },
-  cancelBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: Colors.textSecondary },
-  saveBtn: { flex: 1, backgroundColor: Colors.accent, borderRadius: 12, padding: 14, alignItems: "center" },
-  saveBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#fff" },
-});
+function makeStyles(colors: AppColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bg },
+    vehicleBar: { paddingHorizontal: 16, paddingVertical: 12, maxHeight: 60 },
+    vehicleChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, marginRight: 8 },
+    vehicleChipActive: { borderColor: colors.accent, backgroundColor: colors.accent + "15" },
+    vehicleChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: colors.textSecondary },
+    vehicleChipTextActive: { color: colors.accent },
+    statsRow: { flexDirection: "row", paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: colors.border },
+    stat: { flex: 1, alignItems: "center" },
+    statValue: { fontFamily: "Inter_700Bold", fontSize: 20, color: colors.text },
+    statLabel: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+    list: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 80 },
+    logCard: { flexDirection: "row", alignItems: "center", backgroundColor: colors.card, borderRadius: 14, padding: 14, marginBottom: 10, gap: 12, borderWidth: 1, borderColor: colors.border },
+    logLeft: { flexDirection: "row", alignItems: "center", gap: 10, flex: 1 },
+    logDate: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: colors.text },
+    logOdo: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+    logRight: { alignItems: "flex-end", marginRight: 8 },
+    logCost: { fontFamily: "Inter_700Bold", fontSize: 16, color: colors.success },
+    logLiters: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textSecondary },
+    empty: { alignItems: "center", paddingTop: 60, gap: 12 },
+    emptyText: { fontFamily: "Inter_400Regular", fontSize: 16, color: colors.textSecondary },
+    fab: { position: "absolute", bottom: 24, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: colors.accent, alignItems: "center", justifyContent: "center", shadowColor: colors.accent, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 8, elevation: 8 },
+    modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.8)", justifyContent: "flex-end" },
+    modalContent: { backgroundColor: colors.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
+    modalTitle: { fontFamily: "Inter_700Bold", fontSize: 20, color: colors.text, marginBottom: 20 },
+    row: { flexDirection: "row", gap: 12, marginBottom: 12 },
+    halfField: { flex: 1 },
+    fieldLabel: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: colors.text, marginBottom: 6 },
+    input: { backgroundColor: colors.card2, borderRadius: 12, padding: 12, color: colors.text, fontFamily: "Inter_400Regular", fontSize: 14, borderWidth: 1, borderColor: colors.border },
+    totalRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
+    totalCost: { fontFamily: "Inter_700Bold", fontSize: 18, color: colors.success },
+    modalActions: { flexDirection: "row", gap: 12, marginTop: 12 },
+    cancelBtn: { flex: 1, backgroundColor: colors.card2, borderRadius: 12, padding: 14, alignItems: "center" },
+    cancelBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: colors.textSecondary },
+    saveBtn: { flex: 1, backgroundColor: colors.accent, borderRadius: 12, padding: 14, alignItems: "center" },
+    saveBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#fff" },
+  });
+}

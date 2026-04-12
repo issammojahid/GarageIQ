@@ -12,7 +12,8 @@ import {
   ScrollView,
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
-import Colors from "@/constants/colors";
+import { useTheme } from "@/context/ThemeContext";
+import type { AppColors } from "@/constants/colors";
 import { useListDocuments, useCreateDocument, useUpdateDocument, useDeleteDocument, getListDocumentsQueryKey, type Document } from "@workspace/api-client-react";
 import { useListVehicles } from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,6 +31,7 @@ const DOC_TYPES: Array<{ id: string; label: string; icon: MaterialCommunityIcons
 const getDocType = (id: string) => DOC_TYPES.find((t) => t.id === id) || DOC_TYPES[DOC_TYPES.length - 1];
 
 export default function DocumentsScreen() {
+  const { colors } = useTheme();
   const queryClient = useQueryClient();
   const { data: vehicles } = useListVehicles();
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
@@ -83,21 +85,23 @@ export default function DocumentsScreen() {
     finally { setSaving(false); }
   };
 
+  const s = makeStyles(colors);
+
   return (
-    <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.vehicleBar}>
+    <View style={s.container}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.vehicleBar}>
         {(vehicles ?? []).map((v) => (
-          <Pressable key={v.id} style={[styles.vehicleChip, vehicleId === v.id && styles.vehicleChipActive]} onPress={() => setSelectedVehicleId(v.id)}>
-            <Text style={[styles.vehicleChipText, vehicleId === v.id && styles.vehicleChipTextActive]}>{v.year} {v.make}</Text>
+          <Pressable key={v.id} style={[s.vehicleChip, vehicleId === v.id && s.vehicleChipActive]} onPress={() => setSelectedVehicleId(v.id)}>
+            <Text style={[s.vehicleChipText, vehicleId === v.id && s.vehicleChipTextActive]}>{v.year} {v.make}</Text>
           </Pressable>
         ))}
       </ScrollView>
 
-      {isLoading ? <ActivityIndicator color={Colors.accent} style={{ flex: 1 }} /> : (
+      {isLoading ? <ActivityIndicator color={colors.accent} style={{ flex: 1 }} /> : (
         <FlatList
           data={docs ?? []}
           keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={s.list}
           scrollEnabled={!!(docs && docs.length > 0)}
           onRefresh={refetch}
           refreshing={isLoading}
@@ -105,21 +109,21 @@ export default function DocumentsScreen() {
             const docType = getDocType(item.type);
             const isExpired = item.expiryDate && new Date(item.expiryDate) < new Date();
             return (
-              <View style={styles.docCard}>
-                <View style={[styles.docIcon, { backgroundColor: docType.color + "20" }]}>
+              <View style={s.docCard}>
+                <View style={[s.docIcon, { backgroundColor: docType.color + "20" }]}>
                   <MaterialCommunityIcons name={docType.icon} size={24} color={docType.color} />
                 </View>
-                <View style={styles.docInfo}>
-                  <Text style={styles.docTitle}>{item.title}</Text>
-                  <Text style={styles.docType}>{docType.label}</Text>
+                <View style={s.docInfo}>
+                  <Text style={s.docTitle}>{item.title}</Text>
+                  <Text style={s.docType}>{docType.label}</Text>
                   {item.expiryDate && (
-                    <Text style={[styles.docExpiry, isExpired && styles.docExpired]}>
+                    <Text style={[s.docExpiry, isExpired && s.docExpired]}>
                       {isExpired ? "Expired: " : "Expires: "}{item.expiryDate}
                     </Text>
                   )}
                 </View>
                 <Pressable hitSlop={10} onPress={() => openEdit(item)} style={{ marginRight: 8 }}>
-                  <Ionicons name="pencil-outline" size={18} color={Colors.textSecondary} />
+                  <Ionicons name="pencil-outline" size={18} color={colors.textSecondary} />
                 </Pressable>
                 <Pressable hitSlop={10} onPress={() => {
                   Alert.alert("Delete", "Remove this document?", [
@@ -127,42 +131,42 @@ export default function DocumentsScreen() {
                     { text: "Delete", style: "destructive", onPress: async () => { await deleteDocument.mutateAsync({ id: item.id }); queryClient.invalidateQueries({ queryKey: getListDocumentsQueryKey() }); } }
                   ]);
                 }}>
-                  <Ionicons name="trash-outline" size={18} color={Colors.textTertiary} />
+                  <Ionicons name="trash-outline" size={18} color={colors.textTertiary} />
                 </Pressable>
               </View>
             );
           }}
-          ListEmptyComponent={<View style={styles.empty}><MaterialCommunityIcons name="file-document-outline" size={48} color={Colors.textTertiary} /><Text style={styles.emptyText}>No documents stored</Text></View>}
+          ListEmptyComponent={<View style={s.empty}><MaterialCommunityIcons name="file-document-outline" size={48} color={colors.textTertiary} /><Text style={s.emptyText}>No documents stored</Text></View>}
         />
       )}
 
-      <Pressable style={styles.fab} onPress={openAdd}>
+      <Pressable style={s.fab} onPress={openAdd}>
         <Ionicons name="add" size={28} color="#fff" />
       </Pressable>
 
       <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editingItem ? "Edit Document" : "Add Document"}</Text>
-            <Text style={styles.fieldLabel}>Type</Text>
+        <View style={s.modalOverlay}>
+          <View style={s.modalContent}>
+            <Text style={s.modalTitle}>{editingItem ? "Edit Document" : "Add Document"}</Text>
+            <Text style={s.fieldLabel}>Type</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 14 }}>
               {DOC_TYPES.map((t) => (
-                <Pressable key={t.id} style={[styles.typeChip, type === t.id && styles.typeChipActive]} onPress={() => setType(t.id)}>
-                  <MaterialCommunityIcons name={t.icon} size={16} color={type === t.id ? Colors.accent : Colors.textSecondary} />
-                  <Text style={[styles.typeChipText, type === t.id && styles.typeChipTextActive]}>{t.label}</Text>
+                <Pressable key={t.id} style={[s.typeChip, type === t.id && s.typeChipActive]} onPress={() => setType(t.id)}>
+                  <MaterialCommunityIcons name={t.icon} size={16} color={type === t.id ? colors.accent : colors.textSecondary} />
+                  <Text style={[s.typeChipText, type === t.id && s.typeChipTextActive]}>{t.label}</Text>
                 </Pressable>
               ))}
             </ScrollView>
-            <Text style={styles.fieldLabel}>Title *</Text>
-            <TextInput style={[styles.input, { marginBottom: 12 }]} placeholder="e.g. Car Insurance 2026" placeholderTextColor={Colors.textTertiary} value={title} onChangeText={setTitle} />
-            <Text style={styles.fieldLabel}>Expiry Date</Text>
-            <TextInput style={[styles.input, { marginBottom: 12 }]} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} value={expiryDate} onChangeText={setExpiryDate} />
-            <Text style={styles.fieldLabel}>Notes</Text>
-            <TextInput style={[styles.input, { marginBottom: 16 }]} placeholder="Notes..." placeholderTextColor={Colors.textTertiary} value={notes} onChangeText={setNotes} />
-            <View style={styles.modalActions}>
-              <Pressable style={styles.cancelBtn} onPress={() => setShowModal(false)}><Text style={styles.cancelBtnText}>Cancel</Text></Pressable>
-              <Pressable style={styles.saveBtn} onPress={handleSave} disabled={saving}>
-                {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>{editingItem ? "Update" : "Save"}</Text>}
+            <Text style={s.fieldLabel}>Title *</Text>
+            <TextInput style={[s.input, { marginBottom: 12 }]} placeholder="e.g. Car Insurance 2026" placeholderTextColor={colors.textTertiary} value={title} onChangeText={setTitle} />
+            <Text style={s.fieldLabel}>Expiry Date</Text>
+            <TextInput style={[s.input, { marginBottom: 12 }]} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textTertiary} value={expiryDate} onChangeText={setExpiryDate} />
+            <Text style={s.fieldLabel}>Notes</Text>
+            <TextInput style={[s.input, { marginBottom: 16 }]} placeholder="Notes..." placeholderTextColor={colors.textTertiary} value={notes} onChangeText={setNotes} />
+            <View style={s.modalActions}>
+              <Pressable style={s.cancelBtn} onPress={() => setShowModal(false)}><Text style={s.cancelBtnText}>Cancel</Text></Pressable>
+              <Pressable style={s.saveBtn} onPress={handleSave} disabled={saving}>
+                {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={s.saveBtnText}>{editingItem ? "Update" : "Save"}</Text>}
               </Pressable>
             </View>
           </View>
@@ -172,36 +176,38 @@ export default function DocumentsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bg },
-  vehicleBar: { paddingHorizontal: 16, paddingVertical: 12, maxHeight: 60 },
-  vehicleChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.card, marginRight: 8 },
-  vehicleChipActive: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
-  vehicleChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.textSecondary },
-  vehicleChipTextActive: { color: Colors.accent },
-  list: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 80 },
-  docCard: { flexDirection: "row", alignItems: "center", backgroundColor: Colors.card, borderRadius: 14, padding: 14, marginBottom: 10, gap: 12, borderWidth: 1, borderColor: Colors.border },
-  docIcon: { width: 48, height: 48, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  docInfo: { flex: 1 },
-  docTitle: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: Colors.text },
-  docType: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
-  docExpiry: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.warning, marginTop: 4 },
-  docExpired: { color: Colors.danger },
-  empty: { alignItems: "center", paddingTop: 60, gap: 12 },
-  emptyText: { fontFamily: "Inter_400Regular", fontSize: 16, color: Colors.textSecondary },
-  fab: { position: "absolute", bottom: 24, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: Colors.accent, alignItems: "center", justifyContent: "center", elevation: 8 },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.8)", justifyContent: "flex-end" },
-  modalContent: { backgroundColor: Colors.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
-  modalTitle: { fontFamily: "Inter_700Bold", fontSize: 20, color: Colors.text, marginBottom: 16 },
-  fieldLabel: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: Colors.text, marginBottom: 6 },
-  input: { backgroundColor: Colors.card2, borderRadius: 12, padding: 12, color: Colors.text, fontFamily: "Inter_400Regular", fontSize: 14, borderWidth: 1, borderColor: Colors.border },
-  typeChip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.card2, marginRight: 8 },
-  typeChipActive: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
-  typeChipText: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.textSecondary },
-  typeChipTextActive: { color: Colors.accent },
-  modalActions: { flexDirection: "row", gap: 12 },
-  cancelBtn: { flex: 1, backgroundColor: Colors.card2, borderRadius: 12, padding: 14, alignItems: "center" },
-  cancelBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: Colors.textSecondary },
-  saveBtn: { flex: 1, backgroundColor: Colors.accent, borderRadius: 12, padding: 14, alignItems: "center" },
-  saveBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#fff" },
-});
+function makeStyles(colors: AppColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bg },
+    vehicleBar: { paddingHorizontal: 16, paddingVertical: 12, maxHeight: 60 },
+    vehicleChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, marginRight: 8 },
+    vehicleChipActive: { borderColor: colors.accent, backgroundColor: colors.accent + "15" },
+    vehicleChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: colors.textSecondary },
+    vehicleChipTextActive: { color: colors.accent },
+    list: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 80 },
+    docCard: { flexDirection: "row", alignItems: "center", backgroundColor: colors.card, borderRadius: 14, padding: 14, marginBottom: 10, gap: 12, borderWidth: 1, borderColor: colors.border },
+    docIcon: { width: 48, height: 48, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+    docInfo: { flex: 1 },
+    docTitle: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: colors.text },
+    docType: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textSecondary, marginTop: 2 },
+    docExpiry: { fontFamily: "Inter_500Medium", fontSize: 12, color: colors.warning, marginTop: 4 },
+    docExpired: { color: colors.danger },
+    empty: { alignItems: "center", paddingTop: 60, gap: 12 },
+    emptyText: { fontFamily: "Inter_400Regular", fontSize: 16, color: colors.textSecondary },
+    fab: { position: "absolute", bottom: 24, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: colors.accent, alignItems: "center", justifyContent: "center", elevation: 8 },
+    modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.8)", justifyContent: "flex-end" },
+    modalContent: { backgroundColor: colors.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
+    modalTitle: { fontFamily: "Inter_700Bold", fontSize: 20, color: colors.text, marginBottom: 16 },
+    fieldLabel: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: colors.text, marginBottom: 6 },
+    input: { backgroundColor: colors.card2, borderRadius: 12, padding: 12, color: colors.text, fontFamily: "Inter_400Regular", fontSize: 14, borderWidth: 1, borderColor: colors.border },
+    typeChip: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card2, marginRight: 8 },
+    typeChipActive: { borderColor: colors.accent, backgroundColor: colors.accent + "15" },
+    typeChipText: { fontFamily: "Inter_500Medium", fontSize: 12, color: colors.textSecondary },
+    typeChipTextActive: { color: colors.accent },
+    modalActions: { flexDirection: "row", gap: 12 },
+    cancelBtn: { flex: 1, backgroundColor: colors.card2, borderRadius: 12, padding: 14, alignItems: "center" },
+    cancelBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: colors.textSecondary },
+    saveBtn: { flex: 1, backgroundColor: colors.accent, borderRadius: 12, padding: 14, alignItems: "center" },
+    saveBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#fff" },
+  });
+}

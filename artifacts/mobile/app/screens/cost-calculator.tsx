@@ -37,15 +37,17 @@ const CURRENCIES = [
   { code: "TRY", symbol: "₺", label: "Turkish Lira" },
 ];
 
-const ITEM_TYPES: Array<{ key: LineItem["type"]; label: string; icon: MaterialCommunityIconsName; color: string }> = [
-  { key: "part", label: "Part", icon: "cog-outline", color: "#E85D04" },
-  { key: "labor", label: "Labor", icon: "wrench-outline", color: "#3B82F6" },
-  { key: "other", label: "Other", icon: "plus-circle-outline", color: "#22C55E" },
+type ItemTypeDef = { key: LineItem["type"]; labelKey: "cc_type_part" | "cc_type_labor" | "cc_type_other"; icon: MaterialCommunityIconsName; color: string };
+
+const ITEM_TYPES: ItemTypeDef[] = [
+  { key: "part", labelKey: "cc_type_part", icon: "cog-outline", color: "#E85D04" },
+  { key: "labor", labelKey: "cc_type_labor", icon: "wrench-outline", color: "#3B82F6" },
+  { key: "other", labelKey: "cc_type_other", icon: "plus-circle-outline", color: "#22C55E" },
 ];
 
 export default function CostCalculatorScreen() {
   const { colors } = useTheme();
-  const { isRTL } = useI18n();
+  const { t, isRTL } = useI18n();
   const [items, setItems] = useState<LineItem[]>([]);
   const [currency, setCurrency] = useState(CURRENCIES[0]);
   const [taxRate, setTaxRate] = useState("0");
@@ -82,7 +84,7 @@ export default function CostCalculatorScreen() {
   };
 
   const handleSaveItem = () => {
-    if (!newLabel.trim()) { Alert.alert("Required", "Label is required."); return; }
+    if (!newLabel.trim()) { Alert.alert(t("cc_required_title"), t("cc_required_label")); return; }
     if (editId) {
       setItems((prev) => prev.map((i) => i.id === editId ? { ...i, label: newLabel, amount: newAmount, type: newType } : i));
     } else {
@@ -93,14 +95,14 @@ export default function CostCalculatorScreen() {
   };
 
   const handleDeleteItem = (id: string) => {
-    Alert.alert("Remove", "Remove this line item?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Remove", style: "destructive", onPress: () => setItems((prev) => prev.filter((i) => i.id !== id)) },
+    Alert.alert(t("cc_remove_title"), t("cc_remove_msg"), [
+      { text: t("cancel"), style: "cancel" },
+      { text: t("ph_remove"), style: "destructive", onPress: () => setItems((prev) => prev.filter((i) => i.id !== id)) },
     ]);
   };
 
   const handleSaveEstimate = async () => {
-    if (!saveTitle.trim()) { Alert.alert("Required", "Please enter a title for this estimate."); return; }
+    if (!saveTitle.trim()) { Alert.alert(t("cc_required_title"), t("cc_estimate_title")); return; }
     const estimate: SavedEstimate = {
       id: Date.now().toString(),
       title: saveTitle.trim(),
@@ -112,7 +114,7 @@ export default function CostCalculatorScreen() {
     await persistEstimates([estimate, ...savedEstimates]);
     setSaveTitle("");
     setShowSavePrompt(false);
-    Alert.alert("Saved", "Estimate saved successfully.");
+    Alert.alert(t("cc_estimate_saved"), t("cc_estimate_saved_msg"));
   };
 
   const handleLoadEstimate = (estimate: SavedEstimate) => {
@@ -124,9 +126,9 @@ export default function CostCalculatorScreen() {
   };
 
   const handleDeleteEstimate = async (id: string) => {
-    Alert.alert("Delete", "Delete this saved estimate?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: async () => { await persistEstimates(savedEstimates.filter((e) => e.id !== id)); } },
+    Alert.alert(t("cc_delete_estimate"), t("cc_delete_estimate_msg"), [
+      { text: t("cancel"), style: "cancel" },
+      { text: t("delete"), style: "destructive", onPress: async () => { await persistEstimates(savedEstimates.filter((e) => e.id !== id)); } },
     ]);
   };
 
@@ -143,7 +145,6 @@ export default function CostCalculatorScreen() {
   return (
     <View style={s.container}>
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {/* Top controls row */}
         <View style={[s.topRow, isRTL && s.rowReverse]}>
           <Pressable style={s.currencyBtn} onPress={() => setShowCurrencyModal(true)}>
             <Text style={s.currencyBtnText}>{currency.code} {currency.symbol}</Text>
@@ -153,27 +154,26 @@ export default function CostCalculatorScreen() {
             {savedEstimates.length > 0 && (
               <Pressable style={s.topBtn} onPress={() => setShowSavedModal(true)}>
                 <Ionicons name="folder-outline" size={16} color={colors.accent} />
-                <Text style={s.topBtnText}>Saved</Text>
+                <Text style={s.topBtnText}>{t("cc_saved")}</Text>
               </Pressable>
             )}
             {items.length > 0 && (
               <Pressable style={s.topBtn} onPress={() => setShowSavePrompt(true)}>
                 <Ionicons name="save-outline" size={16} color={colors.accent} />
-                <Text style={s.topBtnText}>Save</Text>
+                <Text style={s.topBtnText}>{t("cc_save")}</Text>
               </Pressable>
             )}
           </View>
         </View>
 
-        {/* Line Items grouped by type */}
-        {ITEM_TYPES.map(({ key, label, icon, color }) => {
+        {ITEM_TYPES.map(({ key, labelKey, icon, color }) => {
           const typeItems = byType(key);
           if (typeItems.length === 0) return null;
           return (
             <View key={key} style={s.section}>
               <View style={[s.typeHeader, isRTL && s.rowReverse]}>
                 <MaterialCommunityIcons name={icon} size={15} color={color} />
-                <Text style={[s.typeLabel, { color }]}>{label}</Text>
+                <Text style={[s.typeLabel, { color }]}>{t(labelKey)}</Text>
               </View>
               {typeItems.map((item) => (
                 <View key={item.id} style={[s.lineItem, isRTL && s.rowReverse]}>
@@ -196,15 +196,14 @@ export default function CostCalculatorScreen() {
         {items.length === 0 && (
           <View style={s.empty}>
             <MaterialCommunityIcons name="calculator-variant-outline" size={52} color={colors.textTertiary} />
-            <Text style={s.emptyTitle}>No items yet</Text>
-            <Text style={s.emptyDesc}>Add parts, labor, and other costs to calculate your repair estimate.</Text>
+            <Text style={s.emptyTitle}>{t("cc_no_items")}</Text>
+            <Text style={s.emptyDesc}>{t("cc_no_items_desc")}</Text>
           </View>
         )}
 
-        {/* Tax Rate */}
         <View style={s.taxSection}>
           <View style={[s.row, isRTL && s.rowReverse]}>
-            <Text style={[s.sectionTitle, isRTL && s.textRight]}>Tax Rate (%)</Text>
+            <Text style={[s.sectionTitle, isRTL && s.textRight]}>{t("cc_tax_rate")}</Text>
             <TextInput
               style={s.taxInput}
               value={taxRate}
@@ -216,29 +215,27 @@ export default function CostCalculatorScreen() {
           </View>
         </View>
 
-        {/* Summary Card */}
         <View style={s.summaryCard}>
-          <Text style={[s.summaryTitle, isRTL && s.textRight]}>Estimate Summary</Text>
-          <SummaryRow label="Subtotal" value={fmt(subtotal)} colors={colors} isRTL={isRTL} />
+          <Text style={[s.summaryTitle, isRTL && s.textRight]}>{t("cc_summary")}</Text>
+          <SummaryRow label={t("cc_subtotal")} value={fmt(subtotal)} colors={colors} isRTL={isRTL} />
           {parseFloat(taxRate) > 0 && (
-            <SummaryRow label={`Tax (${taxRate}%)`} value={fmt(taxAmount)} colors={colors} isRTL={isRTL} />
+            <SummaryRow label={`${t("cc_tax_rate")} (${taxRate}%)`} value={fmt(taxAmount)} colors={colors} isRTL={isRTL} />
           )}
           <View style={s.divider} />
           <View style={[s.totalRow, isRTL && s.rowReverse]}>
-            <Text style={s.totalLabel}>Total</Text>
+            <Text style={s.totalLabel}>{t("cc_total")}</Text>
             <Text style={s.totalValue}>{fmt(total)}</Text>
           </View>
 
-          {/* Type breakdown */}
           <View style={s.breakdown}>
-            {ITEM_TYPES.map(({ key, label, color }) => {
-              const t = byType(key).reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
-              if (t === 0) return null;
+            {ITEM_TYPES.map(({ key, labelKey, color }) => {
+              const typeTotal = byType(key).reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+              if (typeTotal === 0) return null;
               return (
                 <View key={key} style={[s.breakdownRow, isRTL && s.rowReverse]}>
                   <View style={[s.dot, { backgroundColor: color }]} />
-                  <Text style={s.breakdownLabel}>{label}</Text>
-                  <Text style={s.breakdownValue}>{fmt(t)}</Text>
+                  <Text style={s.breakdownLabel}>{t(labelKey)}</Text>
+                  <Text style={s.breakdownValue}>{fmt(typeTotal)}</Text>
                 </View>
               );
             })}
@@ -246,17 +243,15 @@ export default function CostCalculatorScreen() {
         </View>
       </ScrollView>
 
-      {/* Add button */}
       <Pressable style={s.fab} onPress={openAdd}>
         <Ionicons name="add" size={28} color="#FFF" />
       </Pressable>
 
-      {/* Currency Modal */}
       <Modal visible={showCurrencyModal} transparent animationType="slide" onRequestClose={() => setShowCurrencyModal(false)}>
         <Pressable style={s.overlay} onPress={() => setShowCurrencyModal(false)}>
           <Pressable style={s.sheet} onPress={() => {}}>
             <View style={s.handle} />
-            <Text style={[s.sheetTitle, isRTL && s.textRight]}>Select Currency</Text>
+            <Text style={[s.sheetTitle, isRTL && s.textRight]}>{t("cc_select_currency")}</Text>
             {CURRENCIES.map((c) => (
               <Pressable
                 key={c.code}
@@ -275,36 +270,35 @@ export default function CostCalculatorScreen() {
         </Pressable>
       </Modal>
 
-      {/* Add/Edit Item Modal */}
       <Modal visible={showAddModal} transparent animationType="slide" onRequestClose={() => { setShowAddModal(false); resetModal(); }}>
         <Pressable style={s.overlay} onPress={() => { setShowAddModal(false); resetModal(); }}>
           <Pressable style={s.sheet} onPress={() => {}}>
             <View style={s.handle} />
-            <Text style={[s.sheetTitle, isRTL && s.textRight]}>{editId ? "Edit Item" : "Add Line Item"}</Text>
+            <Text style={[s.sheetTitle, isRTL && s.textRight]}>{editId ? t("cc_edit_item") : t("cc_add_item")}</Text>
 
-            <Text style={[s.fieldLabel, isRTL && s.textRight]}>Type</Text>
+            <Text style={[s.fieldLabel, isRTL && s.textRight]}>{t("cc_type")}</Text>
             <View style={[s.typeRow, isRTL && s.rowReverse]}>
-              {ITEM_TYPES.map(({ key, label, color }) => (
+              {ITEM_TYPES.map(({ key, labelKey, color }) => (
                 <Pressable
                   key={key}
                   style={[s.typeChip, newType === key && { backgroundColor: color + "20", borderColor: color }]}
                   onPress={() => setNewType(key)}
                 >
-                  <Text style={[s.typeChipText, newType === key && { color }]}>{label}</Text>
+                  <Text style={[s.typeChipText, newType === key && { color }]}>{t(labelKey)}</Text>
                 </Pressable>
               ))}
             </View>
 
-            <Text style={[s.fieldLabel, isRTL && s.textRight]}>Description *</Text>
+            <Text style={[s.fieldLabel, isRTL && s.textRight]}>{t("cc_description")}</Text>
             <TextInput
               style={[s.input, isRTL && s.textRight]}
               value={newLabel}
               onChangeText={setNewLabel}
-              placeholder="e.g. Brake pads"
+              placeholder={t("cc_description_placeholder")}
               placeholderTextColor={colors.textTertiary}
             />
 
-            <Text style={[s.fieldLabel, isRTL && s.textRight]}>Amount ({currency.symbol})</Text>
+            <Text style={[s.fieldLabel, isRTL && s.textRight]}>{t("cc_amount")} ({currency.symbol})</Text>
             <TextInput
               style={[s.input, isRTL && s.textRight]}
               value={newAmount}
@@ -316,53 +310,51 @@ export default function CostCalculatorScreen() {
 
             <View style={[s.btnRow, isRTL && s.rowReverse]}>
               <Pressable style={s.cancelBtn} onPress={() => { setShowAddModal(false); resetModal(); }}>
-                <Text style={s.cancelBtnText}>Cancel</Text>
+                <Text style={s.cancelBtnText}>{t("cancel")}</Text>
               </Pressable>
               <Pressable style={s.saveBtn} onPress={handleSaveItem}>
-                <Text style={s.saveBtnText}>{editId ? "Update" : "Add"}</Text>
+                <Text style={s.saveBtnText}>{editId ? t("cc_update") : t("cc_add")}</Text>
               </Pressable>
             </View>
           </Pressable>
         </Pressable>
       </Modal>
 
-      {/* Save Estimate Prompt */}
       <Modal visible={showSavePrompt} transparent animationType="fade" onRequestClose={() => setShowSavePrompt(false)}>
         <Pressable style={s.overlay} onPress={() => setShowSavePrompt(false)}>
           <Pressable style={[s.sheet, { paddingBottom: 24 }]} onPress={() => {}}>
             <View style={s.handle} />
-            <Text style={[s.sheetTitle, isRTL && s.textRight]}>Save Estimate</Text>
-            <Text style={[s.fieldLabel, isRTL && s.textRight]}>Estimate Title</Text>
+            <Text style={[s.sheetTitle, isRTL && s.textRight]}>{t("cc_save_estimate")}</Text>
+            <Text style={[s.fieldLabel, isRTL && s.textRight]}>{t("cc_estimate_title")}</Text>
             <TextInput
               style={[s.input, isRTL && s.textRight]}
               value={saveTitle}
               onChangeText={setSaveTitle}
-              placeholder="e.g. Front brake service"
+              placeholder={t("cc_estimate_placeholder")}
               placeholderTextColor={colors.textTertiary}
             />
             <View style={[s.btnRow, isRTL && s.rowReverse]}>
               <Pressable style={s.cancelBtn} onPress={() => setShowSavePrompt(false)}>
-                <Text style={s.cancelBtnText}>Cancel</Text>
+                <Text style={s.cancelBtnText}>{t("cancel")}</Text>
               </Pressable>
               <Pressable style={s.saveBtn} onPress={handleSaveEstimate}>
-                <Text style={s.saveBtnText}>Save</Text>
+                <Text style={s.saveBtnText}>{t("cc_save")}</Text>
               </Pressable>
             </View>
           </Pressable>
         </Pressable>
       </Modal>
 
-      {/* Saved Estimates Modal */}
       <Modal visible={showSavedModal} transparent animationType="slide" onRequestClose={() => setShowSavedModal(false)}>
         <Pressable style={s.overlay} onPress={() => setShowSavedModal(false)}>
           <Pressable style={s.sheet} onPress={() => {}}>
             <View style={s.handle} />
-            <Text style={[s.sheetTitle, isRTL && s.textRight]}>Saved Estimates</Text>
+            <Text style={[s.sheetTitle, isRTL && s.textRight]}>{t("cc_saved_estimates")}</Text>
             <ScrollView showsVerticalScrollIndicator={false}>
               {savedEstimates.map((est) => {
                 const cur = CURRENCIES.find((c) => c.code === est.currencyCode) ?? CURRENCIES[0];
-                const total = est.items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
-                const totalWithTax = total * (1 + (parseFloat(est.taxRate) || 0) / 100);
+                const estTotal = est.items.reduce((sum, i) => sum + (parseFloat(i.amount) || 0), 0);
+                const totalWithTax = estTotal * (1 + (parseFloat(est.taxRate) || 0) / 100);
                 const date = new Date(est.savedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
                 return (
                   <View key={est.id} style={[s.savedRow, isRTL && s.rowReverse]}>

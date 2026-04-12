@@ -196,6 +196,56 @@ export type T = {
   menu_cost_calculator_desc: string;
   screen_parts_history: string;
   screen_cost_calculator: string;
+
+  ph_no_parts: string;
+  ph_no_parts_desc: string;
+  ph_add_part: string;
+  ph_edit_part: string;
+  ph_part_name: string;
+  ph_part_name_placeholder: string;
+  ph_date: string;
+  ph_cost: string;
+  ph_mileage: string;
+  ph_vehicle: string;
+  ph_notes: string;
+  ph_notes_placeholder: string;
+  ph_required_name: string;
+  ph_delete_title: string;
+  ph_delete_msg: string;
+  ph_remove: string;
+
+  cc_no_items: string;
+  cc_no_items_desc: string;
+  cc_saved: string;
+  cc_save: string;
+  cc_tax_rate: string;
+  cc_summary: string;
+  cc_subtotal: string;
+  cc_total: string;
+  cc_select_currency: string;
+  cc_add_item: string;
+  cc_edit_item: string;
+  cc_type: string;
+  cc_type_part: string;
+  cc_type_labor: string;
+  cc_type_other: string;
+  cc_description: string;
+  cc_description_placeholder: string;
+  cc_amount: string;
+  cc_required_label: string;
+  cc_remove_title: string;
+  cc_remove_msg: string;
+  cc_save_estimate: string;
+  cc_estimate_title: string;
+  cc_estimate_placeholder: string;
+  cc_estimate_saved: string;
+  cc_estimate_saved_msg: string;
+  cc_saved_estimates: string;
+  cc_delete_estimate: string;
+  cc_delete_estimate_msg: string;
+  cc_required_title: string;
+  cc_update: string;
+  cc_add: string;
 };
 
 const en: T = {
@@ -394,6 +444,56 @@ const en: T = {
   menu_cost_calculator_desc: "Estimate repair costs",
   screen_parts_history: "Replaced Parts",
   screen_cost_calculator: "Cost Calculator",
+
+  ph_no_parts: "No parts recorded yet",
+  ph_no_parts_desc: "Track every part you've replaced on your vehicles.",
+  ph_add_part: "Add Replaced Part",
+  ph_edit_part: "Edit Part Record",
+  ph_part_name: "Part Name *",
+  ph_part_name_placeholder: "e.g. Brake pads",
+  ph_date: "Date",
+  ph_cost: "Cost",
+  ph_mileage: "Mileage (km)",
+  ph_vehicle: "Vehicle",
+  ph_notes: "Notes",
+  ph_notes_placeholder: "Optional notes...",
+  ph_required_name: "Part name is required.",
+  ph_delete_title: "Delete Part",
+  ph_delete_msg: "Remove this part record?",
+  ph_remove: "Remove",
+
+  cc_no_items: "No items yet",
+  cc_no_items_desc: "Add parts, labor, and other costs to calculate your repair estimate.",
+  cc_saved: "Saved",
+  cc_save: "Save",
+  cc_tax_rate: "Tax Rate (%)",
+  cc_summary: "Estimate Summary",
+  cc_subtotal: "Subtotal",
+  cc_total: "Total",
+  cc_select_currency: "Select Currency",
+  cc_add_item: "Add Line Item",
+  cc_edit_item: "Edit Item",
+  cc_type: "Type",
+  cc_type_part: "Part",
+  cc_type_labor: "Labor",
+  cc_type_other: "Other",
+  cc_description: "Description *",
+  cc_description_placeholder: "e.g. Brake pads",
+  cc_amount: "Amount",
+  cc_required_label: "Label is required.",
+  cc_remove_title: "Remove",
+  cc_remove_msg: "Remove this line item?",
+  cc_save_estimate: "Save Estimate",
+  cc_estimate_title: "Estimate Title",
+  cc_estimate_placeholder: "e.g. Front brake service",
+  cc_estimate_saved: "Saved",
+  cc_estimate_saved_msg: "Estimate saved successfully.",
+  cc_saved_estimates: "Saved Estimates",
+  cc_delete_estimate: "Delete",
+  cc_delete_estimate_msg: "Delete this saved estimate?",
+  cc_required_title: "Required",
+  cc_update: "Update",
+  cc_add: "Add",
 };
 
 const ar: T = {
@@ -592,6 +692,56 @@ const ar: T = {
   menu_cost_calculator_desc: "تقدير تكاليف الإصلاح",
   screen_parts_history: "قطع الغيار",
   screen_cost_calculator: "حاسبة التكلفة",
+
+  ph_no_parts: "لا توجد قطع مسجّلة بعد",
+  ph_no_parts_desc: "تتبع كل قطعة استبدلتها في مركباتك.",
+  ph_add_part: "إضافة قطعة مستبدلة",
+  ph_edit_part: "تعديل سجل القطعة",
+  ph_part_name: "اسم القطعة *",
+  ph_part_name_placeholder: "مثال: فحمات الفرامل",
+  ph_date: "التاريخ",
+  ph_cost: "التكلفة",
+  ph_mileage: "المسافة (كم)",
+  ph_vehicle: "المركبة",
+  ph_notes: "ملاحظات",
+  ph_notes_placeholder: "ملاحظات اختيارية...",
+  ph_required_name: "اسم القطعة مطلوب.",
+  ph_delete_title: "حذف القطعة",
+  ph_delete_msg: "هل تريد إزالة هذا السجل؟",
+  ph_remove: "إزالة",
+
+  cc_no_items: "لا توجد عناصر بعد",
+  cc_no_items_desc: "أضف قطعاً وعمالة وتكاليف أخرى لحساب تقدير الإصلاح.",
+  cc_saved: "محفوظ",
+  cc_save: "حفظ",
+  cc_tax_rate: "نسبة الضريبة (%)",
+  cc_summary: "ملخص التقدير",
+  cc_subtotal: "المجموع الفرعي",
+  cc_total: "الإجمالي",
+  cc_select_currency: "اختر العملة",
+  cc_add_item: "إضافة بند",
+  cc_edit_item: "تعديل البند",
+  cc_type: "النوع",
+  cc_type_part: "قطعة",
+  cc_type_labor: "عمالة",
+  cc_type_other: "أخرى",
+  cc_description: "الوصف *",
+  cc_description_placeholder: "مثال: فحمات الفرامل",
+  cc_amount: "المبلغ",
+  cc_required_label: "الوصف مطلوب.",
+  cc_remove_title: "إزالة",
+  cc_remove_msg: "هل تريد إزالة هذا البند؟",
+  cc_save_estimate: "حفظ التقدير",
+  cc_estimate_title: "عنوان التقدير",
+  cc_estimate_placeholder: "مثال: صيانة الفرامل الأمامية",
+  cc_estimate_saved: "تم الحفظ",
+  cc_estimate_saved_msg: "تم حفظ التقدير بنجاح.",
+  cc_saved_estimates: "التقديرات المحفوظة",
+  cc_delete_estimate: "حذف",
+  cc_delete_estimate_msg: "هل تريد حذف هذا التقدير؟",
+  cc_required_title: "مطلوب",
+  cc_update: "تحديث",
+  cc_add: "إضافة",
 };
 
 const fr: T = {
@@ -790,6 +940,56 @@ const fr: T = {
   menu_cost_calculator_desc: "Estimer les réparations",
   screen_parts_history: "Pièces remplacées",
   screen_cost_calculator: "Calculateur de coût",
+
+  ph_no_parts: "Aucune pièce enregistrée",
+  ph_no_parts_desc: "Suivez chaque pièce remplacée sur vos véhicules.",
+  ph_add_part: "Ajouter une pièce",
+  ph_edit_part: "Modifier la pièce",
+  ph_part_name: "Nom de la pièce *",
+  ph_part_name_placeholder: "ex. Plaquettes de frein",
+  ph_date: "Date",
+  ph_cost: "Coût",
+  ph_mileage: "Kilométrage (km)",
+  ph_vehicle: "Véhicule",
+  ph_notes: "Notes",
+  ph_notes_placeholder: "Notes optionnelles...",
+  ph_required_name: "Le nom de la pièce est requis.",
+  ph_delete_title: "Supprimer la pièce",
+  ph_delete_msg: "Supprimer cet enregistrement ?",
+  ph_remove: "Retirer",
+
+  cc_no_items: "Aucun élément",
+  cc_no_items_desc: "Ajoutez des pièces, de la main-d'œuvre et d'autres coûts pour estimer votre réparation.",
+  cc_saved: "Sauvegardé",
+  cc_save: "Sauvegarder",
+  cc_tax_rate: "Taux de taxe (%)",
+  cc_summary: "Résumé du devis",
+  cc_subtotal: "Sous-total",
+  cc_total: "Total",
+  cc_select_currency: "Sélectionner la devise",
+  cc_add_item: "Ajouter un poste",
+  cc_edit_item: "Modifier le poste",
+  cc_type: "Type",
+  cc_type_part: "Pièce",
+  cc_type_labor: "Main-d'œuvre",
+  cc_type_other: "Autre",
+  cc_description: "Description *",
+  cc_description_placeholder: "ex. Plaquettes de frein",
+  cc_amount: "Montant",
+  cc_required_label: "La description est requise.",
+  cc_remove_title: "Retirer",
+  cc_remove_msg: "Supprimer ce poste ?",
+  cc_save_estimate: "Sauvegarder le devis",
+  cc_estimate_title: "Titre du devis",
+  cc_estimate_placeholder: "ex. Freins avant",
+  cc_estimate_saved: "Sauvegardé",
+  cc_estimate_saved_msg: "Devis sauvegardé avec succès.",
+  cc_saved_estimates: "Devis sauvegardés",
+  cc_delete_estimate: "Supprimer",
+  cc_delete_estimate_msg: "Supprimer ce devis sauvegardé ?",
+  cc_required_title: "Requis",
+  cc_update: "Mettre à jour",
+  cc_add: "Ajouter",
 };
 
 const es: T = { ...en,

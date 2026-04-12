@@ -12,7 +12,8 @@ import {
   ScrollView,
 } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
-import Colors from "@/constants/colors";
+import { useTheme } from "@/context/ThemeContext";
+import type { AppColors } from "@/constants/colors";
 import {
   useListMaintenance,
   useCreateMaintenance,
@@ -48,6 +49,7 @@ interface RecordItemProps {
 }
 
 function RecordItem({ item, onEdit, onDelete }: RecordItemProps) {
+  const { colors } = useTheme();
   const { reminder, refresh } = useMaintenanceReminder(item.id);
   const [reminderModalVisible, setReminderModalVisible] = useState(false);
   const [reminderDate, setReminderDate] = useState(
@@ -59,6 +61,8 @@ function RecordItem({ item, onEdit, onDelete }: RecordItemProps) {
     setReminderDate(item.nextDueDate ?? todayPlusDays(30));
     setReminderModalVisible(true);
   };
+
+  const s = makeStyles(colors);
 
   const handleConfirmReminder = async () => {
     if (!reminderDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -119,53 +123,53 @@ function RecordItem({ item, onEdit, onDelete }: RecordItemProps) {
 
   return (
     <>
-      <View style={styles.record}>
-        <View style={styles.recordIconWrap}>
-          <MaterialCommunityIcons name="wrench" size={20} color={Colors.warning} />
+      <View style={s.record}>
+        <View style={s.recordIconWrap}>
+          <MaterialCommunityIcons name="wrench" size={20} color={colors.warning} />
         </View>
-        <View style={styles.recordContent}>
-          <View style={styles.recordTitleRow}>
-            <Text style={styles.recordType}>{item.type}</Text>
+        <View style={s.recordContent}>
+          <View style={s.recordTitleRow}>
+            <Text style={s.recordType}>{item.type}</Text>
             {reminder && (
-              <View style={styles.bellWrap}>
-                <Ionicons name="notifications" size={14} color={Colors.accent} />
-                <Text style={styles.bellDate}>{reminder.reminderDate.split("T")[0]}</Text>
+              <View style={s.bellWrap}>
+                <Ionicons name="notifications" size={14} color={colors.accent} />
+                <Text style={s.bellDate}>{reminder.reminderDate.split("T")[0]}</Text>
               </View>
             )}
           </View>
-          <Text style={styles.recordMeta}>
+          <Text style={s.recordMeta}>
             {item.date} · {item.mileage.toLocaleString()} km{item.cost ? ` · $${item.cost}` : ""}
           </Text>
-          {item.nextDueDate && <Text style={styles.nextDue}>Next: {item.nextDueDate}</Text>}
-          {item.notes ? <Text style={styles.recordNotes}>{item.notes}</Text> : null}
+          {item.nextDueDate && <Text style={s.nextDue}>Next: {item.nextDueDate}</Text>}
+          {item.notes ? <Text style={s.recordNotes}>{item.notes}</Text> : null}
 
-          <View style={styles.recordActions}>
+          <View style={s.recordActions}>
             <Pressable
-              style={[styles.reminderBtn, reminder && styles.reminderBtnActive]}
+              style={[s.reminderBtn, reminder && s.reminderBtnActive]}
               onPress={reminder ? handleCancelReminder : handleSetReminder}
             >
               <Ionicons
                 name={reminder ? "notifications" : "notifications-outline"}
                 size={13}
-                color={reminder ? Colors.accent : Colors.textSecondary}
+                color={reminder ? colors.accent : colors.textSecondary}
               />
-              <Text style={[styles.reminderBtnText, reminder && styles.reminderBtnTextActive]}>
+              <Text style={[s.reminderBtnText, reminder && s.reminderBtnTextActive]}>
                 {reminder ? "Reminder set" : "Set reminder"}
               </Text>
             </Pressable>
             {reminder && (
-              <Pressable style={styles.doneBtn} onPress={handleMarkDone}>
-                <Ionicons name="checkmark-circle-outline" size={13} color={Colors.success} />
-                <Text style={styles.doneBtnText}>Dismiss reminder</Text>
+              <Pressable style={s.doneBtn} onPress={handleMarkDone}>
+                <Ionicons name="checkmark-circle-outline" size={13} color={colors.success} />
+                <Text style={s.doneBtnText}>Dismiss reminder</Text>
               </Pressable>
             )}
           </View>
         </View>
         <Pressable hitSlop={10} onPress={() => onEdit(item)} style={{ marginRight: 8, paddingTop: 2 }}>
-          <Ionicons name="pencil-outline" size={18} color={Colors.textSecondary} />
+          <Ionicons name="pencil-outline" size={18} color={colors.textSecondary} />
         </Pressable>
         <Pressable hitSlop={10} onPress={() => onDelete(item)} style={{ paddingTop: 2 }}>
-          <Ionicons name="trash-outline" size={18} color={Colors.textTertiary} />
+          <Ionicons name="trash-outline" size={18} color={colors.textTertiary} />
         </Pressable>
       </View>
 
@@ -175,34 +179,34 @@ function RecordItem({ item, onEdit, onDelete }: RecordItemProps) {
         animationType="fade"
         onRequestClose={() => setReminderModalVisible(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.reminderModal}>
-            <View style={styles.reminderModalHeader}>
-              <Ionicons name="notifications" size={22} color={Colors.accent} />
-              <Text style={styles.reminderModalTitle}>Set Reminder</Text>
+        <View style={s.modalOverlay}>
+          <View style={s.reminderModal}>
+            <View style={s.reminderModalHeader}>
+              <Ionicons name="notifications" size={22} color={colors.accent} />
+              <Text style={s.reminderModalTitle}>Set Reminder</Text>
             </View>
-            <Text style={styles.reminderModalSub}>
-              Reminder for: <Text style={{ color: Colors.text }}>{item.type}</Text>
+            <Text style={s.reminderModalSub}>
+              Reminder for: <Text style={{ color: colors.text }}>{item.type}</Text>
             </Text>
-            <Text style={styles.fieldLabel}>Reminder Date</Text>
+            <Text style={s.fieldLabel}>Reminder Date</Text>
             <TextInput
-              style={styles.reminderInput}
+              style={s.reminderInput}
               placeholder="YYYY-MM-DD"
-              placeholderTextColor={Colors.textTertiary}
+              placeholderTextColor={colors.textTertiary}
               value={reminderDate}
               onChangeText={setReminderDate}
               keyboardType="numbers-and-punctuation"
               autoFocus
             />
-            <Text style={styles.reminderHint}>Notification fires at 9:00 AM on the selected date.</Text>
-            <View style={styles.modalActions}>
-              <Pressable style={styles.cancelBtn} onPress={() => setReminderModalVisible(false)}>
-                <Text style={styles.cancelBtnText}>Cancel</Text>
+            <Text style={s.reminderHint}>Notification fires at 9:00 AM on the selected date.</Text>
+            <View style={s.modalActions}>
+              <Pressable style={s.cancelBtn} onPress={() => setReminderModalVisible(false)}>
+                <Text style={s.cancelBtnText}>Cancel</Text>
               </Pressable>
-              <Pressable style={styles.saveBtn} onPress={handleConfirmReminder} disabled={scheduling}>
+              <Pressable style={s.saveBtn} onPress={handleConfirmReminder} disabled={scheduling}>
                 {scheduling
                   ? <ActivityIndicator color="#fff" size="small" />
-                  : <Text style={styles.saveBtnText}>Confirm</Text>}
+                  : <Text style={s.saveBtnText}>Confirm</Text>}
               </Pressable>
             </View>
           </View>
@@ -213,6 +217,7 @@ function RecordItem({ item, onEdit, onDelete }: RecordItemProps) {
 }
 
 export default function MaintenanceScreen() {
+  const { colors } = useTheme();
   const queryClient = useQueryClient();
   const { data: vehicles } = useListVehicles();
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
@@ -306,23 +311,25 @@ export default function MaintenanceScreen() {
     finally { setSaving(false); }
   };
 
+  const s = makeStyles(colors);
+
   return (
-    <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.vehicleBar}>
+    <View style={s.container}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.vehicleBar}>
         {(vehicles ?? []).map((v) => (
-          <Pressable key={v.id} style={[styles.vehicleChip, vehicleId === v.id && styles.vehicleChipActive]} onPress={() => setSelectedVehicleId(v.id)}>
-            <Text style={[styles.vehicleChipText, vehicleId === v.id && styles.vehicleChipTextActive]}>{v.year} {v.make}</Text>
+          <Pressable key={v.id} style={[s.vehicleChip, vehicleId === v.id && s.vehicleChipActive]} onPress={() => setSelectedVehicleId(v.id)}>
+            <Text style={[s.vehicleChipText, vehicleId === v.id && s.vehicleChipTextActive]}>{v.year} {v.make}</Text>
           </Pressable>
         ))}
       </ScrollView>
 
       {isLoading ? (
-        <ActivityIndicator color={Colors.accent} style={{ flex: 1 }} />
+        <ActivityIndicator color={colors.accent} style={{ flex: 1 }} />
       ) : (
         <FlatList
           data={(records ?? []).slice().reverse()}
           keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={s.list}
           scrollEnabled={!!(records && records.length > 0)}
           onRefresh={refetch}
           refreshing={isLoading}
@@ -330,56 +337,56 @@ export default function MaintenanceScreen() {
             <RecordItem item={item} onEdit={openEdit} onDelete={handleDelete} />
           )}
           ListEmptyComponent={
-            <View style={styles.empty}>
-              <MaterialCommunityIcons name="wrench" size={48} color={Colors.textTertiary} />
-              <Text style={styles.emptyText}>No maintenance records</Text>
+            <View style={s.empty}>
+              <MaterialCommunityIcons name="wrench" size={48} color={colors.textTertiary} />
+              <Text style={s.emptyText}>No maintenance records</Text>
             </View>
           }
         />
       )}
 
-      <Pressable style={styles.fab} onPress={openAdd}>
+      <Pressable style={s.fab} onPress={openAdd}>
         <Ionicons name="add" size={28} color="#fff" />
       </Pressable>
 
       <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{editingItem ? "Edit Record" : "Add Maintenance Record"}</Text>
-            <Text style={styles.fieldLabel}>Type</Text>
+        <View style={s.modalOverlay}>
+          <View style={s.modalContent}>
+            <Text style={s.modalTitle}>{editingItem ? "Edit Record" : "Add Maintenance Record"}</Text>
+            <Text style={s.fieldLabel}>Type</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 14 }}>
               {MAINTENANCE_TYPES.map((t) => (
-                <Pressable key={t} style={[styles.typeChip, type === t && styles.typeChipActive]} onPress={() => setType(t)}>
-                  <Text style={[styles.typeChipText, type === t && styles.typeChipTextActive]}>{t}</Text>
+                <Pressable key={t} style={[s.typeChip, type === t && s.typeChipActive]} onPress={() => setType(t)}>
+                  <Text style={[s.typeChipText, type === t && s.typeChipTextActive]}>{t}</Text>
                 </Pressable>
               ))}
             </ScrollView>
-            <View style={styles.row}>
-              <View style={styles.halfField}>
-                <Text style={styles.fieldLabel}>Date</Text>
-                <TextInput style={styles.input} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} value={date} onChangeText={setDate} />
+            <View style={s.row}>
+              <View style={s.halfField}>
+                <Text style={s.fieldLabel}>Date</Text>
+                <TextInput style={s.input} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textTertiary} value={date} onChangeText={setDate} />
               </View>
-              <View style={styles.halfField}>
-                <Text style={styles.fieldLabel}>Mileage (km) *</Text>
-                <TextInput style={styles.input} placeholder="85000" placeholderTextColor={Colors.textTertiary} value={mileage} onChangeText={setMileage} keyboardType="number-pad" />
-              </View>
-            </View>
-            <View style={styles.row}>
-              <View style={styles.halfField}>
-                <Text style={styles.fieldLabel}>Cost ($)</Text>
-                <TextInput style={styles.input} placeholder="45.00" placeholderTextColor={Colors.textTertiary} value={cost} onChangeText={setCost} keyboardType="decimal-pad" />
-              </View>
-              <View style={styles.halfField}>
-                <Text style={styles.fieldLabel}>Next Due Date</Text>
-                <TextInput style={styles.input} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} value={nextDueDate} onChangeText={setNextDueDate} />
+              <View style={s.halfField}>
+                <Text style={s.fieldLabel}>Mileage (km) *</Text>
+                <TextInput style={s.input} placeholder="85000" placeholderTextColor={colors.textTertiary} value={mileage} onChangeText={setMileage} keyboardType="number-pad" />
               </View>
             </View>
-            <Text style={styles.fieldLabel}>Notes</Text>
-            <TextInput style={[styles.input, { marginBottom: 16 }]} placeholder="Notes..." placeholderTextColor={Colors.textTertiary} value={notes} onChangeText={setNotes} />
-            <View style={styles.modalActions}>
-              <Pressable style={styles.cancelBtn} onPress={() => setShowModal(false)}><Text style={styles.cancelBtnText}>Cancel</Text></Pressable>
-              <Pressable style={styles.saveBtn} onPress={handleSave} disabled={saving}>
-                {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.saveBtnText}>{editingItem ? "Update" : "Save"}</Text>}
+            <View style={s.row}>
+              <View style={s.halfField}>
+                <Text style={s.fieldLabel}>Cost ($)</Text>
+                <TextInput style={s.input} placeholder="45.00" placeholderTextColor={colors.textTertiary} value={cost} onChangeText={setCost} keyboardType="decimal-pad" />
+              </View>
+              <View style={s.halfField}>
+                <Text style={s.fieldLabel}>Next Due Date</Text>
+                <TextInput style={s.input} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textTertiary} value={nextDueDate} onChangeText={setNextDueDate} />
+              </View>
+            </View>
+            <Text style={s.fieldLabel}>Notes</Text>
+            <TextInput style={[s.input, { marginBottom: 16 }]} placeholder="Notes..." placeholderTextColor={colors.textTertiary} value={notes} onChangeText={setNotes} />
+            <View style={s.modalActions}>
+              <Pressable style={s.cancelBtn} onPress={() => setShowModal(false)}><Text style={s.cancelBtnText}>Cancel</Text></Pressable>
+              <Pressable style={s.saveBtn} onPress={handleSave} disabled={saving}>
+                {saving ? <ActivityIndicator color="#fff" size="small" /> : <Text style={s.saveBtnText}>{editingItem ? "Update" : "Save"}</Text>}
               </Pressable>
             </View>
           </View>
@@ -389,92 +396,94 @@ export default function MaintenanceScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bg },
-  vehicleBar: { paddingHorizontal: 16, paddingVertical: 12, maxHeight: 60 },
-  vehicleChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.card, marginRight: 8 },
-  vehicleChipActive: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
-  vehicleChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.textSecondary },
-  vehicleChipTextActive: { color: Colors.accent },
-  list: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 80 },
-  record: { flexDirection: "row", alignItems: "flex-start", backgroundColor: Colors.card, borderRadius: 14, padding: 14, marginBottom: 10, gap: 12, borderWidth: 1, borderColor: Colors.border },
-  recordIconWrap: { width: 40, height: 40, borderRadius: 12, backgroundColor: Colors.warning + "20", alignItems: "center", justifyContent: "center" },
-  recordContent: { flex: 1 },
-  recordTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 2 },
-  recordType: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: Colors.text },
-  bellWrap: { flexDirection: "row", alignItems: "center", gap: 3, backgroundColor: Colors.accent + "15", borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
-  bellDate: { fontFamily: "Inter_500Medium", fontSize: 11, color: Colors.accent },
-  recordMeta: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textSecondary },
-  nextDue: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.accent, marginTop: 4 },
-  recordNotes: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textTertiary, marginTop: 4 },
-  recordActions: { flexDirection: "row", marginTop: 8 },
-  reminderBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    backgroundColor: Colors.card2,
-  },
-  reminderBtnActive: { borderColor: Colors.accent + "60", backgroundColor: Colors.accent + "10" },
-  reminderBtnText: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.textSecondary },
-  reminderBtnTextActive: { color: Colors.accent },
-  doneBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: Colors.success + "50",
-    backgroundColor: Colors.success + "10",
-    marginLeft: 8,
-  },
-  doneBtnText: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.success },
-  empty: { alignItems: "center", paddingTop: 60, gap: 12 },
-  emptyText: { fontFamily: "Inter_400Regular", fontSize: 16, color: Colors.textSecondary },
-  fab: { position: "absolute", bottom: 24, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: Colors.accent, alignItems: "center", justifyContent: "center", elevation: 8 },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.8)", justifyContent: "flex-end" },
-  modalContent: { backgroundColor: Colors.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
-  modalTitle: { fontFamily: "Inter_700Bold", fontSize: 20, color: Colors.text, marginBottom: 16 },
-  reminderModal: {
-    backgroundColor: Colors.card,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    padding: 24,
-    paddingBottom: 40,
-  },
-  reminderModalHeader: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 6 },
-  reminderModalTitle: { fontFamily: "Inter_700Bold", fontSize: 20, color: Colors.text },
-  reminderModalSub: { fontFamily: "Inter_400Regular", fontSize: 14, color: Colors.textSecondary, marginBottom: 16 },
-  reminderInput: {
-    backgroundColor: Colors.card2,
-    borderRadius: 12,
-    padding: 14,
-    color: Colors.text,
-    fontFamily: "Inter_400Regular",
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginBottom: 8,
-    letterSpacing: 1,
-  },
-  reminderHint: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textTertiary, marginBottom: 20 },
-  row: { flexDirection: "row", gap: 12, marginBottom: 12 },
-  halfField: { flex: 1 },
-  fieldLabel: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: Colors.text, marginBottom: 6 },
-  input: { backgroundColor: Colors.card2, borderRadius: 12, padding: 12, color: Colors.text, fontFamily: "Inter_400Regular", fontSize: 14, borderWidth: 1, borderColor: Colors.border },
-  typeChip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.card2, marginRight: 8 },
-  typeChipActive: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
-  typeChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.textSecondary },
-  typeChipTextActive: { color: Colors.accent },
-  modalActions: { flexDirection: "row", gap: 12 },
-  cancelBtn: { flex: 1, backgroundColor: Colors.card2, borderRadius: 12, padding: 14, alignItems: "center" },
-  cancelBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: Colors.textSecondary },
-  saveBtn: { flex: 1, backgroundColor: Colors.accent, borderRadius: 12, padding: 14, alignItems: "center" },
-  saveBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#fff" },
-});
+function makeStyles(colors: AppColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bg },
+    vehicleBar: { paddingHorizontal: 16, paddingVertical: 12, maxHeight: 60 },
+    vehicleChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, marginRight: 8 },
+    vehicleChipActive: { borderColor: colors.accent, backgroundColor: colors.accent + "15" },
+    vehicleChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: colors.textSecondary },
+    vehicleChipTextActive: { color: colors.accent },
+    list: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 80 },
+    record: { flexDirection: "row", alignItems: "flex-start", backgroundColor: colors.card, borderRadius: 14, padding: 14, marginBottom: 10, gap: 12, borderWidth: 1, borderColor: colors.border },
+    recordIconWrap: { width: 40, height: 40, borderRadius: 12, backgroundColor: colors.warning + "20", alignItems: "center", justifyContent: "center" },
+    recordContent: { flex: 1 },
+    recordTitleRow: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 2 },
+    recordType: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: colors.text },
+    bellWrap: { flexDirection: "row", alignItems: "center", gap: 3, backgroundColor: colors.accent + "15", borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
+    bellDate: { fontFamily: "Inter_500Medium", fontSize: 11, color: colors.accent },
+    recordMeta: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textSecondary },
+    nextDue: { fontFamily: "Inter_500Medium", fontSize: 12, color: colors.accent, marginTop: 4 },
+    recordNotes: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textTertiary, marginTop: 4 },
+    recordActions: { flexDirection: "row", marginTop: 8 },
+    reminderBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.card2,
+    },
+    reminderBtnActive: { borderColor: colors.accent + "60", backgroundColor: colors.accent + "10" },
+    reminderBtnText: { fontFamily: "Inter_500Medium", fontSize: 12, color: colors.textSecondary },
+    reminderBtnTextActive: { color: colors.accent },
+    doneBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.success + "50",
+      backgroundColor: colors.success + "10",
+      marginLeft: 8,
+    },
+    doneBtnText: { fontFamily: "Inter_500Medium", fontSize: 12, color: colors.success },
+    empty: { alignItems: "center", paddingTop: 60, gap: 12 },
+    emptyText: { fontFamily: "Inter_400Regular", fontSize: 16, color: colors.textSecondary },
+    fab: { position: "absolute", bottom: 24, right: 24, width: 56, height: 56, borderRadius: 28, backgroundColor: colors.accent, alignItems: "center", justifyContent: "center", elevation: 8 },
+    modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.8)", justifyContent: "flex-end" },
+    modalContent: { backgroundColor: colors.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40 },
+    modalTitle: { fontFamily: "Inter_700Bold", fontSize: 20, color: colors.text, marginBottom: 16 },
+    reminderModal: {
+      backgroundColor: colors.card,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      padding: 24,
+      paddingBottom: 40,
+    },
+    reminderModalHeader: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 6 },
+    reminderModalTitle: { fontFamily: "Inter_700Bold", fontSize: 20, color: colors.text },
+    reminderModalSub: { fontFamily: "Inter_400Regular", fontSize: 14, color: colors.textSecondary, marginBottom: 16 },
+    reminderInput: {
+      backgroundColor: colors.card2,
+      borderRadius: 12,
+      padding: 14,
+      color: colors.text,
+      fontFamily: "Inter_400Regular",
+      fontSize: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      marginBottom: 8,
+      letterSpacing: 1,
+    },
+    reminderHint: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textTertiary, marginBottom: 20 },
+    row: { flexDirection: "row", gap: 12, marginBottom: 12 },
+    halfField: { flex: 1 },
+    fieldLabel: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: colors.text, marginBottom: 6 },
+    input: { backgroundColor: colors.card2, borderRadius: 12, padding: 12, color: colors.text, fontFamily: "Inter_400Regular", fontSize: 14, borderWidth: 1, borderColor: colors.border },
+    typeChip: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card2, marginRight: 8 },
+    typeChipActive: { borderColor: colors.accent, backgroundColor: colors.accent + "15" },
+    typeChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: colors.textSecondary },
+    typeChipTextActive: { color: colors.accent },
+    modalActions: { flexDirection: "row", gap: 12 },
+    cancelBtn: { flex: 1, backgroundColor: colors.card2, borderRadius: 12, padding: 14, alignItems: "center" },
+    cancelBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: colors.textSecondary },
+    saveBtn: { flex: 1, backgroundColor: colors.accent, borderRadius: 12, padding: 14, alignItems: "center" },
+    saveBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#fff" },
+  });
+}

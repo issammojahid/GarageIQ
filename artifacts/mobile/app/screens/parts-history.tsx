@@ -36,7 +36,7 @@ const EMPTY_FORM: PartForm = {
 
 export default function PartsHistoryScreen() {
   const { colors } = useTheme();
-  const { isRTL } = useI18n();
+  const { t, isRTL } = useI18n();
   const { data: vehicles } = useListVehicles();
   const [parts, setParts] = useState<PartRecord[]>([]);
   const [showModal, setShowModal] = useState(false);
@@ -85,7 +85,7 @@ export default function PartsHistoryScreen() {
 
   const handleSave = async () => {
     if (!form.partName.trim()) {
-      Alert.alert("Required", "Part name is required.");
+      Alert.alert(t("cc_required_title"), t("ph_required_name"));
       return;
     }
     if (editingId) {
@@ -100,9 +100,9 @@ export default function PartsHistoryScreen() {
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert("Delete Part", "Remove this part record?", [
-      { text: "Cancel", style: "cancel" },
-      { text: "Delete", style: "destructive", onPress: async () => { await saveParts(parts.filter((p) => p.id !== id)); } },
+    Alert.alert(t("ph_delete_title"), t("ph_delete_msg"), [
+      { text: t("cancel"), style: "cancel" },
+      { text: t("delete"), style: "destructive", onPress: async () => { await saveParts(parts.filter((p) => p.id !== id)); } },
     ]);
   };
 
@@ -147,8 +147,8 @@ export default function PartsHistoryScreen() {
       {parts.length === 0 ? (
         <View style={s.empty}>
           <MaterialCommunityIcons name="cog-outline" size={56} color={colors.textTertiary} />
-          <Text style={s.emptyTitle}>No parts recorded yet</Text>
-          <Text style={s.emptyDesc}>Track every part you've replaced on your vehicles.</Text>
+          <Text style={s.emptyTitle}>{t("ph_no_parts")}</Text>
+          <Text style={s.emptyDesc}>{t("ph_no_parts_desc")}</Text>
         </View>
       ) : (
         <FlatList
@@ -169,17 +169,17 @@ export default function PartsHistoryScreen() {
           <Pressable style={s.sheet} onPress={() => {}}>
             <View style={s.handle} />
             <Text style={[s.sheetTitle, isRTL && s.textRight]}>
-              {editingId ? "Edit Part Record" : "Add Replaced Part"}
+              {editingId ? t("ph_edit_part") : t("ph_add_part")}
             </Text>
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-              <FormField label="Part Name *" value={form.partName} onChangeText={(v) => setForm((f) => ({ ...f, partName: v }))} placeholder="e.g. Brake pads" colors={colors} isRTL={isRTL} />
-              <FormField label="Date" value={form.date} onChangeText={(v) => setForm((f) => ({ ...f, date: v }))} placeholder="YYYY-MM-DD" colors={colors} isRTL={isRTL} />
-              <FormField label="Cost ($)" value={form.cost} onChangeText={(v) => setForm((f) => ({ ...f, cost: v }))} placeholder="0.00" keyboardType="decimal-pad" colors={colors} isRTL={isRTL} />
-              <FormField label="Mileage (km)" value={form.mileage} onChangeText={(v) => setForm((f) => ({ ...f, mileage: v }))} placeholder="e.g. 45000" keyboardType="numeric" colors={colors} isRTL={isRTL} />
+              <FormField label={t("ph_part_name")} value={form.partName} onChangeText={(v) => setForm((f) => ({ ...f, partName: v }))} placeholder={t("ph_part_name_placeholder")} colors={colors} isRTL={isRTL} />
+              <FormField label={t("ph_date")} value={form.date} onChangeText={(v) => setForm((f) => ({ ...f, date: v }))} placeholder="YYYY-MM-DD" colors={colors} isRTL={isRTL} />
+              <FormField label={t("ph_cost")} value={form.cost} onChangeText={(v) => setForm((f) => ({ ...f, cost: v }))} placeholder="0.00" keyboardType="decimal-pad" colors={colors} isRTL={isRTL} />
+              <FormField label={t("ph_mileage")} value={form.mileage} onChangeText={(v) => setForm((f) => ({ ...f, mileage: v }))} placeholder="e.g. 45000" keyboardType="numeric" colors={colors} isRTL={isRTL} />
 
               {vehicles && vehicles.length > 0 && (
                 <View style={s.fieldWrap}>
-                  <Text style={[s.label, isRTL && s.textRight]}>Vehicle</Text>
+                  <Text style={[s.label, isRTL && s.textRight]}>{t("ph_vehicle")}</Text>
                   <View style={[s.vehiclePicker, isRTL && s.rowReverse]}>
                     {vehicles.map((v) => (
                       <Pressable
@@ -196,14 +196,14 @@ export default function PartsHistoryScreen() {
                 </View>
               )}
 
-              <FormField label="Notes" value={form.notes} onChangeText={(v) => setForm((f) => ({ ...f, notes: v }))} placeholder="Optional notes..." multiline colors={colors} isRTL={isRTL} />
+              <FormField label={t("ph_notes")} value={form.notes} onChangeText={(v) => setForm((f) => ({ ...f, notes: v }))} placeholder={t("ph_notes_placeholder")} multiline colors={colors} isRTL={isRTL} />
 
               <View style={[s.btnRow, isRTL && s.rowReverse]}>
                 <Pressable style={s.cancelBtn} onPress={() => { setShowModal(false); setForm(EMPTY_FORM); }}>
-                  <Text style={s.cancelBtnText}>Cancel</Text>
+                  <Text style={s.cancelBtnText}>{t("cancel")}</Text>
                 </Pressable>
                 <Pressable style={s.saveBtn} onPress={handleSave}>
-                  <Text style={s.saveBtnText}>Save</Text>
+                  <Text style={s.saveBtnText}>{t("cc_save")}</Text>
                 </Pressable>
               </View>
             </ScrollView>

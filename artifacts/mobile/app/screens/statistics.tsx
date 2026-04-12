@@ -7,7 +7,8 @@ import {
   Pressable,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Colors from "@/constants/colors";
+import { useTheme } from "@/context/ThemeContext";
+import type { AppColors } from "@/constants/colors";
 import {
   useListFuelLogs,
   useListDiagnoses,
@@ -16,6 +17,7 @@ import {
 import { useListVehicles } from "@/hooks/useLocalVehicles";
 
 export default function StatisticsScreen() {
+  const { colors } = useTheme();
   const { data: vehicles } = useListVehicles();
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
   const vehicleId = selectedVehicleId ?? vehicles?.[0]?.id;
@@ -28,9 +30,7 @@ export default function StatisticsScreen() {
   const totalLiters = fuelLogs?.reduce((s, l) => s + l.liters, 0) ?? 0;
   const totalMaintenanceCost = maintenance?.reduce((s, m) => s + (m.cost ?? 0), 0) ?? 0;
   const totalDiagnoses = diagnoses?.length ?? 0;
-  const criticalDiagnoses = diagnoses?.filter((d) => d.result?.severity === "critical" || d.result?.severity === "high").length ?? 0;
 
-  // Last 6 months fuel data
   const fuelByMonth: Record<string, number> = {};
   fuelLogs?.forEach((l) => {
     const month = l.date.substring(0, 7);
@@ -46,56 +46,58 @@ export default function StatisticsScreen() {
     critical: diagnoses?.filter((d) => d.result?.severity === "critical").length ?? 0,
   };
 
+  const sevColors: Record<string, string> = { low: colors.success, medium: colors.warning, high: "#F97316", critical: colors.danger };
+
+  const s = makeStyles(colors);
+
   return (
-    <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.vehicleBar}>
+    <View style={s.container}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.vehicleBar}>
         {(vehicles ?? []).map((v) => (
-          <Pressable key={v.id} style={[styles.vehicleChip, vehicleId === v.id && styles.vehicleChipActive]} onPress={() => setSelectedVehicleId(v.id)}>
-            <Text style={[styles.vehicleChipText, vehicleId === v.id && styles.vehicleChipTextActive]}>{v.year} {v.make}</Text>
+          <Pressable key={v.id} style={[s.vehicleChip, vehicleId === v.id && s.vehicleChipActive]} onPress={() => setSelectedVehicleId(v.id)}>
+            <Text style={[s.vehicleChipText, vehicleId === v.id && s.vehicleChipTextActive]}>{v.year} {v.make}</Text>
           </Pressable>
         ))}
       </ScrollView>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Key Stats */}
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <MaterialCommunityIcons name="gas-station" size={22} color={Colors.success} />
-            <Text style={styles.statValue}>${totalFuelCost.toFixed(0)}</Text>
-            <Text style={styles.statLabel}>Fuel Spent</Text>
+      <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+        <View style={s.statsGrid}>
+          <View style={s.statCard}>
+            <MaterialCommunityIcons name="gas-station" size={22} color={colors.success} />
+            <Text style={s.statValue}>${totalFuelCost.toFixed(0)}</Text>
+            <Text style={s.statLabel}>Fuel Spent</Text>
           </View>
-          <View style={styles.statCard}>
-            <MaterialCommunityIcons name="fuel" size={22} color={Colors.info} />
-            <Text style={styles.statValue}>{totalLiters.toFixed(0)}L</Text>
-            <Text style={styles.statLabel}>Total Fuel</Text>
+          <View style={s.statCard}>
+            <MaterialCommunityIcons name="fuel" size={22} color={colors.info} />
+            <Text style={s.statValue}>{totalLiters.toFixed(0)}L</Text>
+            <Text style={s.statLabel}>Total Fuel</Text>
           </View>
-          <View style={styles.statCard}>
-            <MaterialCommunityIcons name="wrench" size={22} color={Colors.warning} />
-            <Text style={styles.statValue}>${totalMaintenanceCost.toFixed(0)}</Text>
-            <Text style={styles.statLabel}>Maintenance</Text>
+          <View style={s.statCard}>
+            <MaterialCommunityIcons name="wrench" size={22} color={colors.warning} />
+            <Text style={s.statValue}>${totalMaintenanceCost.toFixed(0)}</Text>
+            <Text style={s.statLabel}>Maintenance</Text>
           </View>
-          <View style={styles.statCard}>
-            <MaterialCommunityIcons name="stethoscope" size={22} color={Colors.accent} />
-            <Text style={styles.statValue}>{totalDiagnoses}</Text>
-            <Text style={styles.statLabel}>Diagnoses</Text>
+          <View style={s.statCard}>
+            <MaterialCommunityIcons name="stethoscope" size={22} color={colors.accent} />
+            <Text style={s.statValue}>{totalDiagnoses}</Text>
+            <Text style={s.statLabel}>Diagnoses</Text>
           </View>
         </View>
 
-        {/* Fuel Chart */}
         {monthKeys.length > 0 && (
-          <View style={styles.chartSection}>
-            <Text style={styles.chartTitle}>Fuel Cost by Month</Text>
-            <View style={styles.barChart}>
+          <View style={s.chartSection}>
+            <Text style={s.chartTitle}>Fuel Cost by Month</Text>
+            <View style={s.barChart}>
               {monthKeys.map((month) => {
                 const val = fuelByMonth[month];
                 const pct = val / maxMonth;
                 return (
-                  <View key={month} style={styles.barGroup}>
-                    <Text style={styles.barValue}>${val.toFixed(0)}</Text>
-                    <View style={styles.barBg}>
-                      <View style={[styles.bar, { height: `${Math.max(pct * 100, 4)}%` }]} />
+                  <View key={month} style={s.barGroup}>
+                    <Text style={s.barValue}>${val.toFixed(0)}</Text>
+                    <View style={s.barBg}>
+                      <View style={[s.bar, { height: `${Math.max(pct * 100, 4)}%` }]} />
                     </View>
-                    <Text style={styles.barLabel}>{month.slice(5)}</Text>
+                    <Text style={s.barLabel}>{month.slice(5)}</Text>
                   </View>
                 );
               })}
@@ -103,33 +105,30 @@ export default function StatisticsScreen() {
           </View>
         )}
 
-        {/* Diagnosis Breakdown */}
         {totalDiagnoses > 0 && (
-          <View style={styles.chartSection}>
-            <Text style={styles.chartTitle}>Diagnosis Severity</Text>
+          <View style={s.chartSection}>
+            <Text style={s.chartTitle}>Diagnosis Severity</Text>
             {Object.entries(sevBreakdown).map(([sev, count]) => {
-              const colors: Record<string, string> = { low: Colors.success, medium: Colors.warning, high: "#F97316", critical: Colors.danger };
               const pct = totalDiagnoses > 0 ? (count / totalDiagnoses) * 100 : 0;
               return (
-                <View key={sev} style={styles.sevRow}>
-                  <View style={[styles.sevDot, { backgroundColor: colors[sev] }]} />
-                  <Text style={styles.sevLabel}>{sev.charAt(0).toUpperCase() + sev.slice(1)}</Text>
-                  <View style={styles.sevBarBg}>
-                    <View style={[styles.sevBar, { width: `${pct}%`, backgroundColor: colors[sev] }]} />
+                <View key={sev} style={s.sevRow}>
+                  <View style={[s.sevDot, { backgroundColor: sevColors[sev] }]} />
+                  <Text style={s.sevLabel}>{sev.charAt(0).toUpperCase() + sev.slice(1)}</Text>
+                  <View style={s.sevBarBg}>
+                    <View style={[s.sevBar, { width: `${pct}%`, backgroundColor: sevColors[sev] }]} />
                   </View>
-                  <Text style={styles.sevCount}>{count}</Text>
+                  <Text style={s.sevCount}>{count}</Text>
                 </View>
               );
             })}
           </View>
         )}
 
-        {/* Total Cost Summary */}
-        <View style={styles.totalCard}>
-          <MaterialCommunityIcons name="cash-multiple" size={24} color={Colors.accent} />
+        <View style={s.totalCard}>
+          <MaterialCommunityIcons name="cash-multiple" size={24} color={colors.accent} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.totalLabel}>Total Vehicle Cost</Text>
-            <Text style={styles.totalValue}>${(totalFuelCost + totalMaintenanceCost).toFixed(2)}</Text>
+            <Text style={s.totalLabel}>Total Vehicle Cost</Text>
+            <Text style={s.totalValue}>${(totalFuelCost + totalMaintenanceCost).toFixed(2)}</Text>
           </View>
         </View>
       </ScrollView>
@@ -137,33 +136,35 @@ export default function StatisticsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bg },
-  vehicleBar: { paddingHorizontal: 16, paddingVertical: 12, maxHeight: 60 },
-  vehicleChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.card, marginRight: 8 },
-  vehicleChipActive: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
-  vehicleChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.textSecondary },
-  vehicleChipTextActive: { color: Colors.accent },
-  content: { padding: 20, paddingBottom: 40 },
-  statsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginBottom: 20 },
-  statCard: { width: "47%", backgroundColor: Colors.card, borderRadius: 16, padding: 16, alignItems: "center", gap: 8, borderWidth: 1, borderColor: Colors.border },
-  statValue: { fontFamily: "Inter_700Bold", fontSize: 22, color: Colors.text },
-  statLabel: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textSecondary },
-  chartSection: { backgroundColor: Colors.card, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.border },
-  chartTitle: { fontFamily: "Inter_600SemiBold", fontSize: 16, color: Colors.text, marginBottom: 16 },
-  barChart: { flexDirection: "row", height: 120, alignItems: "flex-end", gap: 8 },
-  barGroup: { flex: 1, alignItems: "center", height: "100%" },
-  barValue: { fontFamily: "Inter_400Regular", fontSize: 9, color: Colors.textSecondary, marginBottom: 4 },
-  barBg: { flex: 1, width: "100%", backgroundColor: Colors.card2, borderRadius: 4, justifyContent: "flex-end" },
-  bar: { width: "100%", backgroundColor: Colors.accent, borderRadius: 4 },
-  barLabel: { fontFamily: "Inter_500Medium", fontSize: 10, color: Colors.textSecondary, marginTop: 4 },
-  sevRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 12 },
-  sevDot: { width: 8, height: 8, borderRadius: 4 },
-  sevLabel: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.text, width: 60 },
-  sevBarBg: { flex: 1, height: 6, backgroundColor: Colors.card2, borderRadius: 3 },
-  sevBar: { height: 6, borderRadius: 3 },
-  sevCount: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: Colors.text, width: 24, textAlign: "right" },
-  totalCard: { backgroundColor: Colors.accent + "15", borderRadius: 16, padding: 16, flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderColor: Colors.accent + "40" },
-  totalLabel: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.textSecondary },
-  totalValue: { fontFamily: "Inter_700Bold", fontSize: 24, color: Colors.text },
-});
+function makeStyles(colors: AppColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bg },
+    vehicleBar: { paddingHorizontal: 16, paddingVertical: 12, maxHeight: 60 },
+    vehicleChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, marginRight: 8 },
+    vehicleChipActive: { borderColor: colors.accent, backgroundColor: colors.accent + "15" },
+    vehicleChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: colors.textSecondary },
+    vehicleChipTextActive: { color: colors.accent },
+    content: { padding: 20, paddingBottom: 40 },
+    statsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginBottom: 20 },
+    statCard: { width: "47%", backgroundColor: colors.card, borderRadius: 16, padding: 16, alignItems: "center", gap: 8, borderWidth: 1, borderColor: colors.border },
+    statValue: { fontFamily: "Inter_700Bold", fontSize: 22, color: colors.text },
+    statLabel: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textSecondary },
+    chartSection: { backgroundColor: colors.card, borderRadius: 16, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: colors.border },
+    chartTitle: { fontFamily: "Inter_600SemiBold", fontSize: 16, color: colors.text, marginBottom: 16 },
+    barChart: { flexDirection: "row", height: 120, alignItems: "flex-end", gap: 8 },
+    barGroup: { flex: 1, alignItems: "center", height: "100%" },
+    barValue: { fontFamily: "Inter_400Regular", fontSize: 9, color: colors.textSecondary, marginBottom: 4 },
+    barBg: { flex: 1, width: "100%", backgroundColor: colors.card2, borderRadius: 4, justifyContent: "flex-end" },
+    bar: { width: "100%", backgroundColor: colors.accent, borderRadius: 4 },
+    barLabel: { fontFamily: "Inter_500Medium", fontSize: 10, color: colors.textSecondary, marginTop: 4 },
+    sevRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 12 },
+    sevDot: { width: 8, height: 8, borderRadius: 4 },
+    sevLabel: { fontFamily: "Inter_500Medium", fontSize: 13, color: colors.text, width: 60 },
+    sevBarBg: { flex: 1, height: 6, backgroundColor: colors.card2, borderRadius: 3 },
+    sevBar: { height: 6, borderRadius: 3 },
+    sevCount: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: colors.text, width: 24, textAlign: "right" },
+    totalCard: { backgroundColor: colors.accent + "15", borderRadius: 16, padding: 16, flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderColor: colors.accent + "40" },
+    totalLabel: { fontFamily: "Inter_400Regular", fontSize: 13, color: colors.textSecondary },
+    totalValue: { fontFamily: "Inter_700Bold", fontSize: 24, color: colors.text },
+  });
+}
