@@ -5,35 +5,36 @@ import { MaterialCommunityIcons, Ionicons, Feather } from "@expo/vector-icons";
 import React from "react";
 import { Platform, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Colors from "@/constants/colors";
 import { useI18n } from "@/i18n/TranslationContext";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const isIOS = Platform.OS === "ios";
   const isWeb = Platform.OS === "web";
   const { t } = useI18n();
+  const { colors, isDark } = useTheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors.accent,
-        tabBarInactiveTintColor: Colors.tabIconDefault,
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.tabIconDefault,
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: isIOS ? "transparent" : Colors.bg,
+          backgroundColor: isIOS ? "transparent" : colors.bg,
           borderTopWidth: 1,
-          borderTopColor: Colors.border,
+          borderTopColor: colors.border,
           elevation: 0,
           paddingBottom: isWeb ? 34 : insets.bottom,
           ...(isWeb ? { height: 84 } : {}),
         },
         tabBarBackground: () =>
           isIOS ? (
-            <BlurView intensity={90} tint="dark" style={StyleSheet.absoluteFill} />
+            <BlurView intensity={90} tint={isDark ? "dark" : "light"} style={StyleSheet.absoluteFill} />
           ) : (
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: Colors.bg }]} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.bg }]} />
           ),
         tabBarLabelStyle: {
           fontFamily: "Inter_500Medium",
