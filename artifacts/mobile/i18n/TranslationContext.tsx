@@ -1,13 +1,26 @@
-import React, { createContext, useContext, useCallback, useMemo, useEffect } from "react";
+import React, { createContext, useContext, useCallback, useMemo, useEffect, useState } from "react";
 import { I18nManager } from "react-native";
-import { useLanguagePref } from "@/hooks/useLanguagePref";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { translations, type LangCode, type T } from "./translations";
+
+const STORAGE_KEY = "@garageiq_language";
+
+const LEGACY_CODE_MAP: Record<string, string> = {
+  English: "en", French: "fr", Arabic: "ar", Spanish: "es",
+  German: "de", Dutch: "nl", Italian: "it", Portuguese: "pt",
+  Turkish: "tr", Russian: "ru",
+};
+
+function normalizeLangCode(val: string): string {
+  return LEGACY_CODE_MAP[val] ?? val;
+}
 
 type I18nCtx = {
   t: (key: keyof T) => string;
   tf: (key: keyof T, value: string | number) => string;
   isRTL: boolean;
   language: string;
+  setLanguage: (lang: string) => Promise<void>;
 };
 
 const I18nContext = createContext<I18nCtx>({
@@ -15,10 +28,29 @@ const I18nContext = createContext<I18nCtx>({
   tf: (key, value) => String(value),
   isRTL: false,
   language: "en",
+  setLanguage: async () => {},
 });
 
 export function TranslationProvider({ children }: { children: React.ReactNode }) {
-  const { language } = useLanguagePref();
+  const [language, setLanguageState] = useState<string>("en");
+
+  useEffect(() => {
+    AsyncStorage.getItem(STORAGE_KEY).then(async (val) => {
+      if (val) {
+        const normalized = normalizeLangCode(val);
+        if (normalized !== val) {
+          await AsyncStorage.setItem(STORAGE_KEY, normalized);
+        }
+        setLanguageState(normalized);
+      }
+    });
+  }, []);
+
+  const setLanguage = useCallback(async (lang: string) => {
+    setLanguageState(lang);
+    await AsyncStorage.setItem(STORAGE_KEY, lang);
+  }, []);
+
   const isRTL = language === "ar";
 
   useEffect(() => {
@@ -45,7 +77,7 @@ export function TranslationProvider({ children }: { children: React.ReactNode })
     [dict]
   );
 
-  const value = useMemo(() => ({ t, tf, isRTL, language }), [t, tf, isRTL, language]);
+  const value = useMemo(() => ({ t, tf, isRTL, language, setLanguage }), [t, tf, isRTL, language, setLanguage]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

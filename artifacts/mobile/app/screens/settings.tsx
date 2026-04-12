@@ -4,7 +4,7 @@ import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { useListDiagnoses, useListFuelLogs } from "@workspace/api-client-react";
 import { useListVehicles } from "@/hooks/useLocalVehicles";
 import type { MaterialCommunityIconsName } from "@/types/icons";
-import { useLanguagePref, LANGUAGES } from "@/hooks/useLanguagePref";
+import { LANGUAGES } from "@/hooks/useLanguagePref";
 import { useI18n } from "@/i18n/TranslationContext";
 import type { T } from "@/i18n/translations";
 import { useTheme } from "@/context/ThemeContext";
@@ -15,8 +15,7 @@ export default function SettingsScreen() {
   const { data: vehicles } = useListVehicles();
   const { data: diagnoses } = useListDiagnoses({});
   const { data: fuelLogs } = useListFuelLogs({});
-  const { language, setLanguage } = useLanguagePref();
-  const { t, tf, isRTL } = useI18n();
+  const { t, tf, isRTL, language, setLanguage } = useI18n();
   const [languageModalVisible, setLanguageModalVisible] = useState(false);
 
   const selectedLang = LANGUAGES.find((l) => l.code === language) ?? LANGUAGES[0];

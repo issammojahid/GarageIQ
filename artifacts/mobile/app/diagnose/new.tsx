@@ -19,7 +19,7 @@ import { useListVehicles } from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
 import { showInterstitialAd } from "@/components/AdBanner";
 import type { MaterialCommunityIconsName } from "@/types/icons";
-import { useLanguagePref, LANGUAGES } from "@/hooks/useLanguagePref";
+import { LANGUAGES } from "@/hooks/useLanguagePref";
 import { useI18n } from "@/i18n/TranslationContext";
 import type { T } from "@/i18n/translations";
 import { useTheme } from "@/context/ThemeContext";
@@ -66,8 +66,7 @@ export default function NewDiagnoseScreen() {
   const { data: vehicles } = useListVehicles();
   const queryClient = useQueryClient();
   const createDiagnosis = useCreateDiagnosis();
-  const { language: selectedLanguage } = useLanguagePref();
-  const { t, tf, isRTL } = useI18n();
+  const { t, tf, isRTL, language: selectedLanguage } = useI18n();
 
   const selectedLangInfo = LANGUAGES.find((l) => l.code === selectedLanguage) ?? LANGUAGES[0];
 
