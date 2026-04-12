@@ -17,6 +17,7 @@ import { setBaseUrl } from "@workspace/api-client-react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { TranslationProvider } from "@/i18n/TranslationContext";
 import { useI18n } from "@/i18n/TranslationContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 if (process.env.EXPO_PUBLIC_DOMAIN) {
   setBaseUrl(`https://${process.env.EXPO_PUBLIC_DOMAIN}`);
@@ -90,6 +91,14 @@ function RootLayoutNav() {
         name="screens/settings"
         options={{ headerShown: true, title: t("screen_settings"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
       />
+      <Stack.Screen
+        name="screens/parts-history"
+        options={{ headerShown: true, title: t("screen_parts_history"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
+      />
+      <Stack.Screen
+        name="screens/cost-calculator"
+        options={{ headerShown: true, title: t("screen_cost_calculator"), headerStyle: HEADER_STYLE, headerTintColor: "#FFFFFF", headerTitleStyle: HEADER_TITLE_STYLE }}
+      />
     </Stack>
   );
 }
@@ -117,7 +126,9 @@ export default function RootLayout() {
           <GestureHandlerRootView style={{ flex: 1 }}>
             <KeyboardProvider>
               <TranslationProvider>
-                <RootLayoutNav />
+                <ThemeProvider>
+                  <RootLayoutNav />
+                </ThemeProvider>
               </TranslationProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>

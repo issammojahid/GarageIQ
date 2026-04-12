@@ -186,6 +186,16 @@ export type T = {
   vehicle_photo_pick_title: string;
   vehicle_photo_camera: string;
   vehicle_photo_gallery: string;
+  settings_appearance: string;
+  settings_theme: string;
+  settings_theme_dark: string;
+  settings_theme_light: string;
+  menu_parts_history: string;
+  menu_parts_history_desc: string;
+  menu_cost_calculator: string;
+  menu_cost_calculator_desc: string;
+  screen_parts_history: string;
+  screen_cost_calculator: string;
 };
 
 const en: T = {
@@ -374,6 +384,16 @@ const en: T = {
   vehicle_photo_pick_title: "Vehicle Photo",
   vehicle_photo_camera: "Take Photo",
   vehicle_photo_gallery: "Choose from Gallery",
+  settings_appearance: "Appearance",
+  settings_theme: "App Theme",
+  settings_theme_dark: "Dark Mode",
+  settings_theme_light: "Light Mode",
+  menu_parts_history: "Replaced Parts",
+  menu_parts_history_desc: "Track part replacements",
+  menu_cost_calculator: "Cost Calculator",
+  menu_cost_calculator_desc: "Estimate repair costs",
+  screen_parts_history: "Replaced Parts",
+  screen_cost_calculator: "Cost Calculator",
 };
 
 const ar: T = {
@@ -562,6 +582,16 @@ const ar: T = {
   vehicle_photo_pick_title: "صورة المركبة",
   vehicle_photo_camera: "التقاط صورة",
   vehicle_photo_gallery: "اختيار من المعرض",
+  settings_appearance: "المظهر",
+  settings_theme: "مظهر التطبيق",
+  settings_theme_dark: "الوضع الداكن",
+  settings_theme_light: "الوضع الفاتح",
+  menu_parts_history: "قطع الغيار",
+  menu_parts_history_desc: "تتبع قطع الغيار المستبدلة",
+  menu_cost_calculator: "حاسبة التكلفة",
+  menu_cost_calculator_desc: "تقدير تكاليف الإصلاح",
+  screen_parts_history: "قطع الغيار",
+  screen_cost_calculator: "حاسبة التكلفة",
 };
 
 const fr: T = {
@@ -750,6 +780,16 @@ const fr: T = {
   vehicle_photo_pick_title: "Photo du véhicule",
   vehicle_photo_camera: "Prendre une photo",
   vehicle_photo_gallery: "Choisir dans la galerie",
+  settings_appearance: "Apparence",
+  settings_theme: "Thème",
+  settings_theme_dark: "Mode sombre",
+  settings_theme_light: "Mode clair",
+  menu_parts_history: "Pièces remplacées",
+  menu_parts_history_desc: "Historique des pièces",
+  menu_cost_calculator: "Calculateur de coût",
+  menu_cost_calculator_desc: "Estimer les réparations",
+  screen_parts_history: "Pièces remplacées",
+  screen_cost_calculator: "Calculateur de coût",
 };
 
 const es: T = { ...en,
