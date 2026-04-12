@@ -34,6 +34,14 @@
       "expo-font",
       "expo-web-browser",
       [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#E85D04",
+          "sounds": []
+        }
+      ],
+      [
         "expo-location",
         {
           "locationWhenInUsePermission": "GarageIQ needs your location to find nearby workshops."
