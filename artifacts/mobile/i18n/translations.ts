@@ -246,6 +246,47 @@ export type T = {
   cc_required_title: string;
   cc_update: string;
   cc_add: string;
+
+  add_vehicle_subtitle: string;
+  add_vehicle_field_vehicle: string;
+  add_vehicle_select_placeholder: string;
+  add_vehicle_field_mileage: string;
+  add_vehicle_field_license: string;
+  add_vehicle_field_color: string;
+  add_vehicle_field_notes: string;
+  add_vehicle_btn: string;
+  save_changes_btn: string;
+  vehicle_notes_any_info: string;
+  vehicle_missing_info_title: string;
+  vehicle_missing_info_msg: string;
+  vehicle_invalid_year_title: string;
+  vehicle_success_title: string;
+  vehicle_added_success: string;
+  vehicle_update_error: string;
+
+  form_no_vehicle_title: string;
+  form_no_input_title: string;
+  form_no_input_msg: string;
+  form_no_system_title: string;
+  form_no_system_msg: string;
+
+  vs_select_make: string;
+  vs_select_year: string;
+  vs_select_model: string;
+  vs_search_brand_ph: string;
+  vs_brand_subtitle: string;
+  vs_enter_brand_manual: string;
+  vs_brand_manual_ph: string;
+  vs_next: string;
+  vs_no_brands: string;
+  vs_search_model_ph: string;
+  vs_enter_model_manual: string;
+  vs_model_manual_ph: string;
+  vs_done: string;
+  vs_no_models: string;
+  vs_models_count: string;
+
+  ad_label: string;
 };
 
 const en: T = {
@@ -494,6 +535,47 @@ const en: T = {
   cc_required_title: "Required",
   cc_update: "Update",
   cc_add: "Add",
+
+  add_vehicle_subtitle: "Enter your vehicle details below",
+  add_vehicle_field_vehicle: "Vehicle *",
+  add_vehicle_select_placeholder: "Select make, year & model...",
+  add_vehicle_field_mileage: "Mileage (km)",
+  add_vehicle_field_license: "License Plate",
+  add_vehicle_field_color: "Color",
+  add_vehicle_field_notes: "Notes",
+  add_vehicle_btn: "Add Vehicle",
+  save_changes_btn: "Save Changes",
+  vehicle_notes_any_info: "Any additional info...",
+  vehicle_missing_info_title: "Missing Info",
+  vehicle_missing_info_msg: "Please select your vehicle make and model first.",
+  vehicle_invalid_year_title: "Invalid Year",
+  vehicle_success_title: "Success",
+  vehicle_added_success: "Vehicle added successfully",
+  vehicle_update_error: "Failed to update vehicle",
+
+  form_no_vehicle_title: "Select Vehicle",
+  form_no_input_title: "Add Input",
+  form_no_input_msg: "Please add a photo or describe the symptoms",
+  form_no_system_title: "Select System",
+  form_no_system_msg: "Please select at least one affected system",
+
+  vs_select_make: "Select Make",
+  vs_select_year: "Select Year",
+  vs_select_model: "Select Model",
+  vs_search_brand_ph: "Search brand...",
+  vs_brand_subtitle: "Search or enter your car brand",
+  vs_enter_brand_manual: "Enter brand manually",
+  vs_brand_manual_ph: "e.g. Haval, MG, Geely...",
+  vs_next: "Next",
+  vs_no_brands: "No brands found. Use \"Enter brand manually\" above.",
+  vs_search_model_ph: "Search model...",
+  vs_enter_model_manual: "Enter model manually",
+  vs_model_manual_ph: "Model name...",
+  vs_done: "Done",
+  vs_no_models: "No models found. Use \"Enter model manually\" above.",
+  vs_models_count: "models",
+
+  ad_label: "Advertisement",
 };
 
 const ar: T = {
@@ -742,6 +824,47 @@ const ar: T = {
   cc_required_title: "مطلوب",
   cc_update: "تحديث",
   cc_add: "إضافة",
+
+  add_vehicle_subtitle: "أدخل تفاصيل مركبتك أدناه",
+  add_vehicle_field_vehicle: "المركبة *",
+  add_vehicle_select_placeholder: "اختر الماركة والسنة والموديل...",
+  add_vehicle_field_mileage: "المسافة (كم)",
+  add_vehicle_field_license: "لوحة الترقيم",
+  add_vehicle_field_color: "اللون",
+  add_vehicle_field_notes: "ملاحظات",
+  add_vehicle_btn: "إضافة مركبة",
+  save_changes_btn: "حفظ التغييرات",
+  vehicle_notes_any_info: "أي معلومات إضافية...",
+  vehicle_missing_info_title: "معلومات ناقصة",
+  vehicle_missing_info_msg: "يرجى اختيار ماركة وموديل المركبة أولاً.",
+  vehicle_invalid_year_title: "سنة غير صحيحة",
+  vehicle_success_title: "تم بنجاح",
+  vehicle_added_success: "تمت إضافة المركبة بنجاح",
+  vehicle_update_error: "فشل في تحديث المركبة",
+
+  form_no_vehicle_title: "اختر مركبة",
+  form_no_input_title: "أضف مدخلاً",
+  form_no_input_msg: "يرجى إضافة صورة أو وصف الأعراض",
+  form_no_system_title: "اختر نظاماً",
+  form_no_system_msg: "يرجى اختيار نظام واحد على الأقل",
+
+  vs_select_make: "اختر الماركة",
+  vs_select_year: "اختر السنة",
+  vs_select_model: "اختر الموديل",
+  vs_search_brand_ph: "ابحث عن الماركة...",
+  vs_brand_subtitle: "ابحث أو أدخل ماركة سيارتك",
+  vs_enter_brand_manual: "أدخل الماركة يدوياً",
+  vs_brand_manual_ph: "مثال: هافال، MG، جيلي...",
+  vs_next: "التالي",
+  vs_no_brands: "لم يتم العثور على ماركات. استخدم \"أدخل الماركة يدوياً\".",
+  vs_search_model_ph: "ابحث عن الموديل...",
+  vs_enter_model_manual: "أدخل الموديل يدوياً",
+  vs_model_manual_ph: "اسم الموديل...",
+  vs_done: "تم",
+  vs_no_models: "لم يتم العثور على موديلات. استخدم \"أدخل الموديل يدوياً\".",
+  vs_models_count: "موديل",
+
+  ad_label: "إعلان",
 };
 
 const fr: T = {
@@ -990,6 +1113,47 @@ const fr: T = {
   cc_required_title: "Requis",
   cc_update: "Mettre à jour",
   cc_add: "Ajouter",
+
+  add_vehicle_subtitle: "Entrez les détails de votre véhicule ci-dessous",
+  add_vehicle_field_vehicle: "Véhicule *",
+  add_vehicle_select_placeholder: "Sélectionnez la marque, l'année et le modèle...",
+  add_vehicle_field_mileage: "Kilométrage (km)",
+  add_vehicle_field_license: "Plaque d'immatriculation",
+  add_vehicle_field_color: "Couleur",
+  add_vehicle_field_notes: "Notes",
+  add_vehicle_btn: "Ajouter un Véhicule",
+  save_changes_btn: "Enregistrer",
+  vehicle_notes_any_info: "Informations supplémentaires...",
+  vehicle_missing_info_title: "Infos manquantes",
+  vehicle_missing_info_msg: "Veuillez sélectionner la marque et le modèle de votre véhicule.",
+  vehicle_invalid_year_title: "Année invalide",
+  vehicle_success_title: "Succès",
+  vehicle_added_success: "Véhicule ajouté avec succès",
+  vehicle_update_error: "Échec de la mise à jour du véhicule",
+
+  form_no_vehicle_title: "Sélectionner un Véhicule",
+  form_no_input_title: "Ajouter des infos",
+  form_no_input_msg: "Veuillez ajouter une photo ou décrire les symptômes",
+  form_no_system_title: "Sélectionner un Système",
+  form_no_system_msg: "Veuillez sélectionner au moins un système affecté",
+
+  vs_select_make: "Sélectionner la Marque",
+  vs_select_year: "Sélectionner l'Année",
+  vs_select_model: "Sélectionner le Modèle",
+  vs_search_brand_ph: "Rechercher une marque...",
+  vs_brand_subtitle: "Recherchez ou entrez votre marque",
+  vs_enter_brand_manual: "Saisir la marque manuellement",
+  vs_brand_manual_ph: "ex. Haval, MG, Geely...",
+  vs_next: "Suivant",
+  vs_no_brands: "Aucune marque trouvée. Utilisez \"Saisir la marque manuellement\".",
+  vs_search_model_ph: "Rechercher un modèle...",
+  vs_enter_model_manual: "Saisir le modèle manuellement",
+  vs_model_manual_ph: "Nom du modèle...",
+  vs_done: "Terminer",
+  vs_no_models: "Aucun modèle trouvé. Utilisez \"Saisir le modèle manuellement\".",
+  vs_models_count: "modèles",
+
+  ad_label: "Publicité",
 };
 
 const es: T = { ...en,

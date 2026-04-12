@@ -14,7 +14,6 @@ import {
 import { router, useLocalSearchParams } from "expo-router";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import Colors from "@/constants/colors";
 import { useCreateDiagnosis, getListDiagnosesQueryKey, ApiError } from "@workspace/api-client-react";
 import { useListVehicles } from "@/hooks/useLocalVehicles";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,6 +22,8 @@ import type { MaterialCommunityIconsName } from "@/types/icons";
 import { useLanguagePref, LANGUAGES } from "@/hooks/useLanguagePref";
 import { useI18n } from "@/i18n/TranslationContext";
 import type { T } from "@/i18n/translations";
+import { useTheme } from "@/context/ThemeContext";
+import type { AppColors } from "@/constants/colors";
 
 const SYSTEMS: Array<{ id: string; labelKey: keyof T; icon: MaterialCommunityIconsName }> = [
   { id: "engine", labelKey: "sys_engine", icon: "engine" },
@@ -61,6 +62,7 @@ export default function NewDiagnoseScreen() {
     system?: string;
   }>();
 
+  const { colors } = useTheme();
   const { data: vehicles } = useListVehicles();
   const queryClient = useQueryClient();
   const createDiagnosis = useCreateDiagnosis();
@@ -84,6 +86,8 @@ export default function NewDiagnoseScreen() {
   const [selectedCurrency, setSelectedCurrency] = useState("USD");
   const [selectedCondition, setSelectedCondition] = useState<string | null>(null);
   const [previousIssues, setPreviousIssues] = useState("");
+
+  const s = makeStyles(colors);
 
   const toggleSystem = (id: string) => {
     setSelectedSystems((prev) =>
@@ -147,15 +151,15 @@ export default function NewDiagnoseScreen() {
 
   const handleSubmit = async () => {
     if (!selectedVehicleId) {
-      Alert.alert("Select Vehicle", "Please select a vehicle to diagnose");
+      Alert.alert(t("form_no_vehicle_title"), t("form_select_vehicle"));
       return;
     }
     if (!symptoms.trim() && !photoBase64) {
-      Alert.alert("Add Input", "Please add a photo or describe the symptoms");
+      Alert.alert(t("form_no_input_title"), t("form_no_input_msg"));
       return;
     }
     if (selectedSystems.length === 0) {
-      Alert.alert("Select System", "Please select at least one affected system");
+      Alert.alert(t("form_no_system_title"), t("form_no_system_msg"));
       return;
     }
 
@@ -238,29 +242,29 @@ export default function NewDiagnoseScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <View style={s.container}>
+      <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         {/* Vehicle Select */}
-        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>{t("form_select_vehicle")}</Text>
+        <Text style={[s.sectionLabel, isRTL && s.textRight]}>{t("form_select_vehicle")}</Text>
         {!vehicles || vehicles.length === 0 ? (
-          <Pressable style={[styles.addVehicleBtn, isRTL && styles.rowReverse]} onPress={() => router.push("/vehicle/add")}>
-            <Ionicons name="add-circle-outline" size={20} color={Colors.accent} />
-            <Text style={styles.addVehicleText}>{t("form_add_vehicle_first")}</Text>
+          <Pressable style={[s.addVehicleBtn, isRTL && s.rowReverse]} onPress={() => router.push("/vehicle/add")}>
+            <Ionicons name="add-circle-outline" size={20} color={colors.accent} />
+            <Text style={s.addVehicleText}>{t("form_add_vehicle_first")}</Text>
           </Pressable>
         ) : (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.vehicleScroll}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.vehicleScroll}>
             {vehicles.map((v) => (
               <Pressable
                 key={v.id}
-                style={[styles.vehicleChip, selectedVehicleId === v.id && styles.vehicleChipSelected]}
+                style={[s.vehicleChip, selectedVehicleId === v.id && s.vehicleChipSelected]}
                 onPress={() => setSelectedVehicleId(v.id)}
               >
                 <MaterialCommunityIcons
                   name="car"
                   size={16}
-                  color={selectedVehicleId === v.id ? Colors.accent : Colors.textSecondary}
+                  color={selectedVehicleId === v.id ? colors.accent : colors.textSecondary}
                 />
-                <Text style={[styles.vehicleChipText, selectedVehicleId === v.id && styles.vehicleChipTextSelected]}>
+                <Text style={[s.vehicleChipText, selectedVehicleId === v.id && s.vehicleChipTextSelected]}>
                   {v.year} {v.make} {v.model}
                 </Text>
               </Pressable>
@@ -269,13 +273,13 @@ export default function NewDiagnoseScreen() {
         )}
 
         {/* Symptoms */}
-        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>{t("form_symptoms_label")}</Text>
+        <Text style={[s.sectionLabel, isRTL && s.textRight]}>{t("form_symptoms_label")}</Text>
         <TextInput
-          style={[styles.textArea, isRTL && styles.textRight]}
+          style={[s.textArea, isRTL && s.textRight]}
           multiline
           numberOfLines={4}
           placeholder={t("form_symptoms_placeholder")}
-          placeholderTextColor={Colors.textTertiary}
+          placeholderTextColor={colors.textTertiary}
           value={symptoms}
           onChangeText={setSymptoms}
           textAlignVertical="top"
@@ -283,57 +287,57 @@ export default function NewDiagnoseScreen() {
         />
 
         {/* Photo */}
-        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>
-          {t("form_photo_label")} <Text style={styles.optional}>({t("form_optional")})</Text>
+        <Text style={[s.sectionLabel, isRTL && s.textRight]}>
+          {t("form_photo_label")} <Text style={s.optional}>({t("form_optional")})</Text>
         </Text>
         {photoUri ? (
-          <View style={styles.photoPreviewContainer}>
-            <Image source={{ uri: photoUri }} style={styles.photoPreview} resizeMode="cover" />
+          <View style={s.photoPreviewContainer}>
+            <Image source={{ uri: photoUri }} style={s.photoPreview} resizeMode="cover" />
             <Pressable
-              style={styles.removePhotoBtn}
+              style={s.removePhotoBtn}
               onPress={handleRemovePhoto}
               testID="remove-photo-btn"
             >
-              <Ionicons name="close-circle" size={26} color={Colors.accent} />
+              <Ionicons name="close-circle" size={26} color={colors.accent} />
             </Pressable>
           </View>
         ) : (
-          <View style={styles.photoButtonRow}>
+          <View style={s.photoButtonRow}>
             <Pressable
-              style={({ pressed }) => [styles.photoBtn, pressed && { opacity: 0.7 }]}
+              style={({ pressed }) => [s.photoBtn, pressed && { opacity: 0.7 }]}
               onPress={handleTakePhoto}
               testID="take-photo-btn"
             >
-              <Ionicons name="camera-outline" size={20} color={Colors.accent} />
-              <Text style={styles.photoBtnText}>{t("form_take_photo")}</Text>
+              <Ionicons name="camera-outline" size={20} color={colors.accent} />
+              <Text style={s.photoBtnText}>{t("form_take_photo")}</Text>
             </Pressable>
             <Pressable
-              style={({ pressed }) => [styles.photoBtn, pressed && { opacity: 0.7 }]}
+              style={({ pressed }) => [s.photoBtn, pressed && { opacity: 0.7 }]}
               onPress={handleChoosePhoto}
               testID="choose-photo-btn"
             >
-              <Ionicons name="image-outline" size={20} color={Colors.accent} />
-              <Text style={styles.photoBtnText}>{t("form_choose_photo")}</Text>
+              <Ionicons name="image-outline" size={20} color={colors.accent} />
+              <Text style={s.photoBtnText}>{t("form_choose_photo")}</Text>
             </Pressable>
           </View>
         )}
 
         {/* Systems */}
-        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>{t("form_systems_label")}</Text>
-        <View style={styles.systemGrid}>
+        <Text style={[s.sectionLabel, isRTL && s.textRight]}>{t("form_systems_label")}</Text>
+        <View style={s.systemGrid}>
           {SYSTEMS.map((sys) => (
             <Pressable
               key={sys.id}
-              style={[styles.systemChip, selectedSystems.includes(sys.id) && styles.systemChipSelected]}
+              style={[s.systemChip, selectedSystems.includes(sys.id) && s.systemChipSelected]}
               onPress={() => toggleSystem(sys.id)}
             >
               <MaterialCommunityIcons
                 name={sys.icon}
                 size={18}
-                color={selectedSystems.includes(sys.id) ? Colors.accent : Colors.textSecondary}
+                color={selectedSystems.includes(sys.id) ? colors.accent : colors.textSecondary}
               />
               <Text
-                style={[styles.systemChipText, selectedSystems.includes(sys.id) && styles.systemChipTextSelected]}
+                style={[s.systemChipText, selectedSystems.includes(sys.id) && s.systemChipTextSelected]}
               >
                 {t(sys.labelKey)}
               </Text>
@@ -342,17 +346,17 @@ export default function NewDiagnoseScreen() {
         </View>
 
         {/* Driving Conditions */}
-        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>
-          {t("form_conditions_label")} <Text style={styles.optional}>({t("form_optional")})</Text>
+        <Text style={[s.sectionLabel, isRTL && s.textRight]}>
+          {t("form_conditions_label")} <Text style={s.optional}>({t("form_optional")})</Text>
         </Text>
-        <View style={[styles.conditionRow, isRTL && styles.rowReverse]}>
+        <View style={[s.conditionRow, isRTL && s.rowReverse]}>
           {DRIVING_CONDITION_KEYS.map((cond) => (
             <Pressable
               key={cond.key}
-              style={[styles.conditionChip, selectedCondition === cond.key && styles.conditionChipSelected]}
+              style={[s.conditionChip, selectedCondition === cond.key && s.conditionChipSelected]}
               onPress={() => setSelectedCondition(selectedCondition === cond.key ? null : cond.key)}
             >
-              <Text style={[styles.conditionChipText, selectedCondition === cond.key && styles.conditionChipTextSelected]}>
+              <Text style={[s.conditionChipText, selectedCondition === cond.key && s.conditionChipTextSelected]}>
                 {t(cond.labelKey)}
               </Text>
             </Pressable>
@@ -360,15 +364,15 @@ export default function NewDiagnoseScreen() {
         </View>
 
         {/* Previous Issues */}
-        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>
-          {t("form_prev_issues_label")} <Text style={styles.optional}>({t("form_optional")})</Text>
+        <Text style={[s.sectionLabel, isRTL && s.textRight]}>
+          {t("form_prev_issues_label")} <Text style={s.optional}>({t("form_optional")})</Text>
         </Text>
         <TextInput
-          style={[styles.textArea, isRTL && styles.textRight]}
+          style={[s.textArea, isRTL && s.textRight]}
           multiline
           numberOfLines={3}
           placeholder={t("form_prev_issues_placeholder")}
-          placeholderTextColor={Colors.textTertiary}
+          placeholderTextColor={colors.textTertiary}
           value={previousIssues}
           onChangeText={setPreviousIssues}
           textAlignVertical="top"
@@ -376,13 +380,13 @@ export default function NewDiagnoseScreen() {
         />
 
         {/* Error Codes */}
-        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>
-          {t("form_error_codes_label")} <Text style={styles.optional}>({t("form_optional")})</Text>
+        <Text style={[s.sectionLabel, isRTL && s.textRight]}>
+          {t("form_error_codes_label")} <Text style={s.optional}>({t("form_optional")})</Text>
         </Text>
         <TextInput
-          style={[styles.input, isRTL && styles.textRight]}
+          style={[s.input, isRTL && s.textRight]}
           placeholder={t("form_error_codes_placeholder")}
-          placeholderTextColor={Colors.textTertiary}
+          placeholderTextColor={colors.textTertiary}
           value={errorCodes}
           onChangeText={setErrorCodes}
           autoCapitalize="characters"
@@ -390,18 +394,18 @@ export default function NewDiagnoseScreen() {
         />
 
         {/* Currency */}
-        <Text style={[styles.sectionLabel, isRTL && styles.textRight]}>{t("form_currency_label")}</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.currencyScroll}>
+        <Text style={[s.sectionLabel, isRTL && s.textRight]}>{t("form_currency_label")}</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={s.currencyScroll}>
           {CURRENCIES.map((c) => (
             <Pressable
               key={c.code}
-              style={[styles.currencyChip, selectedCurrency === c.code && styles.currencyChipSelected]}
+              style={[s.currencyChip, selectedCurrency === c.code && s.currencyChipSelected]}
               onPress={() => setSelectedCurrency(c.code)}
             >
-              <Text style={[styles.currencySymbol, selectedCurrency === c.code && styles.currencySymbolSelected]}>
+              <Text style={[s.currencySymbol, selectedCurrency === c.code && s.currencySymbolSelected]}>
                 {c.symbol}
               </Text>
-              <Text style={[styles.currencyCode, selectedCurrency === c.code && styles.currencyCodeSelected]}>
+              <Text style={[s.currencyCode, selectedCurrency === c.code && s.currencyCodeSelected]}>
                 {c.code}
               </Text>
             </Pressable>
@@ -409,19 +413,19 @@ export default function NewDiagnoseScreen() {
         </ScrollView>
 
         {/* Language indicator */}
-        <View style={[styles.languageRow, isRTL && styles.rowReverse]}>
-          <Ionicons name="language-outline" size={14} color={Colors.textTertiary} />
-          <Text style={styles.languageText}>
-            {t("form_language_prefix")} <Text style={styles.languageHighlight}>{selectedLangInfo.native}</Text>
+        <View style={[s.languageRow, isRTL && s.rowReverse]}>
+          <Ionicons name="language-outline" size={14} color={colors.textTertiary} />
+          <Text style={s.languageText}>
+            {t("form_language_prefix")} <Text style={s.languageHighlight}>{selectedLangInfo.native}</Text>
           </Text>
           <Pressable onPress={() => router.push("/screens/settings")}>
-            <Text style={styles.languageChange}>{t("form_change")}</Text>
+            <Text style={s.languageChange}>{t("form_change")}</Text>
           </Pressable>
         </View>
 
         {/* Submit */}
         <Pressable
-          style={({ pressed }) => [styles.submitBtn, (loading || !symptoms) && styles.submitDisabled, pressed && { opacity: 0.9 }]}
+          style={({ pressed }) => [s.submitBtn, (loading || !symptoms) && s.submitDisabled, pressed && { opacity: 0.9 }]}
           onPress={handleSubmit}
           disabled={loading}
           testID="diagnose-submit-btn"
@@ -431,7 +435,7 @@ export default function NewDiagnoseScreen() {
           ) : (
             <>
               <MaterialCommunityIcons name="stethoscope" size={20} color="#fff" />
-              <Text style={styles.submitText}>{t("form_diagnose_btn")}</Text>
+              <Text style={s.submitText}>{t("form_diagnose_btn")}</Text>
             </>
           )}
         </Pressable>
@@ -440,163 +444,165 @@ export default function NewDiagnoseScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.bg },
-  content: { padding: 20, paddingBottom: 40 },
-  rowReverse: { flexDirection: "row-reverse" },
-  textRight: { textAlign: "right" },
-  sectionLabel: { fontFamily: "Inter_600SemiBold", fontSize: 16, color: Colors.text, marginBottom: 10, marginTop: 20 },
-  optional: { fontFamily: "Inter_400Regular", fontSize: 14, color: Colors.textTertiary },
-  vehicleScroll: { marginBottom: 4 },
-  vehicleChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: Colors.card,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  vehicleChipSelected: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
-  vehicleChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.textSecondary },
-  vehicleChipTextSelected: { color: Colors.accent },
-  addVehicleBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: Colors.card,
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: Colors.accent + "40",
-  },
-  addVehicleText: { fontFamily: "Inter_500Medium", fontSize: 14, color: Colors.accent },
-  textArea: {
-    backgroundColor: Colors.card,
-    borderRadius: 14,
-    padding: 14,
-    color: Colors.text,
-    fontFamily: "Inter_400Regular",
-    fontSize: 14,
-    minHeight: 90,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    lineHeight: 20,
-  },
-  photoButtonRow: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  photoBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: Colors.card,
-    borderRadius: 12,
-    paddingVertical: 14,
-    borderWidth: 1,
-    borderColor: Colors.accent + "50",
-  },
-  photoBtnText: { fontFamily: "Inter_500Medium", fontSize: 14, color: Colors.accent },
-  photoPreviewContainer: {
-    position: "relative",
-    alignSelf: "flex-start",
-  },
-  photoPreview: {
-    width: 120,
-    height: 120,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  removePhotoBtn: {
-    position: "absolute",
-    top: -10,
-    right: -10,
-    backgroundColor: Colors.bg,
-    borderRadius: 13,
-  },
-  systemGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  systemChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: Colors.card,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  systemChipSelected: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
-  systemChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.textSecondary },
-  systemChipTextSelected: { color: Colors.accent },
-  conditionRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  conditionChip: {
-    backgroundColor: Colors.card,
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 9,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  conditionChipSelected: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
-  conditionChipText: { fontFamily: "Inter_500Medium", fontSize: 14, color: Colors.textSecondary },
-  conditionChipTextSelected: { color: Colors.accent },
-  currencyScroll: { marginBottom: 4 },
-  currencyChip: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: Colors.card,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    marginRight: 10,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    minWidth: 60,
-  },
-  currencyChipSelected: { borderColor: Colors.accent, backgroundColor: Colors.accent + "15" },
-  currencySymbol: { fontFamily: "Inter_700Bold", fontSize: 15, color: Colors.textSecondary },
-  currencySymbolSelected: { color: Colors.accent },
-  currencyCode: { fontFamily: "Inter_400Regular", fontSize: 11, color: Colors.textTertiary, marginTop: 2 },
-  currencyCodeSelected: { color: Colors.accent },
-  languageRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginTop: 10,
-    marginBottom: 4,
-    flexWrap: "wrap",
-  },
-  languageText: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textTertiary },
-  languageHighlight: { fontFamily: "Inter_600SemiBold", color: Colors.accent },
-  languageChange: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.accent, textDecorationLine: "underline" },
-  input: {
-    backgroundColor: Colors.card,
-    borderRadius: 14,
-    padding: 14,
-    color: Colors.text,
-    fontFamily: "Inter_400Regular",
-    fontSize: 14,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  submitBtn: {
-    backgroundColor: Colors.accent,
-    borderRadius: 14,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    marginTop: 30,
-  },
-  submitDisabled: { opacity: 0.5 },
-  submitText: { fontFamily: "Inter_700Bold", fontSize: 17, color: "#fff" },
-});
+function makeStyles(colors: AppColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bg },
+    content: { padding: 20, paddingBottom: 40 },
+    rowReverse: { flexDirection: "row-reverse" },
+    textRight: { textAlign: "right" },
+    sectionLabel: { fontFamily: "Inter_600SemiBold", fontSize: 16, color: colors.text, marginBottom: 10, marginTop: 20 },
+    optional: { fontFamily: "Inter_400Regular", fontSize: 14, color: colors.textTertiary },
+    vehicleScroll: { marginBottom: 4 },
+    vehicleChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      marginRight: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    vehicleChipSelected: { borderColor: colors.accent, backgroundColor: colors.accent + "15" },
+    vehicleChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: colors.textSecondary },
+    vehicleChipTextSelected: { color: colors.accent },
+    addVehicleBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: colors.accent + "40",
+    },
+    addVehicleText: { fontFamily: "Inter_500Medium", fontSize: 14, color: colors.accent },
+    textArea: {
+      backgroundColor: colors.card,
+      borderRadius: 14,
+      padding: 14,
+      color: colors.text,
+      fontFamily: "Inter_400Regular",
+      fontSize: 14,
+      minHeight: 90,
+      borderWidth: 1,
+      borderColor: colors.border,
+      lineHeight: 20,
+    },
+    photoButtonRow: {
+      flexDirection: "row",
+      gap: 12,
+    },
+    photoBtn: {
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 8,
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      paddingVertical: 14,
+      borderWidth: 1,
+      borderColor: colors.accent + "50",
+    },
+    photoBtnText: { fontFamily: "Inter_500Medium", fontSize: 14, color: colors.accent },
+    photoPreviewContainer: {
+      position: "relative",
+      alignSelf: "flex-start",
+    },
+    photoPreview: {
+      width: 120,
+      height: 120,
+      borderRadius: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    removePhotoBtn: {
+      position: "absolute",
+      top: -10,
+      right: -10,
+      backgroundColor: colors.bg,
+      borderRadius: 13,
+    },
+    systemGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+    systemChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      backgroundColor: colors.card,
+      borderRadius: 10,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    systemChipSelected: { borderColor: colors.accent, backgroundColor: colors.accent + "15" },
+    systemChipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: colors.textSecondary },
+    systemChipTextSelected: { color: colors.accent },
+    conditionRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+    conditionChip: {
+      backgroundColor: colors.card,
+      borderRadius: 10,
+      paddingHorizontal: 16,
+      paddingVertical: 9,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    conditionChipSelected: { borderColor: colors.accent, backgroundColor: colors.accent + "15" },
+    conditionChipText: { fontFamily: "Inter_500Medium", fontSize: 14, color: colors.textSecondary },
+    conditionChipTextSelected: { color: colors.accent },
+    currencyScroll: { marginBottom: 4 },
+    currencyChip: {
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 10,
+      marginRight: 10,
+      borderWidth: 1,
+      borderColor: colors.border,
+      minWidth: 60,
+    },
+    currencyChipSelected: { borderColor: colors.accent, backgroundColor: colors.accent + "15" },
+    currencySymbol: { fontFamily: "Inter_700Bold", fontSize: 15, color: colors.textSecondary },
+    currencySymbolSelected: { color: colors.accent },
+    currencyCode: { fontFamily: "Inter_400Regular", fontSize: 11, color: colors.textTertiary, marginTop: 2 },
+    currencyCodeSelected: { color: colors.accent },
+    languageRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      marginTop: 10,
+      marginBottom: 4,
+      flexWrap: "wrap",
+    },
+    languageText: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textTertiary },
+    languageHighlight: { fontFamily: "Inter_600SemiBold", color: colors.accent },
+    languageChange: { fontFamily: "Inter_500Medium", fontSize: 12, color: colors.accent, textDecorationLine: "underline" },
+    input: {
+      backgroundColor: colors.card,
+      borderRadius: 14,
+      padding: 14,
+      color: colors.text,
+      fontFamily: "Inter_400Regular",
+      fontSize: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    submitBtn: {
+      backgroundColor: colors.accent,
+      borderRadius: 14,
+      padding: 16,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 10,
+      marginTop: 30,
+    },
+    submitDisabled: { opacity: 0.5 },
+    submitText: { fontFamily: "Inter_700Bold", fontSize: 17, color: "#fff" },
+  });
+}

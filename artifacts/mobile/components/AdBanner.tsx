@@ -1,7 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet, Platform } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Colors from "@/constants/colors";
+import { useTheme } from "@/context/ThemeContext";
+import { useI18n } from "@/i18n/TranslationContext";
+import type { AppColors } from "@/constants/colors";
 
 const AD_UNIT_IDS = {
   banner: "ca-app-pub-8545693631358718/1498610826",
@@ -64,6 +66,10 @@ interface BannerAdProps {
 }
 
 export function BannerAd({ size = "banner" }: BannerAdProps) {
+  const { colors } = useTheme();
+  const { t } = useI18n();
+  const s = makeStyles(colors);
+
   if (isAdMobAvailable() && admob) {
     const { BannerAd: BannerAdComponent, BannerAdSize } = admob;
     const sizeMap: BannerAdSizeMap = {
@@ -83,9 +89,9 @@ export function BannerAd({ size = "banner" }: BannerAdProps) {
   }
 
   return (
-    <View style={styles.placeholder}>
-      <MaterialCommunityIcons name="advertisements" size={14} color={Colors.textTertiary} />
-      <Text style={styles.placeholderText}>Advertisement</Text>
+    <View style={s.placeholder}>
+      <MaterialCommunityIcons name="advertisements" size={14} color={colors.textTertiary} />
+      <Text style={s.placeholderText}>{t("ad_label")}</Text>
     </View>
   );
 }
@@ -158,23 +164,25 @@ export async function showRewardedAd(): Promise<boolean> {
   }
 }
 
-const styles = StyleSheet.create({
-  placeholder: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    backgroundColor: Colors.card,
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    minHeight: 52,
-  },
-  placeholderText: {
-    fontFamily: "Inter_400Regular",
-    fontSize: 12,
-    color: Colors.textTertiary,
-  },
-});
+function makeStyles(colors: AppColors) {
+  return StyleSheet.create({
+    placeholder: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 6,
+      backgroundColor: colors.card,
+      borderRadius: 8,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+      minHeight: 52,
+    },
+    placeholderText: {
+      fontFamily: "Inter_400Regular",
+      fontSize: 12,
+      color: colors.textTertiary,
+    },
+  });
+}

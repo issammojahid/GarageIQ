@@ -12,8 +12,10 @@ import {
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Colors from "@/constants/colors";
 import { filterMakes, getModelsForMake, getYears, CarMake } from "@/data/carData";
+import { useTheme } from "@/context/ThemeContext";
+import { useI18n } from "@/i18n/TranslationContext";
+import type { AppColors } from "@/constants/colors";
 
 type Step = "make" | "year" | "model";
 
@@ -43,6 +45,9 @@ export default function VehicleSelector({
   onConfirm,
   onClose,
 }: Props) {
+  const { colors } = useTheme();
+  const { t } = useI18n();
+
   const [step, setStep] = useState<Step>("make");
   const [searchMake, setSearchMake] = useState("");
   const [searchModel, setSearchModel] = useState("");
@@ -53,6 +58,8 @@ export default function VehicleSelector({
   const [customModel, setCustomModel] = useState("");
   const [useCustomMake, setUseCustomMake] = useState(false);
   const [useCustomModel, setUseCustomModel] = useState(false);
+
+  const s = makeStyles(colors);
 
   useEffect(() => {
     if (visible) {
@@ -118,43 +125,49 @@ export default function VehicleSelector({
 
   const activeMake = useCustomMake ? customMake.trim() : selectedMake;
 
-  const stepTitle = step === "make" ? "Select Make" : step === "year" ? "Select Year" : "Select Model";
+  const stepTitle =
+    step === "make"
+      ? t("vs_select_make")
+      : step === "year"
+      ? t("vs_select_year")
+      : t("vs_select_model");
+
   const stepSubtitle =
     step === "make"
-      ? "Search or enter your car brand"
+      ? t("vs_brand_subtitle")
       : step === "year"
       ? activeMake
       : `${activeMake} · ${selectedYear}`;
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={s.safeArea}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-          <View style={styles.header}>
-            <View style={styles.headerLeft}>
+          <View style={s.header}>
+            <View style={s.headerLeft}>
               {step !== "make" ? (
-                <Pressable onPress={handleBack} style={styles.backBtn} hitSlop={12}>
-                  <Ionicons name="chevron-back" size={22} color={Colors.text} />
+                <Pressable onPress={handleBack} style={s.backBtn} hitSlop={12}>
+                  <Ionicons name="chevron-back" size={22} color={colors.text} />
                 </Pressable>
               ) : null}
               <View style={{ flex: 1 }}>
-                <Text style={styles.headerTitle}>{stepTitle}</Text>
-                <Text style={styles.headerSubtitle} numberOfLines={1}>{stepSubtitle}</Text>
+                <Text style={s.headerTitle}>{stepTitle}</Text>
+                <Text style={s.headerSubtitle} numberOfLines={1}>{stepSubtitle}</Text>
               </View>
             </View>
-            <Pressable onPress={onClose} style={styles.closeBtn} hitSlop={12}>
-              <Ionicons name="close" size={22} color={Colors.textSecondary} />
+            <Pressable onPress={onClose} style={s.closeBtn} hitSlop={12}>
+              <Ionicons name="close" size={22} color={colors.textSecondary} />
             </Pressable>
           </View>
 
           {step === "make" && (
             <View style={{ flex: 1 }}>
-              <View style={styles.searchRow}>
-                <Ionicons name="search" size={16} color={Colors.textTertiary} style={styles.searchIcon} />
+              <View style={s.searchRow}>
+                <Ionicons name="search" size={16} color={colors.textTertiary} style={s.searchIcon} />
                 <TextInput
-                  style={styles.searchInput}
-                  placeholder="Search brand..."
-                  placeholderTextColor={Colors.textTertiary}
+                  style={s.searchInput}
+                  placeholder={t("vs_search_brand_ph")}
+                  placeholderTextColor={colors.textTertiary}
                   value={searchMake}
                   onChangeText={setSearchMake}
                   autoFocus
@@ -162,31 +175,31 @@ export default function VehicleSelector({
                 />
                 {searchMake.length > 0 && (
                   <Pressable onPress={() => setSearchMake("")} hitSlop={8}>
-                    <Ionicons name="close-circle" size={16} color={Colors.textTertiary} />
+                    <Ionicons name="close-circle" size={16} color={colors.textTertiary} />
                   </Pressable>
                 )}
               </View>
 
               <Pressable
-                style={styles.customToggleRow}
+                style={s.customToggleRow}
                 onPress={() => setUseCustomMake(!useCustomMake)}
               >
                 <Ionicons
                   name={useCustomMake ? "checkbox" : "square-outline"}
                   size={18}
-                  color={useCustomMake ? Colors.accent : Colors.textSecondary}
+                  color={useCustomMake ? colors.accent : colors.textSecondary}
                 />
-                <Text style={[styles.customLabel, useCustomMake && { color: Colors.accent }]}>
-                  Enter brand manually
+                <Text style={[s.customLabel, useCustomMake && { color: colors.accent }]}>
+                  {t("vs_enter_brand_manual")}
                 </Text>
               </Pressable>
 
               {useCustomMake ? (
-                <View style={styles.customInputRow}>
+                <View style={s.customInputRow}>
                   <TextInput
-                    style={[styles.searchInput, { flex: 1 }]}
-                    placeholder="e.g. Haval, MG, Geely..."
-                    placeholderTextColor={Colors.textTertiary}
+                    style={[s.searchInput, { flex: 1 }]}
+                    placeholder={t("vs_brand_manual_ph")}
+                    placeholderTextColor={colors.textTertiary}
                     value={customMake}
                     onChangeText={setCustomMake}
                     autoFocus
@@ -194,11 +207,11 @@ export default function VehicleSelector({
                     onSubmitEditing={handleConfirmCustomMake}
                   />
                   <Pressable
-                    style={[styles.confirmBtn, !customMake.trim() && { opacity: 0.4 }]}
+                    style={[s.confirmBtn, !customMake.trim() && { opacity: 0.4 }]}
                     onPress={handleConfirmCustomMake}
                     disabled={!customMake.trim()}
                   >
-                    <Text style={styles.confirmBtnText}>Next</Text>
+                    <Text style={s.confirmBtnText}>{t("vs_next")}</Text>
                   </Pressable>
                 </View>
               ) : null}
@@ -207,32 +220,32 @@ export default function VehicleSelector({
                 data={filteredMakes}
                 keyExtractor={(item) => item.name}
                 keyboardShouldPersistTaps="handled"
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={s.listContent}
                 renderItem={({ item }) => {
                   const isSelected = item.name === selectedMake && !useCustomMake;
                   return (
                     <Pressable
                       style={({ pressed }) => [
-                        styles.listItem,
-                        pressed && styles.listItemPressed,
-                        isSelected && styles.listItemSelected,
+                        s.listItem,
+                        pressed && s.listItemPressed,
+                        isSelected && s.listItemSelected,
                       ]}
                       onPress={() => handlePickMake(item)}
                     >
-                      <Text style={[styles.listItemText, isSelected && styles.listItemTextSelected]}>
+                      <Text style={[s.listItemText, isSelected && s.listItemTextSelected]}>
                         {item.name}
                       </Text>
-                      <Text style={styles.listItemMeta}>{item.models.length} models</Text>
+                      <Text style={s.listItemMeta}>{item.models.length} {t("vs_models_count")}</Text>
                       {isSelected ? (
-                        <Ionicons name="checkmark" size={18} color={Colors.accent} />
+                        <Ionicons name="checkmark" size={18} color={colors.accent} />
                       ) : (
-                        <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
+                        <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
                       )}
                     </Pressable>
                   );
                 }}
                 ListEmptyComponent={
-                  <Text style={styles.emptyText}>No brands found. Use "Enter brand manually" above.</Text>
+                  <Text style={s.emptyText}>{t("vs_no_brands")}</Text>
                 }
               />
             </View>
@@ -242,21 +255,21 @@ export default function VehicleSelector({
             <FlatList
               data={YEARS}
               keyExtractor={(y) => String(y)}
-              contentContainerStyle={styles.listContent}
+              contentContainerStyle={s.listContent}
               renderItem={({ item: year }) => (
                 <Pressable
                   style={({ pressed }) => [
-                    styles.listItem,
-                    pressed && styles.listItemPressed,
-                    year === selectedYear && styles.listItemSelected,
+                    s.listItem,
+                    pressed && s.listItemPressed,
+                    year === selectedYear && s.listItemSelected,
                   ]}
                   onPress={() => handlePickYear(year)}
                 >
-                  <Text style={[styles.listItemText, year === selectedYear && styles.listItemTextSelected]}>
+                  <Text style={[s.listItemText, year === selectedYear && s.listItemTextSelected]}>
                     {year}
                   </Text>
                   {year === selectedYear && (
-                    <Ionicons name="checkmark" size={18} color={Colors.accent} />
+                    <Ionicons name="checkmark" size={18} color={colors.accent} />
                   )}
                 </Pressable>
               )}
@@ -267,43 +280,43 @@ export default function VehicleSelector({
 
           {step === "model" && (
             <View style={{ flex: 1 }}>
-              <View style={styles.searchRow}>
-                <Ionicons name="search" size={16} color={Colors.textTertiary} style={styles.searchIcon} />
+              <View style={s.searchRow}>
+                <Ionicons name="search" size={16} color={colors.textTertiary} style={s.searchIcon} />
                 <TextInput
-                  style={styles.searchInput}
-                  placeholder="Search model..."
-                  placeholderTextColor={Colors.textTertiary}
+                  style={s.searchInput}
+                  placeholder={t("vs_search_model_ph")}
+                  placeholderTextColor={colors.textTertiary}
                   value={searchModel}
                   onChangeText={setSearchModel}
                   returnKeyType="search"
                 />
                 {searchModel.length > 0 && (
                   <Pressable onPress={() => setSearchModel("")} hitSlop={8}>
-                    <Ionicons name="close-circle" size={16} color={Colors.textTertiary} />
+                    <Ionicons name="close-circle" size={16} color={colors.textTertiary} />
                   </Pressable>
                 )}
               </View>
 
               <Pressable
-                style={styles.customToggleRow}
+                style={s.customToggleRow}
                 onPress={() => setUseCustomModel(!useCustomModel)}
               >
                 <Ionicons
                   name={useCustomModel ? "checkbox" : "square-outline"}
                   size={18}
-                  color={useCustomModel ? Colors.accent : Colors.textSecondary}
+                  color={useCustomModel ? colors.accent : colors.textSecondary}
                 />
-                <Text style={[styles.customLabel, useCustomModel && { color: Colors.accent }]}>
-                  Enter model manually
+                <Text style={[s.customLabel, useCustomModel && { color: colors.accent }]}>
+                  {t("vs_enter_model_manual")}
                 </Text>
               </Pressable>
 
               {useCustomModel ? (
-                <View style={styles.customInputRow}>
+                <View style={s.customInputRow}>
                   <TextInput
-                    style={[styles.searchInput, { flex: 1 }]}
-                    placeholder="Model name..."
-                    placeholderTextColor={Colors.textTertiary}
+                    style={[s.searchInput, { flex: 1 }]}
+                    placeholder={t("vs_model_manual_ph")}
+                    placeholderTextColor={colors.textTertiary}
                     value={customModel}
                     onChangeText={setCustomModel}
                     autoFocus
@@ -311,11 +324,11 @@ export default function VehicleSelector({
                     onSubmitEditing={handleConfirmCustomModel}
                   />
                   <Pressable
-                    style={[styles.confirmBtn, !customModel.trim() && { opacity: 0.4 }]}
+                    style={[s.confirmBtn, !customModel.trim() && { opacity: 0.4 }]}
                     onPress={handleConfirmCustomModel}
                     disabled={!customModel.trim()}
                   >
-                    <Text style={styles.confirmBtnText}>Done</Text>
+                    <Text style={s.confirmBtnText}>{t("vs_done")}</Text>
                   </Pressable>
                 </View>
               ) : null}
@@ -324,32 +337,32 @@ export default function VehicleSelector({
                 data={filteredModels}
                 keyExtractor={(m) => m}
                 keyboardShouldPersistTaps="handled"
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={s.listContent}
                 renderItem={({ item: model }) => {
                   const isSelected = model === selectedModel;
                   return (
                     <Pressable
                       style={({ pressed }) => [
-                        styles.listItem,
-                        pressed && styles.listItemPressed,
-                        isSelected && styles.listItemSelected,
+                        s.listItem,
+                        pressed && s.listItemPressed,
+                        isSelected && s.listItemSelected,
                       ]}
                       onPress={() => handlePickModel(model)}
                     >
-                      <Text style={[styles.listItemText, isSelected && styles.listItemTextSelected]}>
+                      <Text style={[s.listItemText, isSelected && s.listItemTextSelected]}>
                         {model}
                       </Text>
                       {isSelected ? (
-                        <Ionicons name="checkmark" size={18} color={Colors.accent} />
+                        <Ionicons name="checkmark" size={18} color={colors.accent} />
                       ) : (
-                        <Ionicons name="chevron-forward" size={16} color={Colors.textTertiary} />
+                        <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
                       )}
                     </Pressable>
                   );
                 }}
                 ListEmptyComponent={
                   !useCustomModel ? (
-                    <Text style={styles.emptyText}>No models found. Use "Enter model manually" above.</Text>
+                    <Text style={s.emptyText}>{t("vs_no_models")}</Text>
                   ) : null
                 }
               />
@@ -361,88 +374,90 @@ export default function VehicleSelector({
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: Colors.bg },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 8, flex: 1 },
-  backBtn: { padding: 4 },
-  closeBtn: { padding: 4 },
-  headerTitle: { fontFamily: "Inter_700Bold", fontSize: 16, color: Colors.text },
-  headerSubtitle: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textSecondary, marginTop: 1 },
-  searchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.card,
-    borderRadius: 12,
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 4,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  searchIcon: { marginRight: 8 },
-  searchInput: {
-    flex: 1,
-    color: Colors.text,
-    fontFamily: "Inter_400Regular",
-    fontSize: 14,
-    paddingVertical: 12,
-  },
-  listContent: { paddingBottom: 40 },
-  listItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    height: 52,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  listItemPressed: { backgroundColor: Colors.card },
-  listItemSelected: { backgroundColor: Colors.card2 },
-  listItemText: { flex: 1, fontFamily: "Inter_400Regular", fontSize: 15, color: Colors.text },
-  listItemTextSelected: { fontFamily: "Inter_600SemiBold", color: Colors.accent },
-  listItemMeta: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.textTertiary, marginRight: 8 },
-  emptyText: {
-    textAlign: "center",
-    color: Colors.textSecondary,
-    fontFamily: "Inter_400Regular",
-    fontSize: 14,
-    padding: 24,
-  },
-  customToggleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  customLabel: { fontFamily: "Inter_400Regular", fontSize: 14, color: Colors.textSecondary },
-  customInputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-    backgroundColor: Colors.card2,
-  },
-  confirmBtn: {
-    backgroundColor: Colors.accent,
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-  },
-  confirmBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: "#fff" },
-});
+function makeStyles(colors: AppColors) {
+  return StyleSheet.create({
+    safeArea: { flex: 1, backgroundColor: colors.bg },
+    header: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    headerLeft: { flexDirection: "row", alignItems: "center", gap: 8, flex: 1 },
+    backBtn: { padding: 4 },
+    closeBtn: { padding: 4 },
+    headerTitle: { fontFamily: "Inter_700Bold", fontSize: 16, color: colors.text },
+    headerSubtitle: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textSecondary, marginTop: 1 },
+    searchRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      marginHorizontal: 16,
+      marginTop: 12,
+      marginBottom: 4,
+      paddingHorizontal: 12,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    searchIcon: { marginRight: 8 },
+    searchInput: {
+      flex: 1,
+      color: colors.text,
+      fontFamily: "Inter_400Regular",
+      fontSize: 14,
+      paddingVertical: 12,
+    },
+    listContent: { paddingBottom: 40 },
+    listItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      paddingHorizontal: 20,
+      height: 52,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    listItemPressed: { backgroundColor: colors.card },
+    listItemSelected: { backgroundColor: colors.card2 },
+    listItemText: { flex: 1, fontFamily: "Inter_400Regular", fontSize: 15, color: colors.text },
+    listItemTextSelected: { fontFamily: "Inter_600SemiBold", color: colors.accent },
+    listItemMeta: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textTertiary, marginRight: 8 },
+    emptyText: {
+      textAlign: "center",
+      color: colors.textSecondary,
+      fontFamily: "Inter_400Regular",
+      fontSize: 14,
+      padding: 24,
+    },
+    customToggleRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    customLabel: { fontFamily: "Inter_400Regular", fontSize: 14, color: colors.textSecondary },
+    customInputRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      backgroundColor: colors.card2,
+    },
+    confirmBtn: {
+      backgroundColor: colors.accent,
+      borderRadius: 10,
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+    },
+    confirmBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: "#fff" },
+  });
+}
