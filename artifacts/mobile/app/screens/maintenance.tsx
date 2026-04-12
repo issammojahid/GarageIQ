@@ -80,7 +80,7 @@ function RecordItem({ item, onEdit, onDelete }: RecordItemProps) {
     } else {
       Alert.alert(
         "Permission denied",
-        "Notification permission is required. Please enable it in your device settings to receive reminders."
+        "Notifications are blocked. To receive reminders, enable them in your device Settings → Notifications → GarageIQ. In the meantime, you can set a calendar reminder for this date manually."
       );
     }
   };
@@ -101,16 +101,16 @@ function RecordItem({ item, onEdit, onDelete }: RecordItemProps) {
 
   const handleMarkDone = async () => {
     Alert.alert(
-      "Mark as done",
-      `Mark "${item.type}" as completed and cancel the reminder?`,
+      "Dismiss reminder",
+      `Dismiss the reminder for "${item.type}"?`,
       [
-        { text: "Cancel", style: "cancel" },
+        { text: "Keep", style: "cancel" },
         {
-          text: "Mark done",
+          text: "Dismiss",
+          style: "destructive",
           onPress: async () => {
             await cancelMaintenanceReminder(item.id);
             await refresh();
-            Alert.alert("Done!", `Reminder for ${item.type} has been cancelled.`);
           },
         },
       ]
@@ -156,7 +156,7 @@ function RecordItem({ item, onEdit, onDelete }: RecordItemProps) {
             {reminder && (
               <Pressable style={styles.doneBtn} onPress={handleMarkDone}>
                 <Ionicons name="checkmark-circle-outline" size={13} color={Colors.success} />
-                <Text style={styles.doneBtnText}>Mark done</Text>
+                <Text style={styles.doneBtnText}>Dismiss reminder</Text>
               </Pressable>
             )}
           </View>
