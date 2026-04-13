@@ -42,8 +42,8 @@ export default function SettingsScreen() {
       titleKey: "settings_app_info",
       items: [
         { icon: "information-outline", labelKey: "settings_version", value: "1.0.0", type: "info" },
-        { icon: "shield-lock-outline", labelKey: "settings_privacy", type: "link", url: "https://garageiq.app/privacy" },
-        { icon: "file-document-outline", labelKey: "settings_terms", type: "link", url: "https://garageiq.app/terms" },
+        { icon: "shield-lock-outline", labelKey: "settings_privacy", type: "link", url: "https://www.garageiq.xyz/privacy" },
+        { icon: "file-document-outline", labelKey: "settings_terms", type: "link", url: "https://www.garageiq.xyz/terms" },
       ],
     },
     {
