@@ -8,7 +8,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_DOMAIN": "garageiq.onrender.com"
+        "EXPO_PUBLIC_DOMAIN": "workspaceapi-server-production-02f4.up.railway.app"
       }
     },
     "production": {
@@ -16,7 +16,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_DOMAIN": "garageiq.onrender.com"
+        "EXPO_PUBLIC_DOMAIN": "workspaceapi-server-production-02f4.up.railway.app"
       }
     }
   }
