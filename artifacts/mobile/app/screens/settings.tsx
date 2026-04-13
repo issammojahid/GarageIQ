@@ -128,7 +128,7 @@ export default function SettingsScreen() {
 
         {/* For Mechanics Section */}
         <View style={s.section}>
-          <Text style={[s.sectionTitle, isRTL && s.textRight]}>{t("settings_for_mechanics")}</Text>
+          <Text style={[s.sectionTitle, isRTL && s.textRight]}>{t("menu_mechanic_register")}</Text>
           <View style={s.sectionCard}>
             <Pressable
               style={({ pressed }) => [s.settingRow, isRTL && s.rowReverse, pressed && { opacity: 0.7 }]}

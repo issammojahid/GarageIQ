@@ -118,7 +118,7 @@ export default function DiagnoseTab() {
 
         {/* Become a Mechanic CTA */}
         <Pressable
-          style={({ pressed }) => [s.mechCta, pressed && { opacity: 0.88 }]}
+          style={({ pressed }) => [s.mechCta, isRTL && s.rowReverse, pressed && { opacity: 0.88 }]}
           onPress={() => router.push("/screens/mechanic-register")}
         >
           <MaterialCommunityIcons name="garage-open" size={28} color={colors.accent} />
