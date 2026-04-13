@@ -41,7 +41,7 @@ export default function SettingsScreen() {
     {
       titleKey: "settings_app_info",
       items: [
-        { icon: "information-outline", labelKey: "settings_version", value: "1.0.0", type: "info" },
+        { icon: "information-outline", labelKey: "settings_version", value: "2.5.5", type: "info" },
         { icon: "shield-lock-outline", labelKey: "settings_privacy", type: "link", url: "https://www.garageiq.xyz/privacy" },
         { icon: "file-document-outline", labelKey: "settings_terms", type: "link", url: "https://www.garageiq.xyz/terms" },
       ],
