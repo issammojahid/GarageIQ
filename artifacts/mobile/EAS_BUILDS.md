@@ -1,5 +1,16 @@
 # EAS Build History
 
+## v2.5.5 — Build #3 (Task #21) — CRASH FIX
+- **Date**: 2026-04-13
+- **Profile**: preview (APK)
+- **Platform**: Android
+- **versionCode**: 6
+- **Build ID**: f090dabc-6f10-4f30-9fbd-a85c1222a6de
+- **Build URL**: https://expo.dev/accounts/aisoteam/projects/mobile/builds/f090dabc-6f10-4f30-9fbd-a85c1222a6de
+- **Status**: IN_QUEUE (free tier, ~160 min)
+- **EXPO_PUBLIC_DOMAIN**: workspaceapi-server-production-02f4.up.railway.app
+- **Fix**: Downgraded `expo-image-manipulator` 55.0.15→14.0.8, `react-native-keyboard-controller` 1.21.1→1.18.5, `react-native-webview` 13.16.1→13.15.0
+
 ## v2.5.5 — Build #2 (Task #18)
 - **Date**: 2026-04-13
 - **Profile**: preview (APK)
