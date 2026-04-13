@@ -11,6 +11,7 @@
     "server:build": "pnpm --filter @workspace/api-server run build",
     "server:dev": "node --enable-source-maps artifacts/api-server/dist/index.mjs"
   },
+  "packageManager": "pnpm@10.26.1",
   "private": true,
   "devDependencies": {
     "typescript": "~5.9.2",
