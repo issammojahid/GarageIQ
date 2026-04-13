@@ -47,3 +47,5 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+# Pasted log files
+attached_assets/Pasted--message-timestamp-*
