@@ -1,5 +1,16 @@
 # EAS Build History
 
+## v2.5.5 — Build #5 (Task #24) — NEW ARCH DISABLED
+- **Date**: 2026-04-14
+- **Profile**: preview (APK)
+- **Platform**: Android
+- **versionCode**: 6
+- **Build ID**: 89709d7a-0866-4288-b392-d3769e0900a4
+- **Build URL**: https://expo.dev/accounts/aisoteam/projects/mobile/builds/89709d7a-0866-4288-b392-d3769e0900a4
+- **Status**: IN_QUEUE
+- **EXPO_PUBLIC_DOMAIN**: workspaceapi-server-production-02f4.up.railway.app
+- **Fix**: `newArchEnabled: false`, removed `react-native-worklets` + `expo-glass-effect` (unused)
+
 ## v2.5.5 — Build #4 (Task #23) — STABLE
 - **Date**: 2026-04-13
 - **Profile**: preview (APK)
