@@ -7,7 +7,9 @@
 - **versionCode**: 6
 - **Build ID**: 2fef4b9e-1bda-4aa1-9c15-ae14bef80c51
 - **Build URL**: https://expo.dev/accounts/aisoteam/projects/mobile/builds/2fef4b9e-1bda-4aa1-9c15-ae14bef80c51
-- **Status**: IN_QUEUE (free tier, ~160 min)
+- **Status**: FINISHED ✅
+- **APK Download**: https://expo.dev/artifacts/eas/6Vj9pSSLRa542jdARLTxak.apk
+- **Completed**: 2026-04-13T23:47:35Z
 - **EXPO_PUBLIC_DOMAIN**: workspaceapi-server-production-02f4.up.railway.app
 - **Packages**: expo-image-manipulator ~14.0.8, react-native-keyboard-controller ~1.18.5, react-native-webview 13.15.0
 
