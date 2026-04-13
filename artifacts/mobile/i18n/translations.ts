@@ -169,6 +169,7 @@ export type T = {
   settings_modal_desc: string;
   settings_ads: string;
   settings_footer: string;
+  settings_for_mechanics: string;
 
   filter_all: string;
   filter_all_vehicles: string;
@@ -591,6 +592,7 @@ const en: T = {
   settings_modal_desc: "The AI mechanic will respond in your selected language.",
   settings_ads: "GarageIQ uses ads to remain free. Your data stays on your device and is never sold.",
   settings_footer: "Made with care for car enthusiasts everywhere",
+  settings_for_mechanics: "For Mechanics",
 
   filter_all: "All",
   filter_all_vehicles: "All Vehicles",
@@ -1013,6 +1015,7 @@ const ar: T = {
   settings_modal_desc: "سيرد ميكانيكي الذكاء الاصطناعي بلغتك المختارة.",
   settings_ads: "يستخدم GarageIQ الإعلانات ليبقى مجانياً. بياناتك تبقى على جهازك ولا تُباع أبداً.",
   settings_footer: "صُنع باهتمام لعشاق السيارات في كل مكان",
+  settings_for_mechanics: "للميكانيكيين",
 
   filter_all: "الكل",
   filter_all_vehicles: "كل المركبات",
@@ -1435,6 +1438,7 @@ const fr: T = {
   settings_modal_desc: "Le mécanicien IA répondra dans votre langue sélectionnée.",
   settings_ads: "GarageIQ utilise des publicités pour rester gratuit. Vos données restent sur votre appareil.",
   settings_footer: "Fait avec soin pour les passionnés d'automobiles partout",
+  settings_for_mechanics: "Pour les mécaniciens",
 
   filter_all: "Tout",
   filter_all_vehicles: "Tous les véhicules",

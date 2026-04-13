@@ -116,6 +116,21 @@ export default function DiagnoseTab() {
           ))}
         </View>
 
+        {/* Become a Mechanic CTA */}
+        <Pressable
+          style={({ pressed }) => [s.mechCta, pressed && { opacity: 0.88 }]}
+          onPress={() => router.push("/screens/mechanic-register")}
+        >
+          <MaterialCommunityIcons name="garage-open" size={28} color={colors.accent} />
+          <View style={{ flex: 1 }}>
+            <Text style={[s.mechCtaTitle, isRTL && s.textRight]}>{t("mech_cta_title")}</Text>
+            <Text style={[s.mechCtaDesc, isRTL && s.textRight]}>{t("mech_cta_desc")}</Text>
+          </View>
+          <View style={s.mechCtaBtn}>
+            <Text style={s.mechCtaBtnText}>{t("mech_cta_btn")}</Text>
+          </View>
+        </Pressable>
+
         <BannerAd size="banner" />
       </ScrollView>
     </View>
@@ -145,5 +160,10 @@ function makeStyles(colors: AppColors) {
     systemGrid: { flexDirection: "row", flexWrap: "wrap", marginHorizontal: 16, marginBottom: 20, gap: 10 },
     systemItem: { width: "30%", backgroundColor: colors.card, borderRadius: 14, padding: 14, alignItems: "center", gap: 8, borderWidth: 1, borderColor: colors.border },
     systemLabel: { fontFamily: "Inter_500Medium", fontSize: 12, color: colors.textSecondary, textAlign: "center" },
+    mechCta: { flexDirection: "row", alignItems: "center", gap: 12, marginHorizontal: 20, marginBottom: 20, backgroundColor: colors.card, borderRadius: 16, padding: 16, borderWidth: 1, borderColor: colors.accent + "40" },
+    mechCtaTitle: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: colors.text, marginBottom: 2 },
+    mechCtaDesc: { fontFamily: "Inter_400Regular", fontSize: 12, color: colors.textSecondary, lineHeight: 17 },
+    mechCtaBtn: { backgroundColor: colors.accent, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 14 },
+    mechCtaBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: "#fff" },
   });
 }

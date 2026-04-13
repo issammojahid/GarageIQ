@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable, Linking, Modal, FlatList, Switch } from "react-native";
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { useListDiagnoses, useListFuelLogs } from "@workspace/api-client-react";
 import { useListVehicles } from "@/hooks/useLocalVehicles";
 import type { MaterialCommunityIconsName } from "@/types/icons";
@@ -119,6 +120,30 @@ export default function SettingsScreen() {
               </View>
               <View style={[s.settingRight, isRTL && s.rowReverse]}>
                 <Text style={[s.settingValue, { color: colors.accent }]}>{selectedLang.native}</Text>
+                <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={16} color={colors.textTertiary} />
+              </View>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* For Mechanics Section */}
+        <View style={s.section}>
+          <Text style={[s.sectionTitle, isRTL && s.textRight]}>{t("settings_for_mechanics")}</Text>
+          <View style={s.sectionCard}>
+            <Pressable
+              style={({ pressed }) => [s.settingRow, isRTL && s.rowReverse, pressed && { opacity: 0.7 }]}
+              onPress={() => router.push("/screens/mechanic-register")}
+            >
+              <View style={[s.settingLeft, isRTL && s.rowReverse]}>
+                <View style={[s.settingIconWrap, { backgroundColor: colors.accent + "20" }]}>
+                  <MaterialCommunityIcons name="garage" size={18} color={colors.accent} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[s.settingLabel, isRTL && s.textRight]}>{t("menu_mechanic_register")}</Text>
+                  <Text style={[s.settingSubLabel, isRTL && s.textRight]}>{t("menu_mechanic_register_desc")}</Text>
+                </View>
+              </View>
+              <View style={[s.settingRight, isRTL && s.rowReverse]}>
                 <Ionicons name={isRTL ? "chevron-back" : "chevron-forward"} size={16} color={colors.textTertiary} />
               </View>
             </Pressable>
