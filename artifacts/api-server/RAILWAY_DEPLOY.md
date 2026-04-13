@@ -1,50 +1,30 @@
 # Railway Deployment Guide — GarageIQ API Server
 
-## Step 1 — Get your DATABASE_URL from Replit
+## Current Setup
 
-Run this command in the Replit shell to print your database connection string:
-
-```bash
-echo $DATABASE_URL
-```
-
-Copy the full output. It will look like:
-```
-postgresql://postgres:<password>@<host>/<database>?sslmode=disable
-```
+- **Database**: Neon PostgreSQL (AWS US East 1, pooler endpoint)
+- **Host**: ep-divine-boat-am956uda-pooler.c-5.us-east-1.aws.neon.tech
+- **Schema**: All tables created via drizzle-kit push ✅
 
 ---
 
-## Step 2 — Remove the failing Railway Postgres service
-
-1. Open your Railway project dashboard
-2. Click the **Postgres** service tile
-3. Go to **Settings** → scroll to bottom → click **Delete service**
-4. Confirm deletion
-
----
-
-## Step 3 — Set environment variables in Railway
-
-Go to Railway → your **API Server** service → **Variables** tab → add these exact variables:
+## Environment Variables (set in Railway → API service → Variables)
 
 | Variable | Value |
 |---|---|
-| `DATABASE_URL` | Paste the value from Step 1 |
-| `OPENAI_API_KEY` | Your OpenAI API key (same as in Replit Secrets) |
+| `DATABASE_URL` | Neon connection string (pooler endpoint, sslmode=require) |
+| `OPENAI_API_KEY` | OpenAI API key |
 | `NODE_ENV` | `production` |
-| `PORT` | *(leave unset — Railway sets this automatically)* |
+| `PORT` | *(leave unset — Railway sets automatically)* |
 
 ---
 
-## Step 4 — Redeploy on Railway
+## Build & Start (railway.json)
 
-Railway auto-deploys on GitHub push. You can also click **Deploy** manually in the dashboard.
-
-The `railway.json` in this directory tells Railway how to build and start:
-
-- **Build**: `pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server run build`
+- **Build**: `pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/db run push`
 - **Start**: `pnpm --filter @workspace/api-server run start`
+
+Drizzle schema push runs automatically on every deploy.
 
 ---
 
