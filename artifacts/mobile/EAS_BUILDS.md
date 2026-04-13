@@ -27,4 +27,4 @@
 - **Platform**: Android
 - **versionCode**: 6
 - **Build URL**: https://expo.dev/accounts/aisoteam/projects/mobile/builds/40cc79db-801e-436a-b76f-2c7bc0670f34
-- **EXPO_PUBLIC_DOMAIN**: garageiq.onrender.com (old — Render, now replaced by Railway)
+- **EXPO_PUBLIC_DOMAIN**: workspaceapi-server-production-02f4.up.railway.app (obsolete build)
