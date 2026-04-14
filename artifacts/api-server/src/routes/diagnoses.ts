@@ -150,9 +150,8 @@ Rules:
         messages: [userMessage],
       });
     } catch (aiErr: unknown) {
-      const msg = aiErr instanceof Error ? aiErr.message : String(aiErr);
       req.log.error({ err: aiErr }, "OpenAI API call failed");
-      return res.status(503).json({ error: `AI service error: ${msg}` });
+      return res.status(503).json({ error: "AI service error. Check API key or quota." });
     }
 
     const content = completion.choices[0]?.message?.content ?? "{}";
