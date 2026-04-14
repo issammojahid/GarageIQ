@@ -3,7 +3,7 @@
     "name": "GarageIQ",
     "slug": "mobile",
     "owner": "aisoteam",
-    "version": "2.5.5",
+    "version": "2.5.6",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "mobile",
@@ -17,11 +17,11 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.garageiq.app",
-      "buildNumber": "6"
+      "buildNumber": "7"
     },
     "android": {
       "package": "com.garageiq.app",
-      "versionCode": 6
+      "versionCode": 7
     },
     "web": {
       "favicon": "./assets/images/icon.png"
