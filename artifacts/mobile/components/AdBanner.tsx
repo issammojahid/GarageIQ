@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Platform } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@/context/ThemeContext";
@@ -48,11 +48,14 @@ interface AdMobModule {
   RewardedAdEventType: Record<string, string>;
 }
 
+// Require the module at load time so ad classes are available,
+// but do NOT call initialize() here — that runs inside a useEffect
+// so a JNI/native crash from the SDK cannot kill the process before React mounts.
 let admob: AdMobModule | null = null;
+let admobInitialized = false;
 
 try {
   admob = require("react-native-google-mobile-ads") as AdMobModule;
-  admob.default().initialize().catch(() => {});
 } catch {
   admob = null;
 }
@@ -69,6 +72,15 @@ export function BannerAd({ size = "banner" }: BannerAdProps) {
   const { colors } = useTheme();
   const { t } = useI18n();
   const s = makeStyles(colors);
+
+  // Initialize AdMob here, after React has mounted, so any crash is
+  // recoverable via ErrorBoundary and does not kill the process at startup.
+  useEffect(() => {
+    if (admob && !admobInitialized && Platform.OS !== "web") {
+      admobInitialized = true;
+      admob.default().initialize().catch(() => {});
+    }
+  }, []);
 
   if (isAdMobAvailable() && admob) {
     const { BannerAd: BannerAdComponent, BannerAdSize } = admob;

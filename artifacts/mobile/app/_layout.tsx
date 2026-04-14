@@ -23,6 +23,17 @@ if (process.env.EXPO_PUBLIC_DOMAIN) {
   setBaseUrl(`https://${process.env.EXPO_PUBLIC_DOMAIN}`);
 }
 
+// Install a global error handler before anything else runs.
+// Non-fatal JS errors are logged and swallowed so they do not crash the app.
+// Fatal native errors still propagate but are logged for visibility.
+if (typeof global.ErrorUtils !== "undefined") {
+  const prevHandler = global.ErrorUtils.getGlobalHandler();
+  global.ErrorUtils.setGlobalHandler((error: Error, isFatal?: boolean) => {
+    console.error("[GarageIQ] Unhandled error:", error?.message, "fatal:", isFatal);
+    if (isFatal) prevHandler(error, isFatal);
+  });
+}
+
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient({

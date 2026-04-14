@@ -1,13 +1,26 @@
 # EAS Build History
 
-## v2.5.5 — Build #8 (Task #27) — IN_QUEUE
+## v2.5.6 — Build #9 (Task #28) — PENDING QUEUE
+- **Date**: 2026-04-14
+- **Profile**: preview (APK)
+- **Platform**: Android
+- **versionCode**: 6
+- **Status**: NOT QUEUED — queue manually when ready
+- **EXPO_PUBLIC_DOMAIN**: workspaceapi-server-production-02f4.up.railway.app
+- **Config**: `newArchEnabled: true`, `react-native-worklets@0.8.1` (upgraded from 0.5.1), safe AdMob init
+- **Crash fix**: Upgraded worklets 0.5.1→0.8.1 (JSI ABI incompatibility with RN 0.81.5)
+- **Crash fix**: Moved `admob.initialize()` from module scope into component `useEffect`
+- **Safety**: Added global `ErrorUtils` handler to log non-fatal errors without crashing
+
+## v2.5.5 — Build #8 (Task #27) — CRASH ON LAUNCH
 - **Date**: 2026-04-14
 - **Profile**: preview (APK)
 - **Platform**: Android
 - **versionCode**: 6
 - **Build ID**: 14a82e93-9f43-4ce6-b4e8-045a7428b206
 - **Build URL**: https://expo.dev/accounts/aisoteam/projects/mobile/builds/14a82e93-9f43-4ce6-b4e8-045a7428b206
-- **Status**: IN_QUEUE ⏳
+- **Status**: FINISHED ✅ but crashes on launch ❌
+- **Root cause**: `react-native-worklets@0.5.1` JSI ABI incompatible with RN 0.81.5; `admob.initialize()` called at module scope
 - **EXPO_PUBLIC_DOMAIN**: workspaceapi-server-production-02f4.up.railway.app
 - **Config**: `newArchEnabled: true`, `react-native-worklets@0.5.1`, `expo-glass-effect` removed
 
