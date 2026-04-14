@@ -1,16 +1,18 @@
 # EAS Build History
 
-## v2.5.6 — Build #9 (Task #28) — PENDING QUEUE
+## v2.5.6 — Build #9 (Task #29) — IN_QUEUE
 - **Date**: 2026-04-14
 - **Profile**: preview (APK)
 - **Platform**: Android
 - **versionCode**: 6
-- **Status**: NOT QUEUED — queue manually when ready
+- **Build ID**: 8c4c0d2a-d9e8-4e3e-8b44-898217789797
+- **Build URL**: https://expo.dev/accounts/aisoteam/projects/mobile/builds/8c4c0d2a-d9e8-4e3e-8b44-898217789797
+- **Status**: IN_QUEUE ⏳
 - **EXPO_PUBLIC_DOMAIN**: workspaceapi-server-production-02f4.up.railway.app
 - **Config**: `newArchEnabled: true`, `react-native-worklets@0.8.1` (upgraded from 0.5.1), safe AdMob init
 - **Crash fix**: Upgraded worklets 0.5.1→0.8.1 (JSI ABI incompatibility with RN 0.81.5)
 - **Crash fix**: Moved `admob.initialize()` from module scope into component `useEffect`
-- **Safety**: Added global `ErrorUtils` handler to log non-fatal errors without crashing
+- **Safety**: Added global `ErrorUtils` handler to log all errors without changing RN default behavior
 
 ## v2.5.5 — Build #8 (Task #27) — CRASH ON LAUNCH
 - **Date**: 2026-04-14
