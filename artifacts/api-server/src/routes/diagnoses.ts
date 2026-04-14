@@ -142,11 +142,18 @@ Rules:
       userMessage = { role: "user", content: systemPrompt };
     }
 
-    const completion = await aiClient.chat.completions.create({
-      model: model_name,
-      max_completion_tokens: 8192,
-      messages: [userMessage],
-    });
+    let completion: Awaited<ReturnType<typeof aiClient.chat.completions.create>>;
+    try {
+      completion = await aiClient.chat.completions.create({
+        model: model_name,
+        max_completion_tokens: 8192,
+        messages: [userMessage],
+      });
+    } catch (aiErr: unknown) {
+      const msg = aiErr instanceof Error ? aiErr.message : String(aiErr);
+      req.log.error({ err: aiErr }, "OpenAI API call failed");
+      return res.status(503).json({ error: `AI service error: ${msg}` });
+    }
 
     const content = completion.choices[0]?.message?.content ?? "{}";
 
