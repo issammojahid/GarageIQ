@@ -1,5 +1,22 @@
 # EAS Build History
 
+## v2.5.5 — Build #7 (Task #25) — IN_QUEUE
+- **Date**: 2026-04-14
+- **Profile**: preview (APK)
+- **Platform**: Android
+- **versionCode**: 6
+- **Build ID**: 776263d5-3b2c-4adc-ab59-760f52a42d60
+- **Build URL**: https://expo.dev/accounts/aisoteam/projects/mobile/builds/776263d5-3b2c-4adc-ab59-760f52a42d60
+- **Status**: IN_QUEUE ⏳
+- **EXPO_PUBLIC_DOMAIN**: workspaceapi-server-production-02f4.up.railway.app
+- **Fix**: Restored `react-native-worklets@0.5.1` to devDeps (required by react-native-reanimated Babel plugin); `newArchEnabled: false` retained
+
+## v2.5.5 — Build #6 (Task #25) — CANCELED
+- **Date**: 2026-04-14
+- **Build ID**: 5240ed17-0694-4a0f-8498-3181f17551a3
+- **Build URL**: https://expo.dev/accounts/aisoteam/projects/mobile/builds/5240ed17-0694-4a0f-8498-3181f17551a3
+- **Status**: CANCELED
+
 ## v2.5.5 — Build #5 (Task #24) — ERRORED (Metro bundling)
 - **Date**: 2026-04-14
 - **Profile**: preview (APK)
