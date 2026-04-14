@@ -24,13 +24,13 @@ if (process.env.EXPO_PUBLIC_DOMAIN) {
 }
 
 // Install a global error handler before anything else runs.
-// Non-fatal JS errors are logged and swallowed so they do not crash the app.
-// Fatal native errors still propagate but are logged for visibility.
+// All errors are logged for visibility, then forwarded to the previous handler
+// so React Native's default crash/error behavior is preserved.
 if (typeof global.ErrorUtils !== "undefined") {
   const prevHandler = global.ErrorUtils.getGlobalHandler();
   global.ErrorUtils.setGlobalHandler((error: Error, isFatal?: boolean) => {
     console.error("[GarageIQ] Unhandled error:", error?.message, "fatal:", isFatal);
-    if (isFatal) prevHandler(error, isFatal);
+    prevHandler(error, isFatal);
   });
 }
 

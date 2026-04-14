@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, Component } from "react";
 import { View, Text, StyleSheet, Platform } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useTheme } from "@/context/ThemeContext";
@@ -64,6 +64,17 @@ export function isAdMobAvailable(): boolean {
   return admob !== null && Platform.OS !== "web";
 }
 
+// Local error boundary so an ad-render failure never escalates
+// to the app-level error boundary — it just shows the placeholder instead.
+interface AdErrorState { crashed: boolean }
+class AdErrorBoundary extends Component<{ children: React.ReactNode; fallback: React.ReactNode }, AdErrorState> {
+  state: AdErrorState = { crashed: false };
+  static getDerivedStateFromError() { return { crashed: true }; }
+  render() {
+    return this.state.crashed ? this.props.fallback : this.props.children;
+  }
+}
+
 interface BannerAdProps {
   size?: "banner" | "leaderboard" | "mediumRectangle" | "fullBanner";
 }
@@ -72,6 +83,13 @@ export function BannerAd({ size = "banner" }: BannerAdProps) {
   const { colors } = useTheme();
   const { t } = useI18n();
   const s = makeStyles(colors);
+
+  const placeholder = (
+    <View style={s.placeholder}>
+      <MaterialCommunityIcons name="advertisements" size={14} color={colors.textTertiary} />
+      <Text style={s.placeholderText}>{t("ad_label")}</Text>
+    </View>
+  );
 
   // Initialize AdMob here, after React has mounted, so any crash is
   // recoverable via ErrorBoundary and does not kill the process at startup.
@@ -91,21 +109,18 @@ export function BannerAd({ size = "banner" }: BannerAdProps) {
       fullBanner: BannerAdSize.FULL_BANNER,
     };
     return (
-      <BannerAdComponent
-        unitId={AD_UNIT_IDS.banner}
-        size={sizeMap[size] ?? BannerAdSize.BANNER}
-        requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-        onAdFailedToLoad={() => {}}
-      />
+      <AdErrorBoundary fallback={placeholder}>
+        <BannerAdComponent
+          unitId={AD_UNIT_IDS.banner}
+          size={sizeMap[size] ?? BannerAdSize.BANNER}
+          requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+          onAdFailedToLoad={() => {}}
+        />
+      </AdErrorBoundary>
     );
   }
 
-  return (
-    <View style={s.placeholder}>
-      <MaterialCommunityIcons name="advertisements" size={14} color={colors.textTertiary} />
-      <Text style={s.placeholderText}>{t("ad_label")}</Text>
-    </View>
-  );
+  return placeholder;
 }
 
 export async function showInterstitialAd(): Promise<boolean> {
