@@ -1,15 +1,17 @@
 # EAS Build History
 
-## v2.5.5 — Build #5 (Task #24) — NEW ARCH DISABLED
+## v2.5.5 — Build #5 (Task #24) — ERRORED (Metro bundling)
 - **Date**: 2026-04-14
 - **Profile**: preview (APK)
 - **Platform**: Android
 - **versionCode**: 6
 - **Build ID**: 89709d7a-0866-4288-b392-d3769e0900a4
 - **Build URL**: https://expo.dev/accounts/aisoteam/projects/mobile/builds/89709d7a-0866-4288-b392-d3769e0900a4
-- **Status**: IN_QUEUE
+- **Status**: ERRORED ❌
+- **Error**: `Cannot find module 'react-native-worklets/plugin'` — react-native-reanimated@4.x Babel plugin requires react-native-worklets at compile time; removing it from direct deps broke bundling
 - **EXPO_PUBLIC_DOMAIN**: workspaceapi-server-production-02f4.up.railway.app
-- **Fix**: `newArchEnabled: false`, removed `react-native-worklets` + `expo-glass-effect` (unused)
+- **Code changes**: `newArchEnabled: false`, removed `expo-glass-effect` (unused)
+- **Next**: Task #25 restores `react-native-worklets` to devDependencies and queues Build #6
 
 ## v2.5.5 — Build #4 (Task #23) — STABLE
 - **Date**: 2026-04-13
