@@ -1,15 +1,15 @@
 # EAS Build History
 
-## v2.5.5 — Build #7 (Task #25) — IN_QUEUE
+## v2.5.5 — Build #7 (Task #25/#26) — ERRORED (New Arch required)
 - **Date**: 2026-04-14
 - **Profile**: preview (APK)
 - **Platform**: Android
 - **versionCode**: 6
 - **Build ID**: 776263d5-3b2c-4adc-ab59-760f52a42d60
 - **Build URL**: https://expo.dev/accounts/aisoteam/projects/mobile/builds/776263d5-3b2c-4adc-ab59-760f52a42d60
-- **Status**: IN_QUEUE ⏳
-- **EXPO_PUBLIC_DOMAIN**: workspaceapi-server-production-02f4.up.railway.app
-- **Fix**: Restored `react-native-worklets@0.5.1` to devDeps (required by react-native-reanimated Babel plugin); `newArchEnabled: false` retained
+- **Status**: ERRORED ❌
+- **Error**: `react-native-reanimated@4.x` and `react-native-worklets@0.5.x` both require `newArchEnabled: true` — they assert this in Gradle and FAIL the build if New Arch is off
+- **Fix (Task #26)**: Reverted `newArchEnabled: true` in app.json; New Arch is mandatory for these packages
 
 ## v2.5.5 — Build #6 (Task #25) — CANCELED
 - **Date**: 2026-04-14
