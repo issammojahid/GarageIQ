@@ -6,9 +6,9 @@ import { useI18n } from "@/i18n/TranslationContext";
 import type { AppColors } from "@/constants/colors";
 
 const AD_UNIT_IDS = {
-  banner: "ca-app-pub-8545693631358718/1498610826",
-  interstitial: "ca-app-pub-8545693631358718/3295843133",
-  rewarded: "ca-app-pub-8545693631358718/2246587176",
+  banner: "ca-app-pub-8545693631358718/1450510826",
+  interstitial: "ca-app-pub-8545693631358718/3295043133",
+  rewarded: "ca-app-pub-8545693631358718/2248587176",
 } as const;
 
 export { AD_UNIT_IDS };
