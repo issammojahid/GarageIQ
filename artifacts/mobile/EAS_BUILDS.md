@@ -1,5 +1,17 @@
 # EAS Build History
 
+## v2.5.7 — Build #11 — IN_QUEUE (Play Store AAB)
+- **Date**: 2026-04-15
+- **Profile**: production (AAB — Android App Bundle)
+- **Platform**: Android
+- **versionCode**: 8
+- **Build ID**: 15d6d64e-4c20-42ad-adb9-1bd69ce6ac46
+- **Build URL**: https://expo.dev/accounts/aisoteam/projects/mobile/builds/15d6d64e-4c20-42ad-adb9-1bd69ce6ac46
+- **Status**: IN_QUEUE ⏳
+- **EXPO_PUBLIC_DOMAIN**: workspaceapi-server-production-02f4.up.railway.app
+- **Purpose**: Play Store update — includes corrected AdMob ad unit IDs (Task #31)
+- **Keystore**: TQ7nSrhNPq (default, remote)
+
 ## v2.5.6 — Build #10 — IN_QUEUE (Play Store AAB)
 - **Date**: 2026-04-14
 - **Profile**: production (AAB — Android App Bundle)
